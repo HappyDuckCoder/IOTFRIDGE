@@ -1,0 +1,4 @@
+sounddevice
+transformers
+torch #11.8
+genai 

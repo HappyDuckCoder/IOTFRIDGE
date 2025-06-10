@@ -1,0 +1,3 @@
+#input: food: trứng, thịt, rau,...
+
+#output: link image (10 link)
