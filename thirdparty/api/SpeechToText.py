@@ -13,10 +13,10 @@ class Recorder:
         self.save_path = save_path
 
     def record(self):
-        print(f"🎙️ Bắt đầu ghi âm {self.duration} giây...")
+        print(f"Bắt đầu ghi âm {self.duration} giây...")
         recording = sd.rec(int(self.duration * self.fs), samplerate=self.fs, channels=1, dtype='float32')
         sd.wait()
-        print("✅ Ghi âm hoàn tất.")
+        print("Ghi âm hoàn tất.")
         return recording
 
     def save(self, data):
@@ -39,7 +39,7 @@ class AudioModel:
         self.model = None
 
     def load(self):
-        print("🧠 Đang tải mô hình Whisper...")
+        print("Đang tải mô hình Whisper...")
         self.processor = AutoProcessor.from_pretrained(self.model_name)
         self.model = AutoModelForSpeechSeq2Seq.from_pretrained(self.model_name, torch_dtype=torch.float32)
         self.model.to(self.device)
@@ -53,7 +53,7 @@ class AudioModel:
         )
 
     def transcribe(self, wav_path):
-        print(f"📂 Đang đọc file: {wav_path}")
+        print(f"Đang đọc file: {wav_path}")
         sr, audio = wavfile.read(wav_path)
         if audio.dtype == np.int16:
             audio = audio.astype(np.float32) / 32767.0
@@ -63,7 +63,7 @@ class AudioModel:
         input_features = inputs["input_features"].to(self.device)
         attention_mask = torch.ones(input_features.shape[:-1], dtype=torch.long).to(self.device)
 
-        print("🗣️ Đang nhận diện giọng nói...")
+        print("Đang nhận diện giọng nói...")
         with torch.no_grad():
             generated_ids = self.model.generate(
                 input_features=input_features,
@@ -83,13 +83,13 @@ def main():
         if cmd == "ok":
             recorder.record_to_file()
             text = model.transcribe(recorder.save_path)
-            print("\n📄 Kết quả nhận diện:")
+            print("\nKết quả nhận diện:")
             print(text)
         elif cmd == "q":
-            print("👋 Thoát chương trình.")
+            print("Thoát chương trình.")
             break
         else:
-            print("❗ Vui lòng nhập 'ok' để ghi âm hoặc 'q' để thoát.")
+            print("Vui lòng nhập 'ok' để ghi âm hoặc 'q' để thoát.")
 
 if __name__ == "__main__":
     main()
