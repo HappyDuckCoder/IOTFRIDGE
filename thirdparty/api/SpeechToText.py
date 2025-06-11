@@ -23,7 +23,7 @@ class Recorder:
         os.makedirs(os.path.dirname(self.save_path), exist_ok=True)
         audio_int16 = np.int16(data * 32767)
         wavfile.write(self.save_path, self.fs, audio_int16)
-        print(f"💾 Đã lưu vào: {self.save_path}")
+        print(f"Đã lưu vào: {self.save_path}")
 
     def record_to_file(self):
         audio = self.record()
