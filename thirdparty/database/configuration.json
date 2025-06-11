@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "smartfridge-75d76",
+  "private_key_id": "af9c293a93d86abc102f5b93b8bfa5d403c51405",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCfGKRY0ZX1KNZ4\nuJr3gBkRr7J6tLHdXvhyFfvmNKcx1+yUz+2T8foyq8SLwLDzfb2kqThPKhuTopll\ncp1soBLMoz4Z7GMu2nBPNRymXg47qTY5hkuR2Dmqt9fK8oVkMxg18IKodlF/TJVy\nT1e2P6L6ChO6K237vgNLEezr9hE8FkqjIyBPhOcwsi9YkL7map7rF1QIZ0NAfANV\nHIOc8qJvLRUVCvP6vubYcjXKAJzaxAcOcNNOI7gy/Te/i6KITMP6KreME23qKZdU\n31XL9GgaUt+sv369QYIBSAv6CggNPI4K9U6U1MmUMt8FLlEKXt9qeSXLJUdJHeaz\n60ILbE2vAgMBAAECggEAA/T68XKVBjnzy6DbydgXx4bVK5Qe8GCSUVQWpc0dc3Hp\nYnIheJKGJIh9JPSv8f5onxXOXrmvYeajZhCJtc/tZ8WPn9lvRhUMwguSINkqBXXZ\n8WhTrNbx6DsWVOffRXS332+R8FqxADeJaARtLA09InbpsrGt1JsPPei+Ocgu+Y2S\nUuazkuM/DFt1W5gaFxK2s9wKmQQDEQYiNtIYmUokTG1mlzRgQnhQ2qvC6RnEXZ03\nkPOLA8HzDOluJeHCTVurr+aOCkiuNDRN4j66hE2W7QBnmoNV8LoZpLdWouUETmJD\nWJ9UHKhaA5jgk9K7qOvtX+dv7g6WnefIBs1aZrdngQKBgQDWhBjbEP0hkTLbMzBB\nmi1XXGVo+bc89uPzgTFHPehIeU7y5X3hkxa+rv2FpaQlFAiMh4q6GdwB2cMrJCDc\nUQTromw6ZbZUuYjfYKjs18YY0djsMwGchv8SSxH/2+h4IUIePkGWJfv8fqAv/SmY\n8Ho0saeXVF8CrBYcsGUe+eASjwKBgQC93Op4gj/ZydKc2rQXp9VYHX+WtbLWsbCu\nnihDsTiXH2CkwrePmiNk8cL3n7M/BP3ieJbyrbB/jt04YGECCRxVbRDLi7VJbIsH\n90Hpk7t3ZXrMYbjJYyvDIw2g+C2fuLBZW9SWMncB3OSjnQPbpl2NiUKpjpDDb7xp\nzeiUIysi4QKBgHJiqeZWXsQBar7bwsWYcsj8qc6aKY1GkTKNFzvH1Q6gMOrwWHlq\nN1yibulO9AIZdp2IwP6PP3N1LM7aSvNv+FG1oERbbCgtbsC+CBWS0Tz22NbKM/fF\nPEoC4awvFPzJrzn1NH/d7UosMzqjogS9Zkym1pipEqiYHopZvPIRh9wdAoGBAIxg\n8tv3Mc6NcrOW4OE8rnlgFh4QahJjfwcc2RhzyCu0f3hSn/YFOXZBaq473gQSZMU1\n9CWqVn153Ab6+77Nja173pcgzQFkx8c0Af/5wvochhbnigEc2haFrGYAGXumynzH\ncP88gNFXyZVPWrLk5vbnLerABjj6PIzeOcCN4C8BAoGBALuW3f/rx4oxXpLNKgWc\nsjAaJlaFB3AEfRxaR7r5XjmC1ctamRSZeu7cLOUF1qvTUHfEzg/KpkMDOxCtYjNq\n/eR+06H9l+cSHKZ46amw3LN/ajbEhAlui7D2DacSTyYmcjSNsM12DwaLqdiX2hSy\nVXLOC/NoOqjFRY5PpDwBx2HW\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@smartfridge-75d76.iam.gserviceaccount.com",
+  "client_id": "105955220686719579526",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40smartfridge-75d76.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
