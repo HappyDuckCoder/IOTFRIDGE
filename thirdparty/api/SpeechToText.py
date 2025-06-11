@@ -1,46 +1,95 @@
+import os
 import torch
 import sounddevice as sd
-from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
+import scipy.io.wavfile as wavfile
+import numpy as np
+from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq, GenerationConfig
 
-DURATION = 10
-FS = 16000
-model_name = "tranviethuy01/whisper-medium-vi"
+# === Class xử lý ghi âm ===
+class Recorder:
+    def __init__(self, duration=5, fs=16000, save_path="resources/audio/audio.wav"):
+        self.duration = duration
+        self.fs = fs
+        self.save_path = save_path
 
-def Record(): 
-    print("Bắt đầu ghi âm 10 giây...")
-    recording = sd.rec(int(DURATION * FS), samplerate=FS, channels=1, dtype='float32')
-    sd.wait()
-    print("Ghi âm hoàn tất.")
+    def record(self):
+        print(f"🎙️ Bắt đầu ghi âm {self.duration} giây...")
+        recording = sd.rec(int(self.duration * self.fs), samplerate=self.fs, channels=1, dtype='float32')
+        sd.wait()
+        print("✅ Ghi âm hoàn tất.")
+        return recording
 
-    return recording
+    def save(self, data):
+        os.makedirs(os.path.dirname(self.save_path), exist_ok=True)
+        audio_int16 = np.int16(data * 32767)
+        wavfile.write(self.save_path, self.fs, audio_int16)
+        print(f"💾 Đã lưu vào: {self.save_path}")
 
+    def record_to_file(self):
+        audio = self.record()
+        self.save(audio)
+
+# === Class xử lý mô hình âm thanh ===
+class AudioModel:
+    def __init__(self, model_name="tranviethuy01/whisper-medium-vi", max_length=100):
+        self.model_name = model_name
+        self.max_length = max_length
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.processor = None
+        self.model = None
+
+    def load(self):
+        print("🧠 Đang tải mô hình Whisper...")
+        self.processor = AutoProcessor.from_pretrained(self.model_name)
+        self.model = AutoModelForSpeechSeq2Seq.from_pretrained(self.model_name, torch_dtype=torch.float32)
+        self.model.to(self.device)
+
+        self.model.generation_config = GenerationConfig(
+            max_length=self.max_length,
+            pad_token_id=self.processor.tokenizer.pad_token_id,
+            eos_token_id=self.processor.tokenizer.eos_token_id,
+            decoder_start_token_id=self.model.config.decoder_start_token_id,
+            use_cache=False
+        )
+
+    def transcribe(self, wav_path):
+        print(f"📂 Đang đọc file: {wav_path}")
+        sr, audio = wavfile.read(wav_path)
+        if audio.dtype == np.int16:
+            audio = audio.astype(np.float32) / 32767.0
+
+        audio_input = audio.flatten()
+        inputs = self.processor(audio_input, sampling_rate=sr, return_tensors="pt")
+        input_features = inputs["input_features"].to(self.device)
+        attention_mask = torch.ones(input_features.shape[:-1], dtype=torch.long).to(self.device)
+
+        print("🗣️ Đang nhận diện giọng nói...")
+        with torch.no_grad():
+            generated_ids = self.model.generate(
+                input_features=input_features,
+                attention_mask=attention_mask
+            )
+
+        return self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+
+# === Hàm main ===
 def main():
-    recording = Record()
+    recorder = Recorder()
+    model = AudioModel()
+    model.load()
 
-    audio_input = recording.flatten()
+    while True:
+        cmd = input("\nNhập 'ok' để ghi âm (hoặc 'q' để thoát): ").strip().lower()
+        if cmd == "ok":
+            recorder.record_to_file()
+            text = model.transcribe(recorder.save_path)
+            print("\n📄 Kết quả nhận diện:")
+            print(text)
+        elif cmd == "q":
+            print("👋 Thoát chương trình.")
+            break
+        else:
+            print("❗ Vui lòng nhập 'ok' để ghi âm hoặc 'q' để thoát.")
 
-    print(audio_input)
-
-    print("Đang tải mô hình...")
-    processor = AutoProcessor.from_pretrained(model_name)
-    model = AutoModelForSpeechSeq2Seq.from_pretrained(
-        model_name,
-        torch_dtype=torch.float32  # Không dùng float16
-    )
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model.to(device)
-
-    inputs = processor(audio_input, sampling_rate=FS, return_tensors="pt").to(device)
-
-    print("Đang nhận diện giọng nói...")
-    with torch.no_grad():
-        generated_ids = model.generate(inputs["input_features"])
-
-    transcription = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-
-    print("Kết quả nhận diện:")
-    print(transcription)
-    
 if __name__ == "__main__":
     main()
