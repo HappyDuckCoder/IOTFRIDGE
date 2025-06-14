@@ -181,7 +181,7 @@ def TaskWithActionEdit(task: Task):
     else:
         print(f"Cập nhật thành {task.quantity} {task.unit} {task.food}")
 
-    update_food(Food(id=task.food, name=task.food, quantity=task.quantity, unit=task.unit, status="còn tồi"))
+    # update_food(Food(id=task.food, name=task.food, quantity=task.quantity, unit=task.unit, status="còn tồi"))
     
     return f"Đã sửa {task.old_quantity} {task.old_unit} {task.old_food} thành {task.quantity} {task.unit} {task.food}"
 
