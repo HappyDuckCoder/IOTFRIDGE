@@ -1,6 +1,8 @@
 import google.generativeai as genai
 import json
 
+from thirdparty.database.method import *
+
 API_GEMINI_KEY = "AIzaSyB5ZEm_hOqAf7APH3dzVSQ7_2Ezn_IYVn8"
 model_gemini_name = "gemini-1.5-flash" 
 
@@ -149,11 +151,18 @@ Quy tắc phân loại:
         return None
 
 def TaskWithActionAdd(action: str, quantity: str, unit: str, food: str): 
+    # In ra hành động
     print(f"THÊM: {quantity} {unit} {food}")
+    
+    add_food(Food(id=food, name=food, quantity=quantity, unit=unit, status="còn tồi"))
+
     return f"Đã thêm {quantity} {unit} {food}"
 
 def TaskWithActionDelete(action: str, quantity: str, unit: str, food: str):
     print(f"XÓA: {quantity} {unit} {food}")
+    
+    delete_food(Food(id=food, name=food, quantity=quantity, unit=unit, status="còn tồi"))
+
     return f"Đã xóa {quantity} {unit} {food}"
 
 def TaskWithActionEdit(task: Task):
@@ -171,6 +180,8 @@ def TaskWithActionEdit(task: Task):
         print("Thay đổi " + ", ".join(changes))
     else:
         print(f"Cập nhật thành {task.quantity} {task.unit} {task.food}")
+
+    update_food(Food(id=task.food, name=task.food, quantity=task.quantity, unit=task.unit, status="còn tồi"))
     
     return f"Đã sửa {task.old_quantity} {task.old_unit} {task.old_food} thành {task.quantity} {task.unit} {task.food}"
 
