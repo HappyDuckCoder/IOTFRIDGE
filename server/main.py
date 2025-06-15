@@ -48,7 +48,7 @@ class AudioHandler(BaseHTTPRequestHandler):
                 with open(self.file_name_text, 'wb') as f:
                     f.write(text.encode('utf-8'))
 
-                inp = text
+                # inp = text
 
                 # Classification
                 # Chia thành phần
