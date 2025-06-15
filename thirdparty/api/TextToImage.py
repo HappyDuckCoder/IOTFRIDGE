@@ -14,7 +14,7 @@ payload = {
     "negative_prompt": "", #Những gì không muốn xuất hiện trong ảnh
     "width": "512",      #size               
     "height": "512",  
-    "samples": "1",     # số lượng ảnh muốn tạo
+    "samples": "10",     # số lượng ảnh muốn tạo
     "num_inference_steps": "20",   #Số bước khuếch tán (diffusion steps) Số càng cao thì ảnh càng chi tiết, nhưng sinh ảnh lâu hơn.
     "guidance_scale": 7.5, #Hệ số điều chỉnh độ “tuân thủ” prompt Giá trị từ 1 → 20. Càng cao thì mô hình càng bám sát prompt, nhưng dễ làm ảnh cứng hoặc không tự nhiên
     "webhook": None, #URL webhook để nhận kết quả sau khi ảnh được sinh

@@ -1,7 +1,5 @@
 # những method bên model 
 
-# CRUD (CREATE
-
 from model import Food
 from connect import get_firestore_db
 
