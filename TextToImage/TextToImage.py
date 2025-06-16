@@ -1,32 +1,27 @@
 import requests
 
-url = "https://modelslab.com/api/v6/realtime/text2img" # nền tảng API
+def google_image_search(query, num=5):
+    api_key = "c2b84170f2417adfad3f085206e4a4d2524a651edafba01d1404c5e7a89c583f"
+    params = {
+        "engine": "google",
+        "q": query,
+        "tbm": "isch",
+        "num": num,
+        "api_key": api_key
+    }
 
-payload = {
-    "key": "personal API",  # thay thế bằng API tài khoản cá nhân khi tạo acc
-    "prompt": "a realistic photo of a plate with eggs, meat, and vegetables", # muốn promt bao nhiêu thì quăng vô bấy nhiêu nha
-    "negative_prompt": "", #Những gì không muốn xuất hiện trong ảnh
-    "width": "512",      #size               
-    "height": "512",  
-    "samples": "1",     # số lượng ảnh muốn tạo
-    "num_inference_steps": "20",   #Số bước khuếch tán (diffusion steps) Số càng cao thì ảnh càng chi tiết, nhưng sinh ảnh lâu hơn.
-    "guidance_scale": 7.5, #Hệ số điều chỉnh độ “tuân thủ” prompt Giá trị từ 1 → 20. Càng cao thì mô hình càng bám sát prompt, nhưng dễ làm ảnh cứng hoặc không tự nhiên
-    "webhook": None, #URL webhook để nhận kết quả sau khi ảnh được sinh
-    "track_id": None #ID tùy chọn để bạn theo dõi tác vụ
-}
+    response = requests.get("https://serpapi.com/search", params=params)
+    data = response.json()
 
-headers = {
-    "Content-Type": "application/json"
-}
+    links = []
+    for image in data.get("images_results", []):
+        links.append(image["original"])
+        if len(links) >= num:
+            break
 
-response = requests.post(url, headers=headers, json=payload)
+    return links
 
-try:
-    result = response.json()
-    if result.get("output"):
-        print("Link:", result["output"][0])
-    else:
-        print("Không có ảnh. Phản hồi:", result)
-except Exception as e:
-    print("Lỗi JSON:", e)
-    print("Phản hồi gốc:", response.text)
+# Sử dụng
+results = google_image_search("meat", num=5)
+for idx, url in enumerate(results, 1):
+    print(f"{idx}. {url}")
