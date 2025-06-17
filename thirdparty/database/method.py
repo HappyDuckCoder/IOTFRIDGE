@@ -30,6 +30,8 @@ def get_all_foods():
 def delete_food(food_id):
     db.collection(collection_name).document(food_id).delete()
 
+# xóa đồ ăn theo id
+
 # Tìm kiếm theo trạng thái
 def get_foods_by_status(status: str):
     docs = db.collection(collection_name).where("status", "==", status).stream()

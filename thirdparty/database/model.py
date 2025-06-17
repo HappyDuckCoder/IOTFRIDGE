@@ -30,3 +30,6 @@ class Food:
             good=data.get("good", "còn tươi"),
             expired=data.get("expired", "bị hư")
         )
+    
+# class Fridge
+# class User

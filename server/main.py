@@ -50,8 +50,8 @@ class AudioHandler(BaseHTTPRequestHandler):
 
                 # inp = text
 
-                # Classification
-                # Chia thành phần
+                # # Classification
+                # # Chia thành phần
                 # component = DevideComponentInInput(inp)
 
                 # if component is None:
