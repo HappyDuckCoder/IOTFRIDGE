@@ -1,7 +1,8 @@
 import requests
 
-def google_image_search(query, num=5):
-    api_key = "c2b84170f2417adfad3f085206e4a4d2524a651edafba01d1404c5e7a89c583f"
+api_key = "c2b84170f2417adfad3f085206e4a4d2524a651edafba01d1404c5e7a89c583f"
+
+def google_image_search(query="meat", num=5):
     params = {
         "engine": "google",
         "q": query,
@@ -22,6 +23,13 @@ def google_image_search(query, num=5):
     return links
 
 # Sử dụng
-results = google_image_search("meat", num=5)
-for idx, url in enumerate(results, 1):
-    print(f"{idx}. {url}")
+def main():
+    query = input("input food: ") 
+
+    results = google_image_search(query)
+
+    for idx, url in enumerate(results, 1):
+        print(f"{idx}. {url}")
+
+if __name__ == "__main__":
+    main()
