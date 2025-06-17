@@ -1,9 +1,0 @@
-Bước 1: Đăng ký tài khoản SerpAPI
-
-Truy cập: https://serpapi.com/users/sign_up
-Đăng ký email (hoặc đăng nhập bằng Google)
-Sau khi đăng ký, bạn sẽ thấy "API Key" trong Dashboard, ví dụ:
-Your API Key: 1f0a3f6b0e24be57ad70bc9b46b7b89c...
-
-Bước 2: Cài đặt thư viện Python cần thiết
-pip install requests
