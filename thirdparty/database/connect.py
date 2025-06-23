@@ -2,17 +2,14 @@
 
 # file configuration thì copy vào file configuration.json
 
+
 import firebase_admin
-import os
 from firebase_admin import credentials, firestore
 
 def get_firestore_db():
-    # Nạp thông tin xác thực từ file JSON
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    cred_path = os.path.join(current_dir, "configuration.json")
-    cred = credentials.Certificate(cred_path)
-    # Khởi tạo Firebase nếu chưa có
-    if not firebase_admin._apps:
-        firebase_admin.initialize_app(cred)
-    # Trả về đối tượng db
+    cred = credentials.Certificate("configuration.json")
+    firebase_admin.initialize_app(cred)
     return firestore.client()
+
+# Khởi tạo sẵn 1 biến db dùng chung
+db = get_firestore_db()

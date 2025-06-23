@@ -2,13 +2,11 @@
 # --> id, name, quantity, unit, image=null, state 
 
 class Food:
-    def __init__(self, id, name, quantity, unit, good, expired):
+    def __init__(self, id, name, quantity, unit):
         self.id = id
         self.name = name
         self.quantity = quantity
         self.unit = unit
-        self.good = good  # "good"
-        self.expired = expired  # "expired"
 
     def to_dict(self):
         return {
@@ -16,8 +14,6 @@ class Food:
             "name": self.name,
             "quantity": self.quantity,
             "unit": self.unit,
-            "good": self.good,
-            "expired": self.expired
         }
 
     @staticmethod
@@ -27,8 +23,6 @@ class Food:
             name=data.get("name"),
             quantity=data.get("quantity"),
             unit=data.get("unit"),
-            good=data.get("good", "còn tươi"),
-            expired=data.get("expired", "bị hư")
         )
     
 # class Fridge
