@@ -5,3 +5,4 @@ genai
 scipy
 numpy
 firebase_admin
+twilio

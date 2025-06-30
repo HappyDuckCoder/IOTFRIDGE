@@ -1,107 +1,103 @@
-#define MQ2_ANALOG_PIN 35 // Chỉ cần 1 chân analog
+#define MQ2_PIN 34
+#define MQ135_PIN 35
+
+const float RL = 10000.0;
+const float Vcc = 3.3;
+
+// Tham số đường cong (tra từ datasheet)
+const float MQ2_A = -0.38, MQ2_B = 1.48;     // CH4
+const float MQ135_A = -0.45, MQ135_B = 2.95; // NH3
+
+// Ngưỡng cảnh báo
+const float CH4_THRESHOLD = 3000.0;
+const float NH3_THRESHOLD = 50.0;
+
+// Biến hiệu chuẩn
+float Ro_MQ2 = 1.0;
+float Ro_MQ135 = 1.0;
+
+bool calibrated = false;
+
+float calculateRs(int adc)
+{
+    float Vout = adc * Vcc / 4095.0;
+    return RL * (Vcc - Vout) / Vout;
+}
+
+float calculatePPM(float ratio, float a, float b)
+{
+    return pow(10, (a * log10(ratio) + b));
+}
+
+void calibrateRo()
+{
+    long sum_mq2 = 0, sum_mq135 = 0;
+    int samples = 100;
+    Serial.println("Hiệu chuẩn Ro trong không khí sạch (10 giây)...");
+
+    for (int i = 0; i < samples; i++)
+    {
+        sum_mq2 += calculateRs(analogRead(MQ2_PIN));
+        sum_mq135 += calculateRs(analogRead(MQ135_PIN));
+        delay(100);
+    }
+
+    float avg_rs_mq2 = sum_mq2 / (float)samples;
+    float avg_rs_mq135 = sum_mq135 / (float)samples;
+
+    Ro_MQ2 = avg_rs_mq2 / 4.4;
+    Ro_MQ135 = avg_rs_mq135 / 3.7;
+
+    Serial.print("Ro MQ-2 (CH4): ");
+    Serial.println(Ro_MQ2);
+    Serial.print("Ro MQ-135 (NH3): ");
+    Serial.println(Ro_MQ135);
+
+    calibrated = true;
+}
 
 void setup()
 {
     Serial.begin(115200);
-    Serial.println("MQ-2 - Đọc Analog & Chuyển sang PPM");
-    Serial.println("===================================");
+    delay(2000);
+    calibrateRo();
 }
 
 void loop()
 {
-    // Đọc giá trị analog từ MQ-2
-    int analogValue = analogRead(MQ2_ANALOG_PIN);
+    if (!calibrated)
+        return;
 
-    // Chuyển sang điện áp
-    float voltage = analogValue * (3.3 / 4095.0);
+    // Đọc MQ-2
+    int adc2 = analogRead(MQ2_PIN);
+    float rs2 = calculateRs(adc2);
+    float ratio_mq2 = rs2 / Ro_MQ2;
+    float ppm_ch4 = calculatePPM(ratio_mq2, MQ2_A, MQ2_B);
 
-    // Chuyển sang PPM (công thức ước tính)
-    float ppm = convertToPPM(analogValue);
+    // Đọc MQ-135
+    int adc135 = analogRead(MQ135_PIN);
+    float rs135 = calculateRs(adc135);
+    float ratio_mq135 = rs135 / Ro_MQ135;
+    float ppm_nh3 = calculatePPM(ratio_mq135, MQ135_A, MQ135_B);
 
-    // Đánh giá mức độ khí
-    String gasLevel = getGasLevel(analogValue);
-    String warning = getWarning(ppm);
+    // In kết quả
+    Serial.print("CH4: ");
+    Serial.print(ppm_ch4);
+    Serial.print(" ppm\t");
 
-    // Hiển thị kết quả
-    Serial.println("📊 KẾT QUẢ ĐO:");
-    Serial.print("   Analog: ");
-    Serial.print(analogValue);
-    Serial.print("/4095");
+    Serial.print("NH3: ");
+    Serial.print(ppm_nh3);
+    Serial.println(" ppm");
 
-    Serial.print(" | Voltage: ");
-    Serial.print(voltage, 2);
-    Serial.println("V");
-
-    Serial.print("   PPM: ");
-    Serial.print(ppm, 0);
-    Serial.print(" ppm");
-
-    Serial.print(" | Mức độ: ");
-    Serial.println(gasLevel);
-
-    Serial.print("   Trạng thái: ");
-    Serial.println(warning);
-
-    Serial.println("-----------------------------------");
-    delay(2000); // Đọc mỗi 2 giây
-}
-
-// Hàm chuyển đổi giá trị analog sang PPM
-float convertToPPM(int analogValue)
-{
-    // Công thức ước tính: giá trị càng thấp = PPM càng cao
-    // Mapping từ 4095-0 sang 0-5000 ppm
-    float ppm = map(analogValue, 4095, 0, 0, 5000);
-
-    // Giới hạn giá trị âm
-    if (ppm < 0)
-        ppm = 0;
-
-    return ppm;
-}
-
-// Hàm đánh giá mức độ khí
-String getGasLevel(int analogValue)
-{
-    if (analogValue < 1200)
+    // Cảnh báo
+    if (ppm_ch4 > CH4_THRESHOLD || ppm_nh3 > NH3_THRESHOLD)
     {
-        return "🟢 RẤT ÍT KHÍ";
-    }
-    else if (analogValue < 2000)
-    {
-        return "🟡 ÍT KHÍ";
-    }
-    else if (analogValue < 2800)
-    {
-        return "🟠 TRUNG BÌNH";
-    }
-    else if (analogValue < 3500)
-    {
-        return "🔴 NHIỀU KHÍ";
+        Serial.println("⚠️  CẢNH BÁO: Có thể đồ ăn trong tủ lạnh bị ôi thiu!");
     }
     else
     {
-        return "🚨 RẤT NHIỀU KHÍ";
+        Serial.println("✅ Mọi thứ ổn.");
     }
-}
 
-// Hàm cảnh báo
-String getWarning(float ppm)
-{
-    if (ppm < 300)
-    {
-        return "✅ AN TOÀN";
-    }
-    else if (ppm < 2000)
-    {
-        return "⚠️ CHÚ Ý";
-    }
-    else if (ppm < 3000)
-    {
-        return "🔥 CẢNH BÁO";
-    }
-    else
-    {
-        return "🚨 NGUY HIỂM - THOÁT NGAY!";
-    }
+    delay(5000);
 }
