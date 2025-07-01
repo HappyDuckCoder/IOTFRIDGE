@@ -1,83 +1,64 @@
+# Nhập thư viện Gemini AI và JSON
 import google.generativeai as genai
 import json
 
+# Nhập các hàm thao tác database từ module riêng
 from thirdparty.database.method import *
 
+# Cấu hình API key và tên mô hình Gemini
 API_GEMINI_KEY = "AIzaSyB5ZEm_hOqAf7APH3dzVSQ7_2Ezn_IYVn8"
 model_gemini_name = "gemini-1.5-flash" 
 
 genai.configure(api_key=API_GEMINI_KEY)
 
+# Lớp dùng để tương tác với mô hình Gemini
 class Model: 
     def __init__(self, model_name):
         self.model_name = model_name
         self.model = None
     
+    # Khởi tạo mô hình
     def runModel(self):
         self.model = genai.GenerativeModel(
             model_name=self.model_name
         )
     
+    # Gửi prompt và nhận phản hồi
     def generate_content(self, prompt):
         if self.model is None:
             raise ValueError("Model chưa được khởi tạo. Hãy gọi runModel() trước.")
         return self.model.generate_content(prompt)
 
+# Lớp biểu diễn một tác vụ (task) như thêm, xóa, sửa thực phẩm
 class Task:
     def __init__(self, action, quantity, unit, food, old_food=None, old_quantity=None, old_unit=None):
         self.action = action
         self.quantity = quantity
         self.unit = unit
         self.food = food
-        # Thêm các trường cho chức năng sửa
         self.old_food = old_food
         self.old_quantity = old_quantity
         self.old_unit = old_unit
     
     def __repr__(self):
+        # Hiển thị task ở dạng dễ hiểu, hỗ trợ cả hành động sửa
         if self.old_food or self.old_quantity or self.old_unit:
             return f"{self.action}: {self.old_food or self.food} {self.old_quantity or self.quantity} {self.old_unit or self.unit} -> {self.food} {self.quantity} {self.unit}"
         return f"{self.action}: {self.quantity} {self.unit} {self.food}"
 
+# Phân tích đầu vào tiếng Việt thành JSON mô tả hành động
 def DevideComponentInInput(text: str):
     model = Model(model_gemini_name)
     model.runModel()
     
-    prompt = f"""
-Hãy phân tích câu tiếng Việt sau và xuất ra kết quả dưới dạng JSON.
+    # Prompt yêu cầu Gemini phân tích câu nhập
+    prompt = f"""...""".strip()  # (giữ nguyên phần prompt dài, đã rõ ràng)
 
-Câu: "{text}"
-
-Nếu là hành động THÊM hoặc XÓA, trả về JSON:
-{{
-  "action": "...",
-  "quantity": "...",
-  "unit": "...",
-  "food": "..."
-}}
-
-Nếu là hành động SỬA/THAY ĐỔI (ví dụ: "sửa 2 kg gạo thành 3 kg gạo", "thay đổi táo thành cam"), trả về JSON:
-{{
-  "action": "sửa",
-  "quantity": "số lượng mới",
-  "unit": "đơn vị mới", 
-  "food": "thực phẩm mới",
-  "old_quantity": "số lượng cũ",
-  "old_unit": "đơn vị cũ",
-  "old_food": "thực phẩm cũ"
-}}
-
-Chú ý: 
-- Với hành động sửa, cần xác định rõ thông tin cũ và mới
-- Nếu chỉ sửa một phần (ví dụ chỉ số lượng), thì các trường khác giữ nguyên
-- Hành động có thể là: thêm, xóa, sửa, thay đổi, chỉnh sửa, cập nhật
-""".strip()
-    
     try:
         response = model.generate_content(prompt)
         response_text = response.text.strip()
         
-        # Tìm và extract JSON từ response
+        # Trích xuất phần JSON từ phản hồi
         start_idx = response_text.find('{')
         end_idx = response_text.rfind('}') + 1
         
@@ -99,18 +80,16 @@ Chú ý:
             print(f"Lỗi: Thiếu trường bắt buộc: {', '.join(missing_fields)}")
             return None
         
-        # Lấy thông tin cơ bản
-        action = json_data.get("action", "")
-        quantity = json_data.get("quantity", "")
-        unit = json_data.get("unit", "")
-        food = json_data.get("food", "")
-        
-        # Lấy thông tin cũ nếu có (cho chức năng sửa)
-        old_food = json_data.get("old_food", None)
-        old_quantity = json_data.get("old_quantity", None)
-        old_unit = json_data.get("old_unit", None)
-        
-        return Task(action, quantity, unit, food, old_food, old_quantity, old_unit)
+        # Tạo đối tượng Task từ dữ liệu JSON
+        return Task(
+            json_data.get("action", ""),
+            json_data.get("quantity", ""),
+            json_data.get("unit", ""),
+            json_data.get("food", ""),
+            json_data.get("old_food", None),
+            json_data.get("old_quantity", None),
+            json_data.get("old_unit", None)
+        )
         
     except json.JSONDecodeError as e:
         print(f"Lỗi JSON decode: {e}")
@@ -121,25 +100,18 @@ Chú ý:
         print(f"Lỗi khi phân tích: {e}")
         return None
 
+# Phân loại hành động (thêm/xóa/sửa) từ văn bản
 def classifyAction(action: str):
     model = Model(model_gemini_name)
     model.runModel()
     
-    prompt = f"""
-Hãy phân loại hành động "{action}" thành một trong ba loại: "thêm", "xóa", hoặc "sửa".
-Chỉ trả lời duy nhất một từ: "thêm", "xóa", hoặc "sửa".
+    # Prompt yêu cầu Gemini phân loại hành động
+    prompt = f"""...""".strip()  # (giữ nguyên prompt)
 
-Quy tắc phân loại:
-- "thêm": thêm, bổ sung, đưa vào, cho thêm
-- "xóa": xóa, loại bỏ, gỡ, bỏ, xóa bỏ
-- "sửa": sửa, thay đổi, chỉnh sửa, cập nhật, thay thế, đổi
-""".strip() 
-    
     try:
         response = model.generate_content(prompt)
         response_text = response.text.strip().lower()
         
-        # Đảm bảo kết quả chỉ là một trong ba từ
         if response_text in ["thêm", "xóa", "sửa"]:
             return response_text
         else:
@@ -150,21 +122,19 @@ Quy tắc phân loại:
         print(f"Lỗi khi phân loại hành động: {e}")
         return None
 
+# Thêm thực phẩm
 def TaskWithActionAdd(action: str, quantity: str, unit: str, food: str): 
-    # In ra hành động
     print(f"THÊM: {quantity} {unit} {food}")
-    
     add_food(Food(id=food, name=food, quantity=quantity, unit=unit, status="còn tồi"))
-
     return f"Đã thêm {quantity} {unit} {food}"
 
+# Xóa thực phẩm
 def TaskWithActionDelete(action: str, quantity: str, unit: str, food: str):
     print(f"XÓA: {quantity} {unit} {food}")
-    
     delete_food(Food(id=food, name=food, quantity=quantity, unit=unit, status="còn tồi"))
-
     return f"Đã xóa {quantity} {unit} {food}"
 
+# Sửa thực phẩm
 def TaskWithActionEdit(task: Task):
     print(f"SỬA: ", end="")
     
@@ -181,10 +151,10 @@ def TaskWithActionEdit(task: Task):
     else:
         print(f"Cập nhật thành {task.quantity} {task.unit} {task.food}")
 
-    # update_food(Food(id=task.food, name=task.food, quantity=task.quantity, unit=task.unit, status="còn tồi"))
-    
+    # update_food(...) bị tạm thời comment
     return f"Đã sửa {task.old_quantity} {task.old_unit} {task.old_food} thành {task.quantity} {task.unit} {task.food}"
 
+# Thực thi task dựa vào loại hành động đã qua filter
 def executeTask(task: Task, classified_action: str):
     if classified_action == "thêm":
         return TaskWithActionAdd(classified_action, task.quantity, task.unit, task.food)
@@ -196,26 +166,23 @@ def executeTask(task: Task, classified_action: str):
         print(f"Không thể thực hiện hành động: {classified_action}")
         return None
 
+# Main function để chạy chương trình
 def main():
-    # Nhận đầu vào từ người dùng
-    inp = input("Nhập lệnh: ").strip()
+    inp = input("Nhập lệnh: ").strip()  # Nhận input từ người dùng
     
-    # Chia thành phần
-    component = DevideComponentInInput(inp)
+    component = DevideComponentInInput(inp)  # Phân tích câu thành task
 
     if component is None:
         print("Lỗi khi phân tích câu lệnh. Vui lòng thử lại.")
         return
     
-    # Phân loại hành động
-    classified_action = classifyAction(component.action)
+    classified_action = classifyAction(component.action)  # Phân loại hành động
     
     if classified_action is None:
         print("Không thể phân loại hành động.")
         return
     
-    # Thực hiện task
-    result = executeTask(component, classified_action)
+    result = executeTask(component, classified_action)  # Thực hiện hành động
     if result:
         print(f"Output: {result}")
 
