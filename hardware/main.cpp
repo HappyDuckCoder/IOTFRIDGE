@@ -1,267 +1,196 @@
-#include <WiFi.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ST7789.h>
+#include <SPI.h>
 #include <DHT.h>
-#include <HX711.h>
-#include <Wire.h>
-#include <SSD1306Wire.h>
 
-// ===============================
-// CẤU HÌNH CHÂN VÀ HẰNG SỐ
-// ===============================
-#define DHT_PIN 4
-#define DHT_TYPE DHT22
-#define GAS_PIN A0
-#define BUTTON_PIN 2
-#define DOOR_SENSOR_PIN 3
-#define LOADCELL_DOUT_PIN 5
-#define LOADCELL_SCK_PIN 6
-#define OLED_SDA 21
-#define OLED_SCL 22
+// ==== Pin cấu hình ====
+#define DHT_PIN 15
+#define DHT_TYPE DHT11
+#define RELAY_PIN 16
+#define MQ2_PIN 36   // VP - Analog
+#define MQ135_PIN 39 // VN - Analog
 
-// Cấu hình thời gian
-const unsigned long SEND_INTERVAL = 10000;       // 10 giây
-const unsigned long SENSOR_READ_INTERVAL = 1000; // 1 giây
-const unsigned long OLED_UPDATE_INTERVAL = 2000; // 2 giây
-const unsigned long DEBOUNCE_DELAY = 50;         // 50ms cho debounce button
+#define TFT_CS 5
+#define TFT_RST 4
+#define TFT_DC 2
+#define TFT_MOSI 23
+#define TFT_SCLK 18
 
-// Ngưỡng cảm biến
-const float WEIGHT_THRESHOLD = 0.1; // Ngưỡng thay đổi cân nặng (kg)
-const int GAS_THRESHOLD = 300;      // Ngưỡng cảnh báo gas
-
-// ===============================
-// KHỞI TẠO CÁC THÀNH PHẦN
-// ===============================
+// ==== Thiết bị ====
 DHT dht(DHT_PIN, DHT_TYPE);
-HX711 scale;
-SSD1306Wire display(0x3c, OLED_SDA, OLED_SCL);
+Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
-// ===============================
-// CẤU TRÚC DỮ LIỆU
-// ===============================
+// ==== Timing ====
+unsigned long lastUpdate = 0;
+const unsigned long updateInterval = 2000; // 2 giây
+
+// ==== Struct dữ liệu cảm biến DHT11 ====
 struct SensorData
 {
     float temperature;
     float humidity;
-    int gasValue;
-    float weightChange;
-    bool isDoorOpen;
-    bool isRecording;
-    unsigned long lastUpdate;
-
-    SensorData() : temperature(0.0), humidity(0.0), gasValue(0),
-                   weightChange(0.0), isDoorOpen(false), isRecording(false),
-                   lastUpdate(0) {}
+    bool isValid;
 };
 
-struct SystemState
+// ==== Struct dữ liệu khí gas ====
+struct GasSensorData
 {
-    unsigned long lastSendTime;
-    unsigned long lastSensorRead;
-    unsigned long lastOLEDUpdate;
-    bool buttonPressed;
-    unsigned long buttonPressTime;
-    float baselineWeight;
-    bool systemReady;
-
-    SystemState() : lastSendTime(0), lastSensorRead(0), lastOLEDUpdate(0),
-                    buttonPressed(false), buttonPressTime(0), baselineWeight(0.0),
-                    systemReady(false) {}
+    int mq2Raw;
+    int mq135Raw;
+    bool dangerMQ2;
+    bool dangerMQ135;
 };
 
-// ===============================
-// BIẾN TOÀN CỤC
-// ===============================
-SensorData sensorData;
-SystemState systemState;
-
-// ===============================
-// KHỞI TẠO HỆ THỐNG
-// ===============================
-void setup()
+// ==== Đọc DHT11 ====
+SensorData handleDHT()
 {
-    Serial.begin(115200);
-
-    // Khởi tạo chân GPIO
-    pinMode(BUTTON_PIN, INPUT_PULLUP);
-    pinMode(DOOR_SENSOR_PIN, INPUT_PULLUP);
-    pinMode(GAS_PIN, INPUT);
-
-    // Khởi tạo cảm biến
-    initializeSensors();
-
-    // Khởi tạo OLED
-    initializeOLED();
-
-    // Khởi tạo WiFi
-    initializeWiFi();
-
-    // Thiết lập baseline cho cân
-    calibrateScale();
-
-    systemState.systemReady = true;
-    Serial.println("Hệ thống đã sẵn sàng!");
+    SensorData data;
+    data.temperature = dht.readTemperature();
+    data.humidity = dht.readHumidity();
+    data.isValid = !(isnan(data.temperature) || isnan(data.humidity));
+    return data;
 }
 
-// ===============================
-// VÒNG LẶP CHÍNH
-// ===============================
-void loop()
+// ==== Hiển thị lên ST7789 ====
+void handleTFT(const SensorData &data, const GasSensorData &gas)
 {
-    if (!systemState.systemReady)
-    {
-        delay(1000);
-        return;
-    }
+    tft.fillRect(0, 60, 240, 160, ST77XX_BLACK);
 
-    unsigned long currentTime = millis();
+    tft.setCursor(20, 70);
+    tft.setTextColor(ST77XX_CYAN);
+    tft.printf("Nhiet do: %.1f C", data.temperature);
 
-    // Đọc cảm biến theo chu kỳ
-    if (currentTime - systemState.lastSensorRead >= SENSOR_READ_INTERVAL)
-    {
-        readAllSensors();
-        systemState.lastSensorRead = currentTime;
-    }
+    tft.setCursor(20, 100);
+    tft.printf("Do am: %.1f %%", data.humidity);
 
-    // Xử lý nút bấm
-    handleButtonPress();
+    tft.setCursor(20, 130);
+    tft.setTextColor(gas.dangerMQ2 ? ST77XX_RED : ST77XX_GREEN);
+    tft.printf("MQ-2: %d", gas.mq2Raw);
 
-    // Cập nhật OLED
-    if (currentTime - systemState.lastOLEDUpdate >= OLED_UPDATE_INTERVAL)
-    {
-        updateDisplay();
-        systemState.lastOLEDUpdate = currentTime;
-    }
-
-    // Gửi dữ liệu lên server
-    if (currentTime - systemState.lastSendTime >= SEND_INTERVAL)
-    {
-        sendDataToServer();
-        systemState.lastSendTime = currentTime;
-    }
-
-    // Xử lý ghi âm nếu cần
-    if (sensorData.isRecording)
-    {
-        processAudioRecording();
-    }
-
-    delay(10); // Tránh watchdog timeout
+    tft.setCursor(20, 160);
+    tft.setTextColor(gas.dangerMQ135 ? ST77XX_RED : ST77XX_GREEN);
+    tft.printf("MQ-135: %d", gas.mq135Raw);
 }
 
-// ===============================
-// KHỞI TẠO CÁC THÀNH PHẦN
-// ===============================
-void initializeSensors()
+// ==== Điều khiển relay ====
+void handleRelay(float temperature, bool gasDanger)
 {
-    dht.begin();
-    scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
-
-    // Chờ cảm biến ổn định
-    delay(2000);
-
-    if (scale.is_ready())
+    if (temperature > 30.0 || gasDanger)
     {
-        scale.set_scale(2280.f); // Cần hiệu chỉnh theo cân thực tế
-        scale.tare();
-        Serial.println("Cân đã sẵn sàng");
+        digitalWrite(RELAY_PIN, HIGH);
+        Serial.println("🚨 Cảnh báo! Bật relay.");
     }
     else
     {
-        Serial.println("Lỗi: Không thể khởi tạo cân");
+        digitalWrite(RELAY_PIN, LOW);
+        Serial.println("✅ Bình thường. Tắt relay.");
     }
 }
 
-void initializeOLED()
+// ==== Đọc MQ-2 & MQ-135 ====
+GasSensorData handleMQ(int mq2Threshold = 3000, int mq135Threshold = 3000)
 {
+    GasSensorData data;
+
+    data.mq2Raw = analogRead(MQ2_PIN);
+    data.mq135Raw = analogRead(MQ135_PIN);
+
+    data.dangerMQ2 = data.mq2Raw > mq2Threshold;
+    data.dangerMQ135 = data.mq135Raw > mq135Threshold;
+
+    Serial.print("[MQ-2] Raw: ");
+    Serial.print(data.mq2Raw);
+    if (data.dangerMQ2)
+        Serial.print(" ⚠️");
+
+    Serial.print(" | [MQ-135] Raw: ");
+    Serial.print(data.mq135Raw);
+    if (data.dangerMQ135)
+        Serial.print(" ⚠️");
+    Serial.println();
+
+    return data;
 }
 
-void initializeWiFi()
+// ==== Kiểm tra delay không chặn ====
+bool handleDelay(unsigned long interval)
 {
-}
-
-void calibrateScale()
-{
-}
-
-// ===============================
-// ĐỌC CẢM BIẾN
-// ===============================
-void readAllSensors()
-{
-    readTemperatureHumidity();
-    readGasSensor();
-    readDoorStatus();
-
-    if (sensorData.isDoorOpen)
+    unsigned long now = millis();
+    if (now - lastUpdate >= interval)
     {
-        readWeightChange();
+        lastUpdate = now;
+        return true;
     }
+    return false;
 }
 
-void readTemperatureHumidity()
+// ==== Setup ban đầu ====
+void setup()
 {
+    Serial.begin(115200);
+    delay(1000);
+    Serial.println("🔧 Đang khởi động hệ thống...");
+
+    // === Relay ===
+    pinMode(RELAY_PIN, OUTPUT);
+    digitalWrite(RELAY_PIN, LOW);
+    Serial.println("✅ Relay sẵn sàng");
+
+    // === DHT11 ===
+    dht.begin();
+    delay(2000); // đợi ổn định
+    float testTemp = dht.readTemperature();
+    if (isnan(testTemp))
+    {
+        Serial.println("❌ Không thể đọc từ DHT11! Kiểm tra kết nối.");
+    }
+    else
+    {
+        Serial.printf("✅ DHT11 hoạt động. Nhiệt độ đầu tiên: %.1f°C\n", testTemp);
+    }
+
+    // === TFT ST7789 ===
+    tft.init(240, 240);
+    tft.setRotation(1);
+    tft.fillScreen(ST77XX_BLACK);
+    tft.setTextColor(ST77XX_WHITE);
+    tft.setTextSize(2);
+    tft.setCursor(20, 20);
+    tft.println("ESP32 IoT Gas Monitor");
+    Serial.println("✅ Màn hình TFT khởi tạo xong");
+
+    // === MQ Test Read ===
+    int testMQ2 = analogRead(MQ2_PIN);
+    int testMQ135 = analogRead(MQ135_PIN);
+    if (testMQ2 < 50 && testMQ135 < 50)
+    {
+        Serial.println("❌ MQ-2 & MQ-135 có thể không kết nối đúng.");
+    }
+    else
+    {
+        Serial.printf("✅ MQ-2: %d | MQ-135: %d\n", testMQ2, testMQ135);
+    }
+
+    Serial.println("✅ Hệ thống sẵn sàng.");
 }
 
-void readGasSensor()
+// ==== Loop chính ====
+void loop()
 {
-}
+    if (handleDelay(updateInterval))
+    {
+        SensorData dhtData = handleDHT();
+        GasSensorData gasData = handleMQ();
 
-void readDoorStatus()
-{
-}
-
-void readWeightChange()
-{
-}
-
-// ===============================
-// XỬ LÝ NÚT BẤM
-// ===============================
-void handleButtonPress()
-{
-}
-
-void startAudioRecording()
-{
-}
-
-void stopAudioRecording()
-{
-}
-
-void processAudioRecording()
-{
-    // Xử lý ghi âm realtime
-    // Thêm code ghi âm ở đây
-}
-
-// ===============================
-// HIỂN THỊ OLED
-// ===============================
-void updateDisplay()
-{
-}
-
-// ===============================
-// GỬI DỮ LIỆU LÊN SERVER
-// ===============================
-void sendDataToServer()
-{
-}
-
-void sendTemperatureAndHumidityToServer()
-{
-}
-
-void sendGasSensorToServer()
-
-// In ra chuỗi JSON
-{
-}
-
-void sendWeightChangeToServer()
-{
-}
-
-void sendAudioToServer()
-{
+        if (dhtData.isValid)
+        {
+            Serial.printf("🌡 %.1f°C | 💧 %.1f%%\n", dhtData.temperature, dhtData.humidity);
+            handleRelay(dhtData.temperature, gasData.dangerMQ2 || gasData.dangerMQ135);
+            handleTFT(dhtData, gasData);
+        }
+        else
+        {
+            Serial.println("❌ Không thể đọc dữ liệu từ DHT11 trong loop.");
+        }
+    }
 }
