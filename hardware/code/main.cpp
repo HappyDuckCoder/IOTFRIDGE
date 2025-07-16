@@ -22,16 +22,16 @@ void onRecordingStateChanged(bool isRecording, int progress)
     {
         if (progress == 0)
         {
-            Serial.println("🎤 Bắt đầu ghi âm...");
+            Serial.println("Bắt đầu ghi âm...");
         }
         else if (progress % 10 == 0) // Chỉ hiển thị mỗi 10%
         {
-            Serial.printf("📊 Tiến trình ghi âm: %d%%\n", progress);
+            Serial.printf("Tiến trình ghi âm: %d%%\n", progress);
         }
     }
     else
     {
-        Serial.println("✅ Ghi âm hoàn thành!");
+        Serial.println("Ghi âm hoàn thành!");
     }
 }
 
