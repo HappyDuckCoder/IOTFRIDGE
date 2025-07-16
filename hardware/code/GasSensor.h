@@ -26,7 +26,7 @@ public:
     const float CH4_THRESHOLD = 3000.0;
     const float NH3_THRESHOLD = 50.0;
 
-    void setup()
+    void calibrate()
     {
         long sumMQ2 = 0, sumMQ135 = 0;
         int samples = 100;
