@@ -1,51 +1,10 @@
+#ifndef GasSensor_h
+#define GasSensor_h
+
 #include <Arduino.h>
+#include "constant.h"
 
-// khai báo chân cảm biến
-#define MQ2_PIN 34
-#define MQ135_PIN 35
-
-// =======================
-// Class xử lý delay không chặn
-// =======================
-class HandleDelay
-{
-private:
-    unsigned long lastMillis;
-    unsigned long interval;
-
-public:
-    HandleDelay(unsigned long ms)
-    {
-        interval = ms;
-        lastMillis = millis();
-    }
-
-    bool isDue()
-    {
-        unsigned long currentMillis = millis();
-        if (currentMillis - lastMillis >= interval)
-        {
-            lastMillis = currentMillis;
-            return true;
-        }
-        return false;
-    }
-
-    void reset()
-    {
-        lastMillis = millis();
-    }
-
-    void setInterval(unsigned long ms)
-    {
-        interval = ms;
-    }
-};
-
-// =======================
-// Class lưu và xử lý dữ liệu cảm biến khí gas
-// =======================
-class GasSensorData
+class GasSensor
 {
 public:
     int adcMQ2 = 0;
@@ -67,7 +26,7 @@ public:
     const float CH4_THRESHOLD = 3000.0;
     const float NH3_THRESHOLD = 50.0;
 
-    void calibrate()
+    void setup()
     {
         long sumMQ2 = 0, sumMQ135 = 0;
         int samples = 100;
@@ -77,13 +36,13 @@ public:
         {
             sumMQ2 += calculateRs(analogRead(MQ2_PIN));
             sumMQ135 += calculateRs(analogRead(MQ135_PIN));
-            delay(100); // vẫn blocking vì chỉ chạy một lần
+            delay(100);
         }
 
         RoMQ2 = (sumMQ2 / (float)samples) / 4.4;
         RoMQ135 = (sumMQ135 / (float)samples) / 3.7;
 
-        Serial.printf("✓ Ro MQ-2 = %.2f | Ro MQ-135 = %.2f\n", RoMQ2, RoMQ135);
+        Serial.printf("Ro MQ-2 = %.2f | Ro MQ-135 = %.2f\n", RoMQ2, RoMQ135);
         calibrated = true;
     }
 
@@ -115,11 +74,11 @@ public:
         Serial.printf("CH4: %.1f ppm\tNH3: %.1f ppm\t", ppmCH4, ppmNH3);
         if (isInDanger())
         {
-            Serial.println("⚠️  NGUY HIỂM!");
+            Serial.println("NGUY HIỂM!");
         }
         else
         {
-            Serial.println("✅ An toàn.");
+            Serial.println("An toàn.");
         }
     }
 
@@ -136,30 +95,4 @@ private:
     }
 };
 
-// =======================
-// Khởi tạo đối tượng
-// =======================
-GasSensorData gasSensor;
-HandleDelay gasReadTimer(2000); // đọc cảm biến mỗi 2 giây
-
-// =======================
-// Hàm setup và loop chính
-// =======================
-void setup()
-{
-    Serial.begin(115200);
-    delay(500);
-
-    gasSensor.calibrate(); // chỉ cần gọi một lần khi bắt đầu
-}
-
-void loop()
-{
-    if (gasReadTimer.isDue())
-    {
-        gasSensor.handleRead();
-        gasSensor.log();
-    }
-
-    // nơi bạn có thể thêm các chức năng khác: WiFi, MQTT, Màn hình, v.v.
-}
+#endif
