@@ -1,0 +1,255 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\code\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\constant.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\code\\constant.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\Relay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\code\\Relay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\GasSensor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\code\\GasSensor.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\DHT.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\code\\DHT.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\HandleDelay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\code\\HandleDelay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\DHT11_and_Relay.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\DHT11_and_Relay.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\INMP441.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\INMP441.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\ST7789.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\ST7789.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\MQ.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\MQ.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\button.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\code\\button.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\LoadCell.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\code\\LoadCell.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\internet.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hardware\\code\\internet.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "DHT11_and_Relay.cpp",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\DHT11_and_Relay.cpp",
+              "RelativeDocumentMoniker": "hardware\\DHT11_and_Relay.cpp",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\DHT11_and_Relay.cpp",
+              "RelativeToolTip": "hardware\\DHT11_and_Relay.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-07-17T09:18:51.497Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "main.cpp",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\main.cpp",
+              "RelativeDocumentMoniker": "hardware\\code\\main.cpp",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\main.cpp",
+              "RelativeToolTip": "hardware\\code\\main.cpp",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAABsAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-07-17T08:59:28.629Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "internet.h",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\internet.h",
+              "RelativeDocumentMoniker": "hardware\\code\\internet.h",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\internet.h",
+              "RelativeToolTip": "hardware\\code\\internet.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-17T08:59:27.957Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "GasSensor.h",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\GasSensor.h",
+              "RelativeDocumentMoniker": "hardware\\code\\GasSensor.h",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\GasSensor.h",
+              "RelativeToolTip": "hardware\\code\\GasSensor.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-17T08:59:27.33Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "INMP441.cpp",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\INMP441.cpp",
+              "RelativeDocumentMoniker": "hardware\\INMP441.cpp",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\INMP441.cpp",
+              "RelativeToolTip": "hardware\\INMP441.cpp",
+              "ViewState": "AgIAAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-07-17T08:59:03.167Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "HandleDelay.h",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\HandleDelay.h",
+              "RelativeDocumentMoniker": "hardware\\code\\HandleDelay.h",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\HandleDelay.h",
+              "RelativeToolTip": "hardware\\code\\HandleDelay.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-17T08:58:47.803Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "DHT.h",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\DHT.h",
+              "RelativeDocumentMoniker": "hardware\\code\\DHT.h",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\DHT.h",
+              "RelativeToolTip": "hardware\\code\\DHT.h",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAACAAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-17T08:59:16.52Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "constant.h",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\constant.h",
+              "RelativeDocumentMoniker": "hardware\\code\\constant.h",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\constant.h",
+              "RelativeToolTip": "hardware\\code\\constant.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-17T08:59:24.96Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Relay.h",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\Relay.h",
+              "RelativeDocumentMoniker": "hardware\\code\\Relay.h",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\Relay.h",
+              "RelativeToolTip": "hardware\\code\\Relay.h",
+              "ViewState": "AgIAADMAAAAAAAAAAAAAADwAAAA/AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-17T08:59:30.13Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "LoadCell.h",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\LoadCell.h",
+              "RelativeDocumentMoniker": "hardware\\code\\LoadCell.h",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\LoadCell.h",
+              "RelativeToolTip": "hardware\\code\\LoadCell.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-17T08:59:29.458Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "main.cpp",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\main.cpp",
+              "RelativeDocumentMoniker": "hardware\\main.cpp",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\main.cpp",
+              "RelativeToolTip": "hardware\\main.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-07-17T09:18:56.47Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "MQ.cpp",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\MQ.cpp",
+              "RelativeDocumentMoniker": "hardware\\MQ.cpp",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\MQ.cpp",
+              "RelativeToolTip": "hardware\\MQ.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-07-17T09:18:57.318Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ST7789.cpp",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\ST7789.cpp",
+              "RelativeDocumentMoniker": "hardware\\ST7789.cpp",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\ST7789.cpp",
+              "RelativeToolTip": "hardware\\ST7789.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-07-17T09:18:58.065Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "button.h",
+              "DocumentMoniker": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\button.h",
+              "RelativeDocumentMoniker": "hardware\\code\\button.h",
+              "ToolTip": "G:\\C\u002B\u002B\\SmartFridge\\IOT\\hardware\\code\\button.h",
+              "RelativeToolTip": "hardware\\code\\button.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-07-17T08:59:40.188Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
