@@ -1,5 +1,5 @@
 ﻿class Food:
-    def __init__(self, id, name, quantity, unit, is_good, is_expired, input_date, output_date, image_url=None):
+    def __init__(self, id, name, quantity, unit, is_good, is_expired, input_date, output_date, category, image_url=None):
         self.id = id
         self.name = name
         self.quantity = quantity
@@ -8,6 +8,7 @@
         self.is_expired = is_expired
         self.input_date = input_date
         self.output_date = output_date
+        self.category = category
         self.image_url = image_url
 
     def to_dict(self):
@@ -20,6 +21,7 @@
             "is_expired": self.is_expired,
             "input_date": self.input_date,
             "output_date": self.output_date,
+            "category": self.category,
             "image_url": self.image_url
         }
 
@@ -34,6 +36,7 @@
             data.get("is_expired", False),
             data.get("input_date"),
             data.get("output_date"),
+            data.get("category"),
             data.get("image_url")
         )
 
