@@ -12,22 +12,22 @@ def test_add_food():
     foods = [
         Food(id="1", name="Táo", quantity=10, unit="quả",
              is_good=True, is_expired=False,
-             input_date=now, output_date=now + timedelta(days=5), category="Trái cây",
+             input_date=now, output_date=now + timedelta(days=5), category="vitamin_and_fruits",
              image_url=None),
 
         Food(id="2", name="Chuối", quantity=5, unit="quả",
              is_good=True, is_expired=False,
-             input_date=now, output_date=now + timedelta(days=3), category="Trái cáy",
+             input_date=now, output_date=now + timedelta(days=3), category="vitamin_and_fruits",
              image_url=None),
 
         Food(id="3", name="Cam", quantity=8, unit="quả",
              is_good=True, is_expired=False,
-             input_date=now, output_date=now + timedelta(days=4), category="Trái cây",
+             input_date=now, output_date=now + timedelta(days=4), category="vitamin_and_fruits",
              image_url=None),
 
         Food(id="4", name="Thịt", quantity=100, unit="gam",
              is_good=True, is_expired=False,
-             input_date=now, output_date=now + timedelta(days=2), category="Chất đạm",
+             input_date=now, output_date=now + timedelta(days=2), category="protein",
              image_url=None),
     ]
 
