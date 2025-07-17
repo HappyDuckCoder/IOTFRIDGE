@@ -15,8 +15,8 @@ Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.11:8888/uploadAudi
 INMP microphone(INMP_WS, INMP_SD, INMP_SCK);
 
 // Cảm biến và điều khiển
-GasSensorData gasSensor;
-DHTSensor dhtSensor(DHT_PIN, DHT11, 2000); // Cần định nghĩa DHT_PIN trong constant.h
+GasSensor gasSensor;
+DHTSensor dhtSensor(DHT_PIN, DHT11, 2000);            // Cần định nghĩa DHT_PIN trong constant.h
 RelayController fanController(RELAY_PIN, PWM_PIN, 0); // Cần định nghĩa RELAY_PIN, PWM_PIN trong constant.h
 
 // Timer
@@ -24,7 +24,7 @@ HandleDelay gasReadTimer(2000);
 HandleDelay dhtReadTimer(2000);
 HandleDelay systemStatusTimer(5000); // Hiển thị trạng thái hệ thống mỗi 5 giây
 
-const char* audioFileName = "/recording.wav";
+const char *audioFileName = "/recording.wav";
 
 void onRecordingStateChanged(bool isRecording, int progress)
 {
