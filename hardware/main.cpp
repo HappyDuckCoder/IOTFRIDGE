@@ -143,6 +143,72 @@ GasSensorData gasSensor;
 HandleDelay gasReadTimer(2000); // đọc cảm biến mỗi 2 giây
 
 // =======================
+// DoorTracking Integration
+// =======================
+#include "HX711.h"
+#define DOOR_BUTTON_PIN 4
+#define LOADCELL_DOUT_PIN 32
+#define LOADCELL_SCK_PIN 33
+#define MAX_DOOR_OPEN_TIME 180000 // 3 phút
+
+HX711 scale;
+bool doorOpen = false;
+unsigned long doorOpenMillis = 0;
+float lastWeight = 0;
+
+void setupDoorTracking()
+{
+    pinMode(DOOR_BUTTON_PIN, INPUT_PULLUP);
+    scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+    scale.set_scale();  // cần hiệu chỉnh nếu có giá trị scale riêng
+    scale.tare();
+    lastWeight = scale.get_units(10);
+}
+
+void handleDoorTracking()
+{
+    bool isClosed = digitalRead(DOOR_BUTTON_PIN) == LOW;
+
+    if (!isClosed)
+    {
+        if (!doorOpen)
+        {
+            doorOpen = true;
+            doorOpenMillis = millis();
+            Serial.println("🚪 Cửa tủ đã mở");
+        }
+
+        if (millis() - doorOpenMillis > MAX_DOOR_OPEN_TIME)
+        {
+            Serial.println("⚠️  Cảnh báo: Cửa mở quá lâu!");
+            // Gửi cảnh báo ở đây nếu cần
+        }
+    }
+    else
+    {
+        if (doorOpen)
+        {
+            doorOpen = false;
+            Serial.println("✅ Cửa đã đóng lại");
+
+            float currentWeight = scale.get_units(10);
+            float diff = currentWeight - lastWeight;
+
+            if (abs(diff) > 50)
+            {
+                Serial.printf("📦 Trọng lượng thay đổi: %.2f g\n", diff);
+                if (diff > 0)
+                    Serial.println("📝 Yêu cầu nhập thông tin thực phẩm vừa thêm vào.");
+                else
+                    Serial.println("🗑️ Có thực phẩm được lấy ra.");
+            }
+
+            lastWeight = currentWeight;
+        }
+    }
+}
+
+// =======================
 // Hàm setup và loop chính
 // =======================
 void setup()
@@ -150,7 +216,8 @@ void setup()
     Serial.begin(115200);
     delay(500);
 
-    gasSensor.calibrate(); // chỉ cần gọi một lần khi bắt đầu
+    gasSensor.calibrate();   // cảm biến khí gas
+    setupDoorTracking();     // khởi tạo theo dõi cửa
 }
 
 void loop()
@@ -161,5 +228,6 @@ void loop()
         gasSensor.log();
     }
 
-    // nơi bạn có thể thêm các chức năng khác: WiFi, MQTT, Màn hình, v.v.
+    handleDoorTracking(); // xử lý theo dõi cửa mỗi vòng lặp
 }
+
