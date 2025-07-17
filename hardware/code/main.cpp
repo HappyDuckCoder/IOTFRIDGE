@@ -4,17 +4,27 @@
 #include "constant.h"
 #include "gasSensor.h"
 #include "handleDelay.h"
+#include "DHT.h"
+#include "Relay.h"
 #include <SPIFFS.h>
 
 // ============== KHỞI TẠO CÁC OBJECT ==============
 Button recordButton(RECORD_BUTTON);
+Button fanButton(FAN_BUTTON); // Nút điều khiển quạt (cần định nghĩa trong constant.h)
 Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.11:8888/uploadAudio");
 INMP microphone(INMP_WS, INMP_SD, INMP_SCK);
 
+// Cảm biến và điều khiển
 GasSensorData gasSensor;
-HandleDelay gasReadTimer(2000);
+DHTSensor dhtSensor(DHT_PIN, DHT11, 2000); // Cần định nghĩa DHT_PIN trong constant.h
+RelayController fanController(RELAY_PIN, PWM_PIN, 0); // Cần định nghĩa RELAY_PIN, PWM_PIN trong constant.h
 
-const char *audioFileName = "/recording.wav";
+// Timer
+HandleDelay gasReadTimer(2000);
+HandleDelay dhtReadTimer(2000);
+HandleDelay systemStatusTimer(5000); // Hiển thị trạng thái hệ thống mỗi 5 giây
+
+const char* audioFileName = "/recording.wav";
 
 void onRecordingStateChanged(bool isRecording, int progress)
 {
@@ -61,7 +71,27 @@ void setup()
     }
     else
     {
-        Serial.println("microphone khởi tạo lỗi");
+        Serial.println("Microphone khởi tạo lỗi");
+    }
+
+    // Khởi tạo cảm biến DHT11
+    if (dhtSensor.begin())
+    {
+        Serial.println("DHT11 khởi tạo thành công.");
+    }
+    else
+    {
+        Serial.println("DHT11 khởi tạo lỗi");
+    }
+
+    // Khởi tạo điều khiển quạt
+    if (fanController.begin())
+    {
+        Serial.println("Fan controller khởi tạo thành công.");
+    }
+    else
+    {
+        Serial.println("Fan controller khởi tạo lỗi");
     }
 
     // Khởi tạo kết nối internet
@@ -74,8 +104,9 @@ void setup()
     Serial.println("Cảm biến khí gas đã được hiệu chuẩn.");
 
     Serial.println("=== HỆ THỐNG SẴN SÀNG ===");
-    Serial.println("Nhấn nút để bắt đầu/dừng ghi âm");
-    Serial.println("Cảm biến khí gas sẽ đọc dữ liệu mỗi 2 giây");
+    Serial.println("Nhấn nút ghi âm để bắt đầu/dừng ghi âm");
+    Serial.println("Nhấn nút quạt để chuyển chế độ quạt");
+    Serial.println("Các cảm biến sẽ đọc dữ liệu tự động");
     Serial.println("================================");
 }
 
@@ -125,18 +156,63 @@ void handleVoice()
     }
 }
 
-void handleGasSensor()
+void handleFanControl()
 {
+    if (fanButton.isPressed())
+    {
+        fanController.nextMode();
+    }
+}
+
+void handleSensors()
+{
+    // Xử lý cảm biến DHT22
+    if (dhtReadTimer.isDue())
+    {
+        dhtSensor.handleRead();
+    }
+
+    // Xử lý cảm biến khí gas
     if (gasReadTimer.isDue())
     {
         gasSensor.handleRead();
+    }
+}
+
+void handleWarnings()
+{
+    // Kiểm tra cảnh báo từ DHT11
+    if (dhtSensor.isInDanger())
+    {
+        Serial.println("CẢNH BÁO DHT11: Nhiệt độ hoặc độ ẩm ngoài phạm vi an toàn!");
+    }
+
+    // Kiểm tra cảnh báo từ cảm biến khí gas
+    if (gasSensor.isInDanger())
+    {
+        Serial.println("CẢNH BÁO GAS: Nồng độ khí gas cao, có thực phẩm bị hỏng!");
+    }
+}
+
+void handleSystemStatus()
+{
+    if (systemStatusTimer.isDue())
+    {
+        Serial.println("========== TRẠNG THÁI HỆ THỐNG ==========");
+
+        // Hiển thị thông tin DHT11
+        dhtSensor.log();
+
+        // Hiển thị thông tin cảm biến gas
         gasSensor.log();
 
-        if (gasSensor.isInDanger())
-        {
-            Serial.println("CẢNH BÁO: Nồng độ khí gas cao, có thực phẩm bị hỏng!");
-            //* NOTE: Gửi cảnh báo qua internet & điện thoại ở đây
-        }
+        // Hiển thị trạng thái quạt
+        fanController.log();
+
+        // Hiển thị trạng thái kết nối
+        Serial.printf("WiFi: %s\n", internet.isConnected() ? "Đã kết nối" : "Chưa kết nối");
+
+        Serial.println("========================================");
     }
 }
 
@@ -146,8 +222,17 @@ void loop()
     // ========== XỬ LÝ GHI ÂM ==========
     handleVoice();
 
-    // ========== XỬ LÝ CẢM BIẾN KHÍ GAS ==========
-    handleGasSensor();
+    // ========== XỬ LÝ ĐIỀU KHIỂN QUẠT ==========
+    handleFanControl();
+
+    // ========== XỬ LÝ CÁC CẢM BIẾN ==========
+    handleSensors();
+
+    // ========== XỬ LÝ CẢNH BÁO ==========
+    handleWarnings();
+
+    // ========== HIỂN THỊ TRẠNG THÁI HỆ THỐNG ==========
+    handleSystemStatus();
 
     // Delay nhỏ để giảm tải CPU
     delay(50);
