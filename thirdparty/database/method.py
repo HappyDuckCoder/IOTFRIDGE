@@ -45,6 +45,12 @@ def delete_food_by_id(food_id):
     else:
         print(f"Không tìm thấy thực phẩm với ID: {food_id}.")
 
+# Xóa toàn bộ
+def delete_all_foods():
+    docs = db.collection(collection_name).stream()
+    for doc in docs:
+        doc.reference.delete()
+
 # Xóa theo tên
 def eat_food(name, quantity):
     docs = db.collection(collection_name) \
