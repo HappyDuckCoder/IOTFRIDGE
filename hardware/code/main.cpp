@@ -22,7 +22,6 @@ RelayController fanController(RELAY_PIN, PWM_PIN, 0); // Cần định nghĩa RE
 // Timer
 HandleDelay gasReadTimer(2000);
 HandleDelay dhtReadTimer(2000);
-HandleDelay systemStatusTimer(5000); // Hiển thị trạng thái hệ thống mỗi 5 giây
 
 const char *audioFileName = "/recording.wav";
 
@@ -166,7 +165,7 @@ void handleFanControl()
 
 void handleSensors()
 {
-    // Xử lý cảm biến DHT22
+    // Xử lý cảm biến DHT11
     if (dhtReadTimer.isDue())
     {
         dhtSensor.handleRead();
@@ -194,28 +193,6 @@ void handleWarnings()
     }
 }
 
-void handleSystemStatus()
-{
-    if (systemStatusTimer.isDue())
-    {
-        Serial.println("========== TRẠNG THÁI HỆ THỐNG ==========");
-
-        // Hiển thị thông tin DHT11
-        dhtSensor.log();
-
-        // Hiển thị thông tin cảm biến gas
-        gasSensor.log();
-
-        // Hiển thị trạng thái quạt
-        fanController.log();
-
-        // Hiển thị trạng thái kết nối
-        Serial.printf("WiFi: %s\n", internet.isConnected() ? "Đã kết nối" : "Chưa kết nối");
-
-        Serial.println("========================================");
-    }
-}
-
 // ============== VÒNG LẶP CHÍNH ==============
 void loop()
 {
@@ -230,9 +207,6 @@ void loop()
 
     // ========== XỬ LÝ CẢNH BÁO ==========
     handleWarnings();
-
-    // ========== HIỂN THỊ TRẠNG THÁI HỆ THỐNG ==========
-    handleSystemStatus();
 
     // Delay nhỏ để giảm tải CPU
     delay(50);
