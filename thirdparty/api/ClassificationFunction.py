@@ -150,6 +150,8 @@ Quy tắc phân loại:
         print(f"Lỗi khi phân loại hành động: {e}")
         return None
 
+# Note: sửa lại các Task with action theo food mới 
+
 def TaskWithActionAdd(action: str, quantity: str, unit: str, food: str): 
     # In ra hành động
     print(f"THÊM: {quantity} {unit} {food}")
@@ -161,7 +163,7 @@ def TaskWithActionAdd(action: str, quantity: str, unit: str, food: str):
 def TaskWithActionDelete(action: str, quantity: str, unit: str, food: str):
     print(f"XÓA: {quantity} {unit} {food}")
     
-    delete_food(Food(id=food, name=food, quantity=quantity, unit=unit, status="còn tồi"))
+    eat_food(Food(id=food, name=food, quantity=quantity, unit=unit, status="còn tồi"))
 
     return f"Đã xóa {quantity} {unit} {food}"
 
