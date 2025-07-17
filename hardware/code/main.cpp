@@ -6,22 +6,26 @@
 #include "handleDelay.h"
 #include "DHT.h"
 #include "Relay.h"
+#include "TFT.h"
 #include <SPIFFS.h>
 
 // ============== KHỞI TẠO CÁC OBJECT ==============
 Button recordButton(RECORD_BUTTON);
-Button fanButton(FAN_BUTTON); // Nút điều khiển quạt (cần định nghĩa trong constant.h)
+Button fanButton(FAN_BUTTON);
+Button tftButton(18); // Nút chuyển trang TFT (có thể thêm vào constant.h)
 Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.11:8888/uploadAudio");
 INMP microphone(INMP_WS, INMP_SD, INMP_SCK);
 
 // Cảm biến và điều khiển
-GasSensor gasSensor;
-DHTSensor dhtSensor(DHT_PIN, DHT11, 2000);            // Cần định nghĩa DHT_PIN trong constant.h
-RelayController fanController(RELAY_PIN, PWM_PIN, 0); // Cần định nghĩa RELAY_PIN, PWM_PIN trong constant.h
+GasSensorData gasSensor;
+DHTSensor dhtSensor(DHT_PIN, DHT11, 2000);
+RelayController fanController(RELAY_PIN, PWM_PIN, 0);
+TFTDisplay tftDisplay;
 
 // Timer
 HandleDelay gasReadTimer(2000);
 HandleDelay dhtReadTimer(2000);
+HandleDelay tftUpdateTimer(500); // Cập nhật TFT mỗi 500ms
 
 const char *audioFileName = "/recording.wav";
 
@@ -32,6 +36,7 @@ void onRecordingStateChanged(bool isRecording, int progress)
         if (progress == 0)
         {
             Serial.println("Bắt đầu ghi âm...");
+            tftDisplay.setRecordingState(true);
         }
         else if (progress % 10 == 0) // Chỉ hiển thị mỗi 10%
         {
@@ -41,6 +46,7 @@ void onRecordingStateChanged(bool isRecording, int progress)
     else
     {
         Serial.println("Ghi âm hoàn thành!");
+        tftDisplay.setRecordingState(false);
     }
 }
 
@@ -52,6 +58,16 @@ void setup()
 
     Serial.println("=== KHỞI TẠO HỆ THỐNG ESP32 ===");
     Serial.println("Đang khởi tạo các thành phần...");
+
+    // Khởi tạo TFT Display trước tiên
+    if (tftDisplay.begin())
+    {
+        Serial.println("TFT Display khởi tạo thành công.");
+    }
+    else
+    {
+        Serial.println("TFT Display khởi tạo lỗi");
+    }
 
     // Khởi tạo SPIFFS cho lưu trữ file âm thanh
     if (!SPIFFS.begin(true))
@@ -101,12 +117,6 @@ void setup()
     Serial.println("Đang hiệu chuẩn cảm biến khí gas.");
     gasSensor.calibrate();
     Serial.println("Cảm biến khí gas đã được hiệu chuẩn.");
-
-    Serial.println("=== HỆ THỐNG SẴN SÀNG ===");
-    Serial.println("Nhấn nút ghi âm để bắt đầu/dừng ghi âm");
-    Serial.println("Nhấn nút quạt để chuyển chế độ quạt");
-    Serial.println("Các cảm biến sẽ đọc dữ liệu tự động");
-    Serial.println("================================");
 }
 
 // ============== HÀM HỖ TRỢ VÒNG LẶP CHÍNH ==============
@@ -119,12 +129,14 @@ void handleVoice()
             // Bắt đầu ghi âm
             Serial.println("Người dùng nhấn nút - Bắt đầu ghi âm");
             microphone.startRecording(audioFileName);
+            tftDisplay.setRecordingState(true);
         }
         else
         {
             // Dừng ghi âm
             Serial.println("Người dùng nhấn nút - Dừng ghi âm");
             microphone.stopRecording();
+            tftDisplay.setRecordingState(false);
 
             // Hiển thị danh sách file
             Serial.println("Danh sách file trong SPIFFS:");
@@ -160,6 +172,7 @@ void handleFanControl()
     if (fanButton.isPressed())
     {
         fanController.nextMode();
+        // TFT sẽ tự động cập nhật trong handleTFT
     }
 }
 
@@ -175,6 +188,21 @@ void handleSensors()
     if (gasReadTimer.isDue())
     {
         gasSensor.handleRead();
+    }
+}
+
+void handleTFT()
+{
+    // Cập nhật trạng thái kết nối
+    tftDisplay.setConnectionState(internet.isConnected());
+
+    // Cập nhật màn hình với dữ liệu từ các cảm biến
+    if (tftUpdateTimer.isDue())
+    {
+        DHTData dhtData = dhtSensor.getData();
+        RelayData relayData = fanController.getData();
+
+        tftDisplay.update(dhtData, gasSensor, relayData);
     }
 }
 
@@ -196,16 +224,19 @@ void handleWarnings()
 // ============== VÒNG LẶP CHÍNH ==============
 void loop()
 {
-    // ========== XỬ LÝ GHI ÂM ==========
+    // ========== XỬ LÝ GHI ÂM - LUỒNG 1 ==========
     handleVoice();
 
-    // ========== XỬ LÝ ĐIỀU KHIỂN QUẠT ==========
+    // ========== XỬ LÝ ĐIỀU KHIỂN QUẠT - LUỒNG 3, 4 ==========
     handleFanControl();
 
-    // ========== XỬ LÝ CÁC CẢM BIẾN ==========
+    // ========== XỬ LÝ CÁC CẢM BIẾN - LUỒNG 3, 4 ==========
     handleSensors();
 
-    // ========== XỬ LÝ CẢNH BÁO ==========
+    // ========== XỬ LÝ HIỂN THỊ TFT - LUỒNG 1, 3, 4 ==========
+    handleTFT();
+
+    // ========== XỬ LÝ CẢNH BÁO - LUỒNG 2, 3, 4 ==========
     handleWarnings();
 
     // Delay nhỏ để giảm tải CPU

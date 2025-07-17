@@ -27,7 +27,7 @@ HandleDelay gasReadTimer(2000);
 HandleDelay dhtReadTimer(2000);
 HandleDelay tftUpdateTimer(500); // Cập nhật TFT mỗi 500ms
 
-const char* audioFileName = "/recording.wav";
+const char *audioFileName = "/recording.wav";
 
 void onRecordingStateChanged(bool isRecording, int progress)
 {
@@ -183,15 +183,6 @@ void handleFanControl()
     }
 }
 
-void handleTFTControl()
-{
-    if (tftButton.isPressed())
-    {
-        tftDisplay.nextPage();
-        Serial.println("Chuyển trang TFT");
-    }
-}
-
 void handleSensors()
 {
     // Xử lý cảm biến DHT11
@@ -240,22 +231,19 @@ void handleWarnings()
 // ============== VÒNG LẶP CHÍNH ==============
 void loop()
 {
-    // ========== XỬ LÝ GHI ÂM ==========
+    // ========== XỬ LÝ GHI ÂM - LUỒNG 1 ==========
     handleVoice();
 
-    // ========== XỬ LÝ ĐIỀU KHIỂN QUẠT ==========
+    // ========== XỬ LÝ ĐIỀU KHIỂN QUẠT - LUỒNG 3, 4 ==========
     handleFanControl();
 
-    // ========== XỬ LÝ ĐIỀU KHIỂN TFT ==========
-    handleTFTControl();
-
-    // ========== XỬ LÝ CÁC CẢM BIẾN ==========
+    // ========== XỬ LÝ CÁC CẢM BIẾN - LUỒNG 3, 4 ==========
     handleSensors();
 
-    // ========== XỬ LÝ HIỂN THỊ TFT ==========
+    // ========== XỬ LÝ HIỂN THỊ TFT - LUỒNG 1, 3, 4 ==========
     handleTFT();
 
-    // ========== XỬ LÝ CẢNH BÁO ==========
+    // ========== XỬ LÝ CẢNH BÁO - LUỒNG 2, 3, 4 ==========
     handleWarnings();
 
     // Delay nhỏ để giảm tải CPU
