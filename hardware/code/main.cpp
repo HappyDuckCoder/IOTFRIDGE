@@ -7,6 +7,7 @@
 #include "DHT.h"
 #include "Relay.h"
 #include "TFT.h"
+#include "LoadCell.h"
 #include <SPIFFS.h>
 
 // ============== KHỞI TẠO CÁC OBJECT ==============
@@ -21,11 +22,13 @@ GasSensorData gasSensor;
 DHTSensor dhtSensor(DHT_PIN, DHT11, 2000);
 RelayController fanController(RELAY_PIN, PWM_PIN, 0);
 TFTDisplay tftDisplay;
+LoadCell loadcell;
 
 // Timer
 HandleDelay gasReadTimer(2000);
 HandleDelay dhtReadTimer(2000);
 HandleDelay tftUpdateTimer(500); // Cập nhật TFT mỗi 500ms
+HandleDelay loadcellTimer(2000);
 
 const char *audioFileName = "/recording.wav";
 
@@ -109,6 +112,16 @@ void setup()
         Serial.println("Fan controller khởi tạo lỗi");
     }
 
+    // Khởi tạo điều khiển LoadCell
+    if (loadcell.begin())
+    {
+        Serial.println("Load cell khởi tạo thành công.");
+    }
+    else
+    {
+        Serial.println("Load cell khởi tạo lỗi");
+    }
+
     // Khởi tạo kết nối internet
     internet.begin();
     Serial.println("Đang khởi tạo kết nối WiFi...");
@@ -176,6 +189,14 @@ void handleFanControl()
     }
 }
 
+void handleDoorTracking()
+{
+    if (loadcellTimer.isDue())
+    {
+        loadcell.handleDoorTracking();
+    }
+}
+
 void handleSensors()
 {
     // Xử lý cảm biến DHT11
@@ -232,6 +253,9 @@ void loop()
 
     // ========== XỬ LÝ CÁC CẢM BIẾN - LUỒNG 3, 4 ==========
     handleSensors();
+
+    // ========== XỬ LÝ CẢM BIẾN ĐÓNG MỞ CỬA TỦ - LUỒNG 2 ==========
+    handleDoorTracking();
 
     // ========== XỬ LÝ HIỂN THỊ TFT - LUỒNG 1, 3, 4 ==========
     handleTFT();
