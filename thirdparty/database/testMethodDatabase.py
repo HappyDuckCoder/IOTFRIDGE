@@ -3,6 +3,9 @@ from method import add_food, get_all_foods, delete_food_by_id
 
 from datetime import datetime, timedelta
 
+def get_image_url(food_id):
+    return f"https://example.com/images/{food_id}.jpg" # lấy của Đoàn
+
 def test_add_food():
     now = datetime.now()
     
