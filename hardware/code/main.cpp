@@ -17,7 +17,7 @@ Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.11:8888/uploadAudi
 INMP microphone(INMP_WS, INMP_SD, INMP_SCK);
 
 // Cảm biến và điều khiển
-GasSensor gasSensor;
+GasSensor gasSensor(MQ2_PIN, MQ135_PIN, 5000);
 DHTSensor dhtSensor(DHT_PIN, DHT11, 2000);
 RelayController fanController(RELAY_PIN, PWM_PIN, 0);
 TFTDisplay tftDisplay;

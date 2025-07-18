@@ -23,6 +23,9 @@ struct GasData
 class GasSensor
 {
 private:
+    const int MQ2_PIN;
+    const int MQ135_PIN;
+
     GasData data;
 
     int adcMQ2 = 0;
@@ -52,11 +55,17 @@ private:
     const float NH3_THRESHOLD = 50.0;
 
 public:
-    GasSensor(unsigned long interval = 5000)
-        : readInterval(interval) {}
+    GasSensor(MQ2_PIN, MQ135_PIN, unsigned long interval = 5000)
+        : readInterval(interval)
+    {
+        this->MQ2_PIN = MQ2_PIN;
+        this->MQ135_PIN = MQ135_PIN;
+    }
 
     bool begin()
     {
+        pinMode(MQ2_PIN, INPUT);
+        pinMode(MQ135_PIN, INPUT);
         Serial.println("Khởi động GasSensor...");
         return true;
     }
