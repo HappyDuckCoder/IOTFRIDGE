@@ -13,24 +13,21 @@
 // ============== KHỞI TẠO CÁC OBJECT ==============
 Button recordButton(RECORD_BUTTON);
 Button fanButton(FAN_BUTTON);
-Button tftButton(18); // Nút chuyển trang TFT (có thể thêm vào constant.h)
 Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.11:8888/uploadAudio");
 INMP microphone(INMP_WS, INMP_SD, INMP_SCK);
 
 // Cảm biến và điều khiển
-GasSensorData gasSensor;
+GasSensor gasSensor;
 DHTSensor dhtSensor(DHT_PIN, DHT11, 2000);
 RelayController fanController(RELAY_PIN, PWM_PIN, 0);
 TFTDisplay tftDisplay;
-LoadCell loadcell;
+LoadCellSensor loadCell(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN, 2000, 50.0);
 
 // Timer
 HandleDelay gasReadTimer(2000);
 HandleDelay dhtReadTimer(2000);
 HandleDelay tftUpdateTimer(500); // Cập nhật TFT mỗi 500ms
 HandleDelay loadcellTimer(2000);
-
-const char *audioFileName = "/recording.wav";
 
 void onRecordingStateChanged(bool isRecording, int progress)
 {
@@ -113,13 +110,13 @@ void setup()
     }
 
     // Khởi tạo điều khiển LoadCell
-    if (loadcell.begin())
+    if (loadCell.begin())
     {
-        Serial.println("Load cell khởi tạo thành công.");
+        Serial.println("LoadCell đã khởi động thành công.");
     }
     else
     {
-        Serial.println("Load cell khởi tạo lỗi");
+        Serial.println("Lỗi khi khởi động LoadCell.");
     }
 
     // Khởi tạo kết nối internet
@@ -128,6 +125,14 @@ void setup()
 
     // Khởi tạo và hiệu chuẩn cảm biến khí gas
     Serial.println("Đang hiệu chuẩn cảm biến khí gas.");
+    if (gasSensor.begin())
+    {
+        Serial.println("GasSensor đã khởi động thành công.");
+    }
+    else
+    {
+        Serial.println("Lỗi khi khởi động GasSensor.");
+    }
     gasSensor.calibrate();
     Serial.println("Cảm biến khí gas đã được hiệu chuẩn.");
 }
@@ -239,6 +244,12 @@ void handleWarnings()
     if (gasSensor.isInDanger())
     {
         Serial.println("CẢNH BÁO GAS: Nồng độ khí gas cao, có thực phẩm bị hỏng!");
+    }
+
+    // Kiểm tra cảnh báo từ cảm biến biến thay đổi trong lượng
+    if (loadcell.isInDanger())
+    {
+        Serial.println("CẢNH BÁO LOADCELL: Có sự thay đổi trong lượng quá 5 phút!");
     }
 }
 
