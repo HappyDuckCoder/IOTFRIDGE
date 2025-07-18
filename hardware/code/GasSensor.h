@@ -1,36 +1,71 @@
-#ifndef GasSensor_h
-#define GasSensor_h
+#ifndef GASSENSOR_H
+#define GASSENSOR_H
 
-#include <Arduino.h>
+#include <math.h>
 #include "constant.h"
+
+struct GasData
+{
+    float ppmCH4;
+    float ppmNH3;
+    bool isValid;
+    unsigned long lastReadTime;
+
+    GasData()
+    {
+        ppmCH4 = 0.0;
+        ppmNH3 = 0.0;
+        isValid = false;
+        lastReadTime = 0;
+    }
+};
 
 class GasSensor
 {
-public:
+private:
+    GasData data;
+
     int adcMQ2 = 0;
     int adcMQ135 = 0;
-    float ppmCH4 = 0.0;
-    float ppmNH3 = 0.0;
+
     float rsMQ2 = 0.0;
     float rsMQ135 = 0.0;
+
     float ratioMQ2 = 0.0;
     float ratioMQ135 = 0.0;
+
     float RoMQ2 = 1.0;
     float RoMQ135 = 1.0;
+
+    unsigned long readInterval;
     bool calibrated = false;
 
-    const float RL = 10000.0;
-    const float Vcc = 3.3;
+    const float RL = 10000.0; // điện trở tải (ohm)
+    const float Vcc = 3.3;    // điện áp cấp cho cảm biến
+
+    // Hằng số đường cong cảm biến
     const float MQ2_A = -0.38, MQ2_B = 1.48;
     const float MQ135_A = -0.45, MQ135_B = 2.95;
+
+    // Ngưỡng cảnh báo (có thể cho chỉnh sửa qua setThreshold sau này)
     const float CH4_THRESHOLD = 3000.0;
     const float NH3_THRESHOLD = 50.0;
 
-    void calibrate()
+public:
+    GasSensor(unsigned long interval = 5000)
+        : readInterval(interval) {}
+
+    bool begin()
+    {
+        Serial.println("Khởi động GasSensor...");
+        return true;
+    }
+
+    void calibrate(int samples = 100)
     {
         long sumMQ2 = 0, sumMQ135 = 0;
-        int samples = 100;
-        Serial.println("Hiệu chuẩn MQ-2 và MQ-135...");
+
+        Serial.println("Đang hiệu chuẩn MQ-2 và MQ-135...");
 
         for (int i = 0; i < samples; i++)
         {
@@ -42,8 +77,9 @@ public:
         RoMQ2 = (sumMQ2 / (float)samples) / 4.4;
         RoMQ135 = (sumMQ135 / (float)samples) / 3.7;
 
-        Serial.printf("Ro MQ-2 = %.2f | Ro MQ-135 = %.2f\n", RoMQ2, RoMQ135);
         calibrated = true;
+
+        Serial.printf("Hiệu chuẩn xong: Ro MQ-2 = %.2f | Ro MQ-135 = %.2f\n", RoMQ2, RoMQ135);
     }
 
     void handleRead()
@@ -51,34 +87,53 @@ public:
         if (!calibrated)
             return;
 
-        adcMQ2 = analogRead(MQ2_PIN);
-        adcMQ135 = analogRead(MQ135_PIN);
+        unsigned long currentTime = millis();
+        if (currentTime - data.lastReadTime >= readInterval)
+        {
+            adcMQ2 = analogRead(MQ2_PIN);
+            adcMQ135 = analogRead(MQ135_PIN);
 
-        rsMQ2 = calculateRs(adcMQ2);
-        rsMQ135 = calculateRs(adcMQ135);
+            rsMQ2 = calculateRs(adcMQ2);
+            rsMQ135 = calculateRs(adcMQ135);
 
-        ratioMQ2 = rsMQ2 / RoMQ2;
-        ratioMQ135 = rsMQ135 / RoMQ135;
+            ratioMQ2 = rsMQ2 / RoMQ2;
+            ratioMQ135 = rsMQ135 / RoMQ135;
 
-        ppmCH4 = calculatePPM(ratioMQ2, MQ2_A, MQ2_B);
-        ppmNH3 = calculatePPM(ratioMQ135, MQ135_A, MQ135_B);
+            data.ppmCH4 = calculatePPM(ratioMQ2, MQ2_A, MQ2_B);
+            data.ppmNH3 = calculatePPM(ratioMQ135, MQ135_A, MQ135_B);
+            data.lastReadTime = currentTime;
+            data.isValid = true;
+        }
     }
 
-    bool isInDanger()
+    GasData getData() const
     {
-        return (ppmCH4 > CH4_THRESHOLD || ppmNH3 > NH3_THRESHOLD);
+        return data;
     }
 
-    void log()
+    bool isInDanger() const
     {
-        Serial.printf("CH4: %.1f ppm\tNH3: %.1f ppm\t", ppmCH4, ppmNH3);
+        return data.isValid &&
+               (data.ppmCH4 > CH4_THRESHOLD || data.ppmNH3 > NH3_THRESHOLD);
+    }
+
+    void log() const
+    {
+        if (!data.isValid)
+        {
+            Serial.println("GasSensor - Dữ liệu không hợp lệ.");
+            return;
+        }
+
+        Serial.printf("GasSensor - CH4: %.1f ppm | NH3: %.1f ppm", data.ppmCH4, data.ppmNH3);
+
         if (isInDanger())
         {
-            Serial.println("NGUY HIỂM!");
+            Serial.println("Nguy hiểm");
         }
         else
         {
-            Serial.println("An toàn.");
+            Serial.println("An toàn");
         }
     }
 
