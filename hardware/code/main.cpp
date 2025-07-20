@@ -13,7 +13,7 @@
 // ============== KHỞI TẠO CÁC OBJECT ==============
 Button recordButton(RECORD_BUTTON);
 Button fanButton(FAN_BUTTON);
-Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.11:8888/uploadAudio");
+Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.11:8888");
 INMP microphone(INMP_WS, INMP_SD, INMP_SCK);
 
 // Cảm biến và điều khiển

@@ -5,10 +5,10 @@
 
 enum FanMode
 {
-    FAN_OFF = 0,        // Tắt quạt
-    FAN_LOW = 1,        // Quạt chậm
-    FAN_MEDIUM = 2,     // Quạt trung bình
-    FAN_HIGH = 3        // Quạt nhanh
+    FAN_OFF = 0,    // Tắt quạt
+    FAN_LOW = 1,    // Quạt chậm
+    FAN_MEDIUM = 2, // Quạt trung bình
+    FAN_HIGH = 3    // Quạt nhanh
 };
 
 struct RelayData
@@ -29,8 +29,8 @@ class RelayController
 {
 private:
     int relayPin;
-    int pwmPin;           // Pin PWM để điều khiển tốc độ quạt
-    int pwmChannel;       // PWM channel
+    int pwmPin;     // Pin PWM để điều khiển tốc độ quạt
+    int pwmChannel; // PWM channel
     RelayData data;
 
     // PWM settings
@@ -38,7 +38,7 @@ private:
     const int pwmResolution = 8;
 
     // Tốc độ quạt cho các chế độ (0-255)
-    const int fanSpeeds[4] = { 0, 85, 170, 255 }; // OFF, LOW, MEDIUM, HIGH
+    const int fanSpeeds[4] = {0, 85, 170, 255}; // OFF, LOW, MEDIUM, HIGH
 
 public:
     RelayController(int relay, int pwm, int channel = 0)
@@ -98,15 +98,20 @@ public:
         ledcWrite(pwmChannel, speed);
     }
 
-    const char* getModeString(FanMode mode) const
+    const char *getModeString(FanMode mode) const
     {
         switch (mode)
         {
-        case FAN_OFF: return "TẮT";
-        case FAN_LOW: return "CHẬM";
-        case FAN_MEDIUM: return "TRUNG BÌNH";
-        case FAN_HIGH: return "NHANH";
-        default: return "KHÔNG XÁC ĐỊNH";
+        case FAN_OFF:
+            return "TẮT";
+        case FAN_LOW:
+            return "CHẬM";
+        case FAN_MEDIUM:
+            return "TRUNG BÌNH";
+        case FAN_HIGH:
+            return "NHANH";
+        default:
+            return "KHÔNG XÁC ĐỊNH";
         }
     }
 

@@ -4,7 +4,7 @@ from method import add_food, get_all_foods, delete_food_by_id
 from datetime import datetime, timedelta
 
 def get_image_url(food_name):
-    return f"https://example.com/images/{food_name}.jpg" # lấy của Đoàn
+    return f"https://example.com/images/{food_name}.jpg" # lấy của đoàn
 
 def get_category(food_name):
     # 1 prompt: "vitamin_and_fruits", "protein", "carbohydrate", "fat"

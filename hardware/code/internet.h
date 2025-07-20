@@ -91,7 +91,7 @@ public:
             return false;
         }
 
-        Serial.println("===> Đang upload file lên server Node.js");
+        Serial.println("===> Đang upload file lên server python");
 
         HTTPClient client;
         client.begin(serverURL);
@@ -118,6 +118,13 @@ public:
         file.close();
         client.end();
         return success;
+    }
+
+    bool uploadData(const char *data)
+    {
+        // đẩy 5 thông số lên server
+
+        // không phải gửi qua đường / hoặc /audio mà gửi qua đường /uploadData
     }
 
     String getLocalIP()
