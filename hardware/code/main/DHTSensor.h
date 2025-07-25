@@ -1,5 +1,5 @@
-﻿#ifndef DHT_H
-#define DHT_H
+#ifndef DHT_SENSOR_H
+#define DHT_SENSOR_H
 
 #include <Arduino.h>
 #include <DHT.h>
@@ -11,13 +11,7 @@ struct DHTData
     bool isValid;
     unsigned long lastReadTime;
 
-    DHTData()
-    {
-        temperature = 0.0;
-        humidity = 0.0;
-        isValid = false;
-        lastReadTime = 0;
-    }
+    DHTData() : temperature(0.0), humidity(0.0), isValid(false), lastReadTime(0) {}
 };
 
 class DHTSensor
@@ -27,49 +21,37 @@ private:
     int pin;
     int type;
     DHTData data;
-    unsigned long readInterval;
 
     // Ngưỡng cảnh báo
     float tempMin, tempMax;
     float humidityMin, humidityMax;
 
 public:
-    DHTSensor(int dhtPin, int dhtType, unsigned long interval = 2000)
-        : dht(dhtPin, dhtType), pin(dhtPin), type(dhtType), readInterval(interval)
-    {
-        // Thiết lập ngưỡng mặc định phù hợp với DHT11
-        tempMin = 18.0;     // Nhiệt độ tối thiểu (°C)
-        tempMax = 30.0;     // Nhiệt độ tối đa (°C)
-        humidityMin = 40.0; // Độ ẩm tối thiểu (%)
-        humidityMax = 70.0; // Độ ẩm tối đa (%)
-    }
+    DHTSensor(int dhtPin, int dhtType)
+        : dht(dhtPin, dhtType), pin(dhtPin), type(dhtType),
+          tempMin(18.0), tempMax(30.0), humidityMin(40.0), humidityMax(70.0) {}
 
     bool begin()
     {
         dht.begin();
-        delay(1000);
         return true;
     }
 
     void handleRead()
     {
-        unsigned long currentTime = millis();
-        if (currentTime - data.lastReadTime >= readInterval)
+        float newTemp = dht.readTemperature();
+        float newHumidity = dht.readHumidity();
+        
+        if (!isnan(newTemp) && !isnan(newHumidity))
         {
-            float newTemp = dht.readTemperature();
-            float newHumidity = dht.readHumidity();
-
-            if (!isnan(newTemp) && !isnan(newHumidity))
-            {
-                data.temperature = newTemp;
-                data.humidity = newHumidity;
-                data.isValid = true;
-                data.lastReadTime = currentTime;
-            }
-            else
-            {
-                data.isValid = false;
-            }
+            data.temperature = newTemp;
+            data.humidity = newHumidity;
+            data.isValid = true;
+            data.lastReadTime = millis();
+        }
+        else
+        {
+            data.isValid = false;
         }
     }
 

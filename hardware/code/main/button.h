@@ -1,8 +1,6 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include <Arduino.h>
-
 class Button
 {
 private:
@@ -23,13 +21,21 @@ public:
         pinMode(pin, INPUT);
     }
 
+    bool begin()
+    {
+        pinMode(pin, INPUT);
+
+        // Đọc tín hiệu thử, nếu đọc được -> kết nối thành công
+        int state = digitalRead(pin);
+        return (state == LOW || state == HIGH);
+    }
+
     bool isPressed()
     {
         bool currentState = digitalRead(pin);
         bool result = false;
 
-        // Kiểm tra trạng thái thay đổi từ LOW sang HIGH
-        if (currentState == HIGH && !lastState &&
+        if (currentState == LOW && lastState == HIGH &&
             (millis() - lastPressTime > debounceDelay))
         {
             result = true;
@@ -39,6 +45,7 @@ public:
         lastState = currentState;
         return result;
     }
+
 
     bool isHeld()
     {
