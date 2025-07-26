@@ -190,7 +190,6 @@ public:
         
         if (mq2Ok && mq135Ok) 
         {
-            calibrate();
             return true;
         }
         else return false;
