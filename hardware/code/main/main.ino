@@ -3,6 +3,7 @@
 #include "DHTSensor.h"
 #include "GasSensor.h"
 #include "HandleDelay.h"
+#include "Relay.h"
 
 // =====================Define Object Section====================== //
 // Button 
@@ -13,39 +14,12 @@ Button button_door(BUTTON_DOOR_PIN);
 DHTSensor dhtSensor(DHT_PIN, DHT11);
 // MQ2, MQ135
 GasSensorSystem gasSystem(MQ2_PIN, MQ135_PIN);
+// Relay 
+RelayController fanRelay(RELAY_PIN);
 // TimerReader
 HandleDelay dhtReadTimer(2000);
 HandleDelay gasSystemReadTimer(2000);
 // =====================Define Object Section====================== //
-
-// =====================Debug Section====================== //
-// Debug
-class Debug
-{
-public:
-    Debug() {}
-
-    void debugButton()
-    {
-      if (button_mic.isPressed()) Serial.println("button mic press");
-      if (button_fan.isPressed()) Serial.println("button fan press");
-      if (button_door.isPressed()) Serial.println("button door press");
-    }
-
-    void debugDHT()
-    {
-      dhtSensor.handleRead();
-      dhtSensor.log();
-    }
-
-    void debugGasSystem() 
-    {
-      gasSystem.handleRead();
-      gasSystem.log();
-    }
-};
-Debug debug;
-// =====================Debug Section====================== //
 
 // =====================Support Section====================== //
 class HandleFunction 
@@ -53,14 +27,15 @@ class HandleFunction
 public:
   HandleFunction() {}
 
+  // Xử lý 2 gas sensor và 1 dht sensor
   void handleSensors()
   {
     // Xử lý cảm biến DHT11
-    // if (dhtReadTimer.isDue())
-    // {
-    //   dhtSensor.handleRead();
-    //   dhtSensor.log();
-    // }
+    if (dhtReadTimer.isDue())
+    {
+      dhtSensor.handleRead();
+      dhtSensor.log();
+    }
 
     // Xử lý cảm biến khí gas
     if (gasSystemReadTimer.isDue())
@@ -69,6 +44,18 @@ public:
       gasSystem.log();
     }
   }
+
+  // Xử lý relay 
+  void handleRelay() 
+  {
+    fanRelay.update();
+    if (button_fan.isPressed()) 
+    {
+      fanRelay.nextMode();
+      fanRelay.log();
+    }
+  }
+  
 };
 HandleFunction handle;
 // =====================Support Section====================== //
@@ -93,12 +80,17 @@ void setup()
 
   // gas begin
   if (gasSystem.begin()) Serial.println("Hệ thống gas khởi tạo thành công");  
-  else Serial.println("Hệ thống gas  khởi tạo thất bại");
+  else Serial.println("Hệ thống gas khởi tạo thất bại");
+  // gasSystem.calibrate(); // hiệu chuẩn hóa gas sensor, tạm thời ẩn đi
+
+  // relay begin 
+  if (fanRelay.begin()) Serial.println("Relay khởi tạo thành công");  
+  else Serial.println("Relay khởi tạo thất bại");
 }
 
 void loop() 
 {
-  handle.handleSensors();
+  handle.handleRelay();
 
   delay(50);
 }

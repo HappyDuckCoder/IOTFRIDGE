@@ -14,5 +14,8 @@
 #define MQ2_PIN           32
 #define MQ135_PIN         33
 
+// relay 
+#define RELAY_PIN         23
+
 
 #endif 
