@@ -18,7 +18,6 @@ public:
         lastState = false;
         lastPressTime = 0;
         debounceDelay = debounce;
-        pinMode(pin, INPUT);
     }
 
     bool begin()

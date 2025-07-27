@@ -62,8 +62,17 @@ public:
   // Xử lý ST7789 
   void handleDisplayTFT() 
   {
+    // FridgeData f = internet.readData(); 
+
     // để tạm thời
-    tft.showMain(0, 0, 0, 0, 0);
+    FridgeData f(0, 0, 0, 0, 0); 
+    float temp = f.temp;
+    float humi = f.humi;
+    bool is_rotted_food = f.is_rotted_food; 
+    int total_food = f.total_food;
+    int last_open = f.last_open;
+
+    tft.showMain(temp, humi, is_rotted_food, total_food, last_open);
   }
 };
 HandleFunction handle;

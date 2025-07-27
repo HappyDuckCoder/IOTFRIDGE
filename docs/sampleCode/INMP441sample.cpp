@@ -120,11 +120,6 @@ void startRecording()
         return;
     }
 
-    // Tạo và ghi WAV header vào đầu file
-    byte header[headerSize];
-    wavHeader(header, FLASH_RECORD_SIZE);
-    file.write(header, headerSize);
-
     // Tạo task riêng để xử lý ghi âm (không block main loop)
     xTaskCreate(i2s_adc, "i2s_adc", 1024 * 4, NULL, 1, &recordingTaskHandle);
 }
@@ -312,86 +307,6 @@ void i2s_adc(void *arg)
     vTaskDelete(NULL);
 }
 
-// ============== TẠO WAV HEADER ==============
-/*
- * Tạo header chuẩn cho file WAV
- * header: mảng byte chứa header
- * wavSize: kích thước dữ liệu âm thanh
- */
-void wavHeader(byte *header, int wavSize)
-{
-    // RIFF Header
-    header[0] = 'R';
-    header[1] = 'I';
-    header[2] = 'F';
-    header[3] = 'F';
-
-    // File Size (tổng kích thước file - 8 bytes)
-    unsigned int fileSize = wavSize + headerSize - 8;
-    header[4] = (byte)(fileSize & 0xFF);
-    header[5] = (byte)((fileSize >> 8) & 0xFF);
-    header[6] = (byte)((fileSize >> 16) & 0xFF);
-    header[7] = (byte)((fileSize >> 24) & 0xFF);
-
-    // WAVE Format
-    header[8] = 'W';
-    header[9] = 'A';
-    header[10] = 'V';
-    header[11] = 'E';
-
-    // Format Chunk
-    header[12] = 'f';
-    header[13] = 'm';
-    header[14] = 't';
-    header[15] = ' ';
-
-    // Format Chunk Size (16 bytes)
-    header[16] = 0x10;
-    header[17] = 0x00;
-    header[18] = 0x00;
-    header[19] = 0x00;
-
-    // Audio Format (1 = PCM)
-    header[20] = 0x01;
-    header[21] = 0x00;
-
-    // Number of Channels (1 = Mono)
-    header[22] = 0x01;
-    header[23] = 0x00;
-
-    // Sample Rate (16000 Hz)
-    header[24] = 0x80;
-    header[25] = 0x3E;
-    header[26] = 0x00;
-    header[27] = 0x00;
-
-    // Byte Rate (Sample Rate × Channels × Bits per Sample / 8)
-    header[28] = 0x00;
-    header[29] = 0x7D;
-    header[30] = 0x01;
-    header[31] = 0x00;
-
-    // Block Align (Channels × Bits per Sample / 8)
-    header[32] = 0x02;
-    header[33] = 0x00;
-
-    // Bits per Sample (16-bit)
-    header[34] = 0x10;
-    header[35] = 0x00;
-
-    // Data Chunk
-    header[36] = 'd';
-    header[37] = 'a';
-    header[38] = 't';
-    header[39] = 'a';
-
-    // Data Size
-    header[40] = (byte)(wavSize & 0xFF);
-    header[41] = (byte)((wavSize >> 8) & 0xFF);
-    header[42] = (byte)((wavSize >> 16) & 0xFF);
-    header[43] = (byte)((wavSize >> 24) & 0xFF);
-}
-
 // ============== HIỂN THỊ DANH SÁCH FILE TRONG SPIFFS ==============
 void listSPIFFS(void)
 {
@@ -563,7 +478,7 @@ void uploadFile()
         return;
     }
 
-    Serial.println("===> Đang upload file lên server Node.js");
+    Serial.println("===> Đang upload file lên server python");
 
     // Tạo HTTP client
     HTTPClient client;
