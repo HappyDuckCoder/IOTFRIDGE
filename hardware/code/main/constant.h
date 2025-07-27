@@ -26,6 +26,17 @@
 #define TFT_SCREEN_WIDTH    240
 #define TFT_SCREEN_HEIGHT   320
 
+struct FridgeData 
+{
+  float temp;
+  float humi;
+  bool is_rotted_food; 
+  int total_food;
+  int last_open;
+
+  FridgeData(float temp, float humi, bool is_rotted_food, int total_food, int last_open) 
+      : temp(temp), humi(humi), is_rotted_food(is_rotted_food), total_food(total_food), last_open(last_open) {}
+};
 
 
 #endif 

@@ -69,7 +69,7 @@ public:
         drawText("title", "IOT Fridge", 30, 70, ST77XX_CYAN);
     }
 
-    void showMain(float temp, float humi, bool is_rotted_food, int total_food, int last_open_day)
+    void showMain(float temp, float humi, bool is_rotted_food, int total_food, int last_open)
     {
         drawBackground();
 
@@ -85,7 +85,7 @@ public:
             String(humi) + " %",
             String(total_food),
             is_rotted_food ? "Yes" : "No",
-            String(last_open_day) + "h"};
+            String(last_open) + "h"};
 
         uint16_t colors[] = {
             ST77XX_WHITE,
