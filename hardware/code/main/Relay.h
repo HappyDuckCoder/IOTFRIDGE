@@ -19,7 +19,7 @@ private:
     unsigned long lastUpdate;
     unsigned long cycleStart;
 
-    const int cycleDuration = 1000; // 1 giây
+    const int cycleDuration = 1000;              // 1 giây
     const int dutyCycle[4] = {0, 250, 500, 750}; // thời gian bật (ms) cho từng mode
 
 public:
@@ -70,18 +70,22 @@ public:
         setMode(next);
     }
 
-    const char* getModeString(FanMode mode) const
+    const char *getModeString(FanMode mode) const
     {
         switch (mode)
         {
-        case FAN_OFF: return "TẮT";
-        case FAN_LOW: return "NHẸ";
-        case FAN_MEDIUM: return "TRUNG BÌNH";
-        case FAN_HIGH: return "MẠNH";
-        default: return "KHÔNG XÁC ĐỊNH";
+        case FAN_OFF:
+            return "TẮT";
+        case FAN_LOW:
+            return "NHẸ";
+        case FAN_MEDIUM:
+            return "TRUNG BÌNH";
+        case FAN_HIGH:
+            return "MẠNH";
+        default:
+            return "KHÔNG XÁC ĐỊNH";
         }
     }
-
 
     void log() const
     {

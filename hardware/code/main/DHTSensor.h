@@ -41,7 +41,7 @@ public:
     {
         float newTemp = dht.readTemperature();
         float newHumidity = dht.readHumidity();
-        
+
         if (!isnan(newTemp) && !isnan(newHumidity))
         {
             data.temperature = newTemp;
@@ -63,19 +63,19 @@ public:
     bool isTemperatureInRange() const
     {
         return data.isValid &&
-            (data.temperature >= tempMin && data.temperature <= tempMax);
+               (data.temperature >= tempMin && data.temperature <= tempMax);
     }
 
     bool isHumidityInRange() const
     {
         return data.isValid &&
-            (data.humidity >= humidityMin && data.humidity <= humidityMax);
+               (data.humidity >= humidityMin && data.humidity <= humidityMax);
     }
 
     bool isInDanger() const
     {
         return data.isValid &&
-            (!isTemperatureInRange() || !isHumidityInRange());
+               (!isTemperatureInRange() || !isHumidityInRange());
     }
 
     void setThresholds(float tMin, float tMax, float hMin, float hMax)
@@ -91,7 +91,7 @@ public:
         if (data.isValid)
         {
             Serial.printf("DHT11 - Nhiệt độ: %.0f°C, Độ ẩm: %.0f%%",
-                data.temperature, data.humidity);
+                          data.temperature, data.humidity);
 
             if (isInDanger())
             {
@@ -99,12 +99,12 @@ public:
                 if (!isTemperatureInRange())
                 {
                     Serial.printf(" - Nhiệt độ ngoài phạm vi (%.0f-%.0f°C)",
-                        tempMin, tempMax);
+                                  tempMin, tempMax);
                 }
                 if (!isHumidityInRange())
                 {
                     Serial.printf(" - Độ ẩm ngoài phạm vi (%.0f-%.0f%%)",
-                        humidityMin, humidityMax);
+                                  humidityMin, humidityMax);
                 }
             }
             Serial.println();

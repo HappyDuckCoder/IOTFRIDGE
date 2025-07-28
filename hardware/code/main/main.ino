@@ -67,23 +67,23 @@ public:
     }
   }
 
-  // Xử lý ST7789 
-  void handleDisplayTFT() 
+  // Xử lý ST7789
+  void handleDisplayTFT()
   {
-    // FridgeData f = internet.readData(); 
+    // FridgeData f = internet.readData();
 
     // để tạm thời
-    FridgeData f(0, 0, 0, 0, 0); 
+    FridgeData f(0, 0, 0, 0, 0);
     float temp = f.temp;
     float humi = f.humi;
-    bool is_rotted_food = f.is_rotted_food; 
+    bool is_rotted_food = f.is_rotted_food;
     int total_food = f.total_food;
     int last_open = f.last_open;
 
     tft.showMain(temp, humi, is_rotted_food, total_food, last_open);
   }
 
-  void handleInternet() 
+  void handleInternet()
   {
     if (InternetCheckingReadTimer.isDue())
     {
@@ -92,21 +92,21 @@ public:
         internet.checking();
       }
     }
-      
-    if (SendDataReadTimer.isDue()) 
+
+    if (SendDataReadTimer.isDue())
     {
       internet.testUploadingInMain();
     }
   }
 
-  void handleTestSpiff() 
+  void handleTestSpiff()
   {
-    if (button_mic.isPressed()) 
+    if (button_mic.isPressed())
     {
       spiff.deleteAllFiles();
       spiff.writeFile("/log.txt", "Dữ liệu test SPIFFS\n");
       String content = spiff.readFile("/log.txt");
-      if (spiff.exists("/log.txt")) 
+      if (spiff.exists("/log.txt"))
       {
         Serial.print("Nội dung đọc được: ");
         Serial.println(content);
@@ -159,21 +159,21 @@ void setup()
     Serial.println("Relay khởi tạo thất bại");
 
   // begin ST7789
-  if (tft.begin()) 
+  if (tft.begin())
     Serial.println("TFT khởi tạo thành công");
-  else 
+  else
     Serial.println("TFT Khởi tạo thất bại");
 
-  // internet Begin 
-  if (internet.begin()) 
+  // internet Begin
+  if (internet.begin())
     Serial.println("internet khởi tạo thành công");
-  else 
+  else
     Serial.println("internet Khởi tạo thất bại");
 
-   // internet Begin 
-  if (spiff.begin()) 
+  // internet Begin
+  if (spiff.begin())
     Serial.println("spiff khởi tạo thành công");
-  else 
+  else
     Serial.println("spiff Khởi tạo thất bại");
 }
 
