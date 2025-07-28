@@ -5,6 +5,7 @@
 #include "HandleDelay.h"
 #include "Relay.h"
 #include "TFT.h"
+#include "internet.h"
 
 // =====================Define Object Section====================== //
 // Button
@@ -19,9 +20,13 @@ GasSensorSystem gasSystem(MQ2_PIN, MQ135_PIN);
 RelayController fanRelay(RELAY_PIN);
 // ST7789 Display
 TFTDisplay tft(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, TFT_SCLK_PIN, TFT_MOSI_PIN, TFT_SCREEN_WIDTH, TFT_SCREEN_HEIGHT);
+// internet
+Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.9:8888");
 // TimerReader
 HandleDelay dhtReadTimer(2000);
 HandleDelay gasSystemReadTimer(2000);
+HandleDelay InternetCheckingReadTimer(200);
+HandleDelay SendDataReadTimer(5000);
 // =====================Define Object Section====================== //
 
 // =====================Support Section====================== //
@@ -74,6 +79,22 @@ public:
 
     tft.showMain(temp, humi, is_rotted_food, total_food, last_open);
   }
+
+  void handleInternet() 
+  {
+    if (InternetCheckingReadTimer.isDue())
+    {
+      if (!internet.isConnected())
+      {
+        internet.checking();
+      }
+    }
+      
+    if (SendDataReadTimer.isDue()) 
+    {
+      internet.testUploadingInMain();
+    }
+  }
 };
 HandleFunction handle;
 // =====================Support Section====================== //
@@ -122,11 +143,17 @@ void setup()
     Serial.println("TFT khởi tạo thành công");
   else 
     Serial.println("TFT Khởi tạo thất bại");
+
+  // internet Begin 
+  if (internet.begin()) 
+    Serial.println("internet khởi tạo thành công");
+  else 
+    Serial.println("internet Khởi tạo thất bại");
 }
 
 void loop()
 {
-  handle.handleDisplayTFT();
+  handle.handleInternet();
 
   delay(50);
 }
