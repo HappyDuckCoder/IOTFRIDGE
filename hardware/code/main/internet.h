@@ -29,7 +29,7 @@ public:
         return true;
     }
 
-    void printInfo() 
+    void printInfo()
     {
         Serial.print("WiFi đã kết nối! IP: ");
         Serial.print(WiFi.localIP());
@@ -66,9 +66,9 @@ public:
         Serial.println("WiFi chưa kết nối, không thể gửi dữ liệu!");
     }
 
-    void testUploadingInMain() 
+    void testUploadingInMain()
     {
-        int dummyData = random(10, 100); 
+        int dummyData = random(10, 100);
         bool success = uploadTestData(dummyData, "/uploadTestData");
 
         if (success)
@@ -77,20 +77,20 @@ public:
         }
     }
 
-    bool uploadTestData(int test_data, const char* link)
+    bool uploadTestData(int test_data, const char *link)
     {
         if (!isConnected())
         {
-            logNotConnected(); 
+            logNotConnected();
             return false;
         }
 
         HTTPClient client;
-        
-        String uploadURL = String(serverBaseURL) + String(link);
-        client.begin(uploadURL); 
 
-        client.addHeader("Content-Type", "application/json"); 
+        String uploadURL = String(serverBaseURL) + String(link);
+        client.begin(uploadURL);
+
+        client.addHeader("Content-Type", "application/json");
 
         String jsonPayload = "{\"test_data\": " + String(test_data) + "}";
 
@@ -114,10 +114,9 @@ public:
             Serial.println("Lỗi khi gửi dữ liệu test_data");
         }
 
-        client.end(); 
+        client.end();
         return success;
     }
-
 
     bool uploadFile(const char *filename, const char *uploadURL)
     {
@@ -165,7 +164,6 @@ public:
 
     bool uploadData(const char *data, const char *uploadURL)
     {
-        
     }
 
     String getLocalIP()
