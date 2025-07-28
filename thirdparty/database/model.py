@@ -38,6 +38,7 @@ class Food:
             "image_url": self.image_url,
             "user_preference": self.user_preference,  
             "is_priority_food": self.is_priority_food,
+            "calo": self.calo
         }
 
     @staticmethod
@@ -54,7 +55,8 @@ class Food:
             data.get("category"),
             data.get("user_preference", 6),
             data.get("is_priority_food", False),
-            data.get("image_url")
+            data.get("image_url"),
+            data.get("calo", 0.0)
         )
 
     def __str__(self):
