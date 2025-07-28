@@ -1,0 +1,38 @@
+- Load cell (thường loại strain gauge) khi bị nén hoặc kéo sẽ thay đổi điện trở của các cảm biến strain gauge bên trong.
+- Bốn strain gauge được mắc thành cầu Wheatstone để tạo ra tín hiệu điện áp vi sai rất nhỏ (thường vài mV).
+- Tín hiệu điện áp vi sai này quá nhỏ nên cần IC HX711 để khuếch đại và chuyển đổi thành tín hiệu số gửi cho vi điều khiển (ESP32, Arduino, v.v.).
+
+
+a. Load cell 4 dây
+Load cell 4 dây thường có màu:
+Red (E+): nguồn kích thích dương (+5V hoặc +3.3V từ HX711)
+Black (E−): nguồn kích thích âm (GND)
+White (A−): tín hiệu âm từ cầu Wheatstone
+Green (A+): tín hiệu dương từ cầu Wheatstone
+
+b. HX711
+HX711 có 2 cổng chính:
+Excitation: cung cấp điện áp cho load cell (E+, E−)
+Signal: nhận tín hiệu vi sai từ load cell (A+, A− hoặc B+, B−)
+
+Load Cell           HX711
+---------           -----
+Red (E+)     --->   E+
+Black (E−)   --->   E−
+Green (A+)   --->   A+
+White (A−)   --->   A−
+
+
+- HX711 có 2 chân giao tiếp số:
+DT (Data): đường dữ liệu
+SCK (Clock): xung đồng hồ điều khiển
+
+- Vi điều khiển (ESP32, Arduino, STM32, ...) sẽ đọc dữ liệu theo quy trình:
+Khi dữ liệu sẵn sàng, HX711 kéo DT xuống LOW.
+MCU gửi 25~27 xung SCK để đọc 24 bit dữ liệu trọng lượng (dạng bù hai).
+Dữ liệu được MCU xử lý, áp dụng hệ số calibration để ra giá trị trọng lượng.
+
+- Nguyên tắc hoạt động trong đo lường
+HX711 có bộ khuếch đại tích hợp (PGA) với hệ số thường dùng 128.
+Độ phân giải 24-bit cho phép đo chính xác đến gram hoặc miligram tùy load cell.
+Vi điều khiển phải lấy mẫu nhiều lần, lọc nhiễu (trung bình cộng hoặc Kalman filter) để giá trị cân ổn định.
