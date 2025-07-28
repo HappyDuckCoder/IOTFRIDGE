@@ -10,65 +10,50 @@ class Internet
 private:
     const char *ssid;
     const char *password;
-    const char *serverURL;
+    const char *serverBaseURL;
     bool connected;
-    TaskHandle_t wifiTaskHandle;
-
-    static void wifiConnectTask(void *pvParameters)
-    {
-        Internet *internet = (Internet *)pvParameters;
-        internet->connectWiFi();
-    }
-
-    void connectWiFi()
-    {
-        Serial.println("Đang kết nối WiFi...");
-        WiFi.begin(ssid, password);
-
-        while (WiFi.status() != WL_CONNECTED)
-        {
-            vTaskDelay(500);
-            Serial.print(".");
-        }
-
-        connected = true;
-        Serial.println();
-        Serial.print("WiFi đã kết nối! IP: ");
-        Serial.println(WiFi.localIP());
-
-        // Duy trì kết nối
-        while (true)
-        {
-            if (WiFi.status() != WL_CONNECTED)
-            {
-                connected = false;
-                Serial.println("Mất kết nối WiFi, đang thử kết nối lại...");
-                WiFi.begin(ssid, password);
-                while (WiFi.status() != WL_CONNECTED)
-                {
-                    vTaskDelay(500);
-                    Serial.print(".");
-                }
-                connected = true;
-                Serial.println("\nKết nối WiFi đã được khôi phục!");
-            }
-            vTaskDelay(1000);
-        }
-    }
 
 public:
-    Internet(const char *wifiSSID, const char *wifiPassword, const char *uploadURL)
+    Internet(const char *wifiSSID, const char *wifiPassword, const char *baseURL)
     {
         ssid = wifiSSID;
         password = wifiPassword;
-        serverURL = uploadURL;
+        serverBaseURL = baseURL;
         connected = false;
-        wifiTaskHandle = NULL;
     }
 
-    void begin()
+    bool begin()
     {
-        xTaskCreate(wifiConnectTask, "wifi_connect", 4096, this, 1, &wifiTaskHandle);
+        Serial.println("Đang kết nối WiFi...");
+        WiFi.begin(ssid, password);
+        return true;
+    }
+
+    void printInfo() 
+    {
+        Serial.print("WiFi đã kết nối! IP: ");
+        Serial.print(WiFi.localIP());
+        Serial.print(" - ");
+        Serial.print("base URL: ");
+        Serial.println(serverBaseURL);
+    }
+
+    void checking()
+    {
+        // Nếu chưa kết nối, thử kết nối lại mỗi delay giây
+        if (WiFi.status() != WL_CONNECTED)
+        {
+            connected = false;
+            WiFi.begin(ssid, password);
+        }
+        else
+        {
+            if (!connected)
+            {
+                connected = true;
+                printInfo();
+            }
+        }
     }
 
     bool isConnected()
@@ -76,11 +61,69 @@ public:
         return connected && (WiFi.status() == WL_CONNECTED);
     }
 
-    bool uploadFile(const char *filename)
+    void logNotConnected()
+    {
+        Serial.println("WiFi chưa kết nối, không thể gửi dữ liệu!");
+    }
+
+    void testUploadingInMain() 
+    {
+        int dummyData = random(10, 100); 
+        bool success = uploadTestData(dummyData, "/uploadTestData");
+
+        if (success)
+        {
+            Serial.println("Gửi test_data thành công!");
+        }
+    }
+
+    bool uploadTestData(int test_data, const char* link)
     {
         if (!isConnected())
         {
-            Serial.println("WiFi chưa kết nối!");
+            logNotConnected(); 
+            return false;
+        }
+
+        HTTPClient client;
+        
+        String uploadURL = String(serverBaseURL) + String(link);
+        client.begin(uploadURL); 
+
+        client.addHeader("Content-Type", "application/json"); 
+
+        String jsonPayload = "{\"test_data\": " + String(test_data) + "}";
+
+        Serial.println("Đang gửi test_data lên server: " + jsonPayload);
+
+        int httpResponseCode = client.POST(jsonPayload);
+
+        Serial.print("Mã phản hồi HTTP: ");
+        Serial.println(httpResponseCode);
+
+        bool success = false;
+        if (httpResponseCode == 200)
+        {
+            String response = client.getString();
+            Serial.println("Phản hồi từ server đối với test_data:");
+            Serial.println(response);
+            success = true;
+        }
+        else
+        {
+            Serial.println("Lỗi khi gửi dữ liệu test_data");
+        }
+
+        client.end(); 
+        return success;
+    }
+
+
+    bool uploadFile(const char *filename, const char *uploadURL)
+    {
+        if (!isConnected())
+        {
+            logNotConnected();
             return false;
         }
 
@@ -91,10 +134,10 @@ public:
             return false;
         }
 
-        Serial.println("===> Đang upload file lên server python");
+        Serial.println("===> Đang upload file lên server");
 
         HTTPClient client;
-        client.begin(serverURL);
+        client.begin(uploadURL);
         client.addHeader("Content-Type", "audio/wav");
 
         int httpResponseCode = client.sendRequest("POST", &file, file.size());
@@ -107,7 +150,7 @@ public:
             String response = client.getString();
             Serial.println("==================== Phiên âm ====================");
             Serial.println(response);
-            Serial.println("====================   Kết thúc   ====================");
+            Serial.println("==================== Kết thúc ====================");
             success = true;
         }
         else
@@ -120,11 +163,9 @@ public:
         return success;
     }
 
-    bool uploadData(const char *data)
+    bool uploadData(const char *data, const char *uploadURL)
     {
-        // đẩy 5 thông số lên server
-
-        // không phải gửi qua đường / hoặc /audio mà gửi qua đường /uploadData
+        
     }
 
     String getLocalIP()
