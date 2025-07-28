@@ -6,6 +6,7 @@
 #include "Relay.h"
 #include "TFT.h"
 #include "internet.h"
+#include "Spiff.h"
 
 // =====================Define Object Section====================== //
 // Button
@@ -22,6 +23,8 @@ RelayController fanRelay(RELAY_PIN);
 TFTDisplay tft(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, TFT_SCLK_PIN, TFT_MOSI_PIN, TFT_SCREEN_WIDTH, TFT_SCREEN_HEIGHT);
 // internet
 Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.9:8888");
+// spiff
+Spiff spiff;
 // TimerReader
 HandleDelay dhtReadTimer(2000);
 HandleDelay gasSystemReadTimer(2000);
@@ -95,6 +98,23 @@ public:
       internet.testUploadingInMain();
     }
   }
+
+  void handleTestSpiff() 
+  {
+    if (button_mic.isPressed()) 
+    {
+      spiff.deleteAllFiles();
+      spiff.writeFile("/log.txt", "Dữ liệu test SPIFFS\n");
+      String content = spiff.readFile("/log.txt");
+      if (spiff.exists("/log.txt")) 
+      {
+        Serial.print("Nội dung đọc được: ");
+        Serial.println(content);
+        spiff.listFiles();
+      }
+      spiff.deleteFile("/log.txt");
+    }
+  }
 };
 HandleFunction handle;
 // =====================Support Section====================== //
@@ -149,11 +169,17 @@ void setup()
     Serial.println("internet khởi tạo thành công");
   else 
     Serial.println("internet Khởi tạo thất bại");
+
+   // internet Begin 
+  if (spiff.begin()) 
+    Serial.println("spiff khởi tạo thành công");
+  else 
+    Serial.println("spiff Khởi tạo thất bại");
 }
 
 void loop()
 {
-  handle.handleInternet();
+  handle.handleTestSpiff();
 
   delay(50);
 }
