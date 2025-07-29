@@ -4,3 +4,6 @@
 # Bỏ qua file biên dịch Python
 __pycache__/
 *.pyc
+
+# Bỏ qua webs
+/webs
