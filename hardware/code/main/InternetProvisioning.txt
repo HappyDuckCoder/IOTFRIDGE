@@ -1,0 +1,83 @@
+[ESP khởi động]
+   │
+   ├─> Đọc SSID/pass từ NVS
+   │       │
+   │       ├─ Nếu kết nối OK → chạy ứng dụng (Internet)
+   │       │
+   │       └─ Nếu thất bại → bật AP Mode
+   │                │
+   │                └─> Người dùng nhập SSID/pass mới → Lưu NVS → Restart
+   │
+[Đang chạy]
+   │
+   ├─> Mất kết nối?
+   │       ├─ Có → AP Mode
+   │       └─ Không → tiếp tục
+
+
+- Giai đoạn 1: Khởi động (ESP32 vừa bật nguồn/reset)
+	ESP32 khởi tạo InternetProvisioning
+
+		InternetProvisioning wifiManager;
+		wifiManager.begin();
+
+	Gọi prefs.begin("wifi", false); để mở vùng nhớ NVS (Non-Volatile Storage).
+
+	Đọc SSID/password đã lưu từ NVS:
+
+		ssid = prefs.getString("ssid", "");
+		password = prefs.getString("password", "");
+
+	Kiểm tra có thông tin Wi-Fi không
+	Nếu có SSID/password đã lưu → thử kết nối STA mode.
+	Nếu kết nối thành công → đánh dấu connected = true.
+	Nếu kết nối thất bại hoặc không có thông tin → chuyển sang AP mode (bước 3).
+	Bật chế độ Access Point (AP Mode) nếu không kết nối được
+
+		WiFi.softAP("ESP_Config", "12345678"); → ESP phát mạng Wi-Fi tên ESP_Config.
+
+	In ra thông báo: “Truy cập http://192.168.4.1 để cấu hình Wi-Fi”.
+	Khởi động WebServer để hiển thị trang cấu hình SSID/password.
+
+- Giai đoạn 2: Cấu hình Wi-Fi qua AP + WebServer
+	Người dùng kết nối điện thoại/laptop vào AP ESP_Config
+	Địa chỉ IP mặc định của AP: 192.168.4.1.
+	WebServer hiển thị danh sách mạng Wi-Fi
+	Gọi WiFi.scanNetworks() → quét các mạng Wi-Fi xung quanh.
+	Trả về HTML có các nút radio chọn SSID và ô nhập password.
+	Người dùng chọn SSID & nhập password
+	Khi nhấn nút “Lưu” → ESP nhận dữ liệu qua route /save.
+	ESP lưu thông tin Wi-Fi vào NVS
+
+		prefs.putString("ssid", newSSID);
+		prefs.putString("password", newPASS);
+
+	Gửi phản hồi HTML “Lưu thành công! ESP sẽ khởi động lại…”.
+
+		ESP.restart(); → khởi động lại thiết bị.
+
+- Giai đoạn 3: Kết nối lại sau khi cấu hình
+	ESP khởi động lại
+	Lặp lại Giai đoạn 1.
+	Lần này SSID/password đã có trong NVS → kết nối trực tiếp.
+	Nếu kết nối thành công → connected = true → tiếp tục chạy logic chính.
+	Nếu kết nối thất bại (sai pass / Wi-Fi không khả dụng)
+	Sau X giây thử kết nối → tự động quay lại AP Mode (Giai đoạn 2).
+
+- Giai đoạn 4: Xử lý khi đang chạy mà mất kết nối
+	Trong loop() của main.ino:
+
+		wifiManager.handleClient();
+			if (!wifiManager.isConnected()) {
+				// Có thể timeout và chuyển lại AP Mode
+			}
+
+	Nếu mất kết nối lâu:
+	Gọi lại startAPMode() để mở cổng cấu hình lại.
+	Người dùng có thể đổi sang Wi-Fi mới.
+
+- Tích hợp với module Internet
+	Khi provisioning đã đảm bảo luôn có Wi-Fi hợp lệ, Internet chỉ cần gọi:
+
+		WiFi.begin(wifiManager.getSSID().c_str(), wifiManager.getPassword().c_str());
+	→ Không cần fix cứng SSID/password trong code nữa.
