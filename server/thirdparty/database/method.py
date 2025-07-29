@@ -1,19 +1,8 @@
-from thirdparty.database.model import Food, Setting, Recipe
+from thirdparty.database.model import Food, Setting, Recipe, Condition
 from thirdparty.database.connect import get_firestore_db
-from thirdparty.database.model import FridgeConditions
 
 db = get_firestore_db()
 
-def add_fridge_conditions(condition: FridgeConditions):
-    doc_ref = db.collection("FridgeConditions").document("current_conditions")
-    doc = doc_ref.get()
-
-    if doc.exists:
-        doc_ref.update(condition.to_dict())
-        print("Đã cập nhật thông số tủ lạnh hiện tại.")
-    else:
-        doc_ref.set(condition.to_dict())
-        print("Đã thêm thông số tủ lạnh mới.")
 
 # Thêm hoặc cập nhật món ăn
 def add_food(food: Food):
@@ -32,7 +21,7 @@ def add_food(food: Food):
 # Lấy toàn bộ danh sách
 def get_all_foods():
     docs = db.collection("Food").stream()
-    return [Food.from_dict(doc.to_dict()) for doc in docs]
+    return [Food.from_dict(doc.id, doc.to_dict()) for doc in docs]
 
 # Lấy món ăn theo tên
 def get_id_food_by_name(name):
@@ -156,4 +145,23 @@ def update_settings_data(setting_data_id, data):
     doc_ref.update(data) # ví dụ: update_settings_data("setting_001", {"diet_data": "low-carb"})
     print(f"Đã cập nhật setting với ID: {setting_data_id}")
     
+def add_fridge_conditions(condition: Condition):
+    doc_ref = db.collection("Condition").document(condition.id)
+    doc = doc_ref.get()
 
+    if doc.exists:
+        doc_ref.update(condition.to_dict())
+        print("Đã cập nhật thông số tủ lạnh hiện tại.")
+    else:
+        doc_ref.set(condition.to_dict())
+        print("Đã thêm thông số tủ lạnh mới.")
+
+def delete_fridge_conditions_by_id(doc_id: str):
+    doc_ref = db.collection("Condition").document(doc_id)
+    doc = doc_ref.get()
+
+    if doc.exists:
+        doc_ref.delete()
+        print(f"Đã xoá thông số tủ lạnh với ID '{doc_id}'.")
+    else:
+        print(f"Không tìm thấy thông số với ID '{doc_id}'.")
