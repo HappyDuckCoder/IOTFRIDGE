@@ -15,6 +15,45 @@ def add_fridge_conditions(condition: FridgeConditions):
         doc_ref.set(condition.to_dict())
         print("Đã thêm thông số tủ lạnh mới.")
 
+def delete_fridge_conditions():
+    doc_ref = db.collection("FridgeConditions").document("current_conditions")
+    doc = doc_ref.get()
+
+    if doc.exists:
+        doc_ref.delete()
+        print("Đã xóa thông số tủ lạnh hiện tại.")
+    else:
+        print("Không tìm thấy thông số tủ lạnh để xóa.")
+
+def delete_fridge_conditions_by_field(field: str, value):
+    allowed_fields = [
+        "temperature", "humidity", "last_checked", 
+        "number_of_items", "food_goes_bad", "ecod_friendly"
+    ]
+    
+    if field not in allowed_fields:
+        raise ValueError(f"Không thể xóa theo trường '{field}'. Chỉ hỗ trợ: {allowed_fields}")
+    
+    # Lọc các document phù hợp điều kiện
+    docs = db.collection("FridgeConditions").where(field, "==", value).stream()
+    
+    count = 0
+    for doc in docs:
+        doc.reference.delete()
+        count += 1
+    
+    if count > 0:
+        print(f"Đã xóa {count} thông số tủ lạnh có {field} = {value}.")
+    else:
+        print(f"Không tìm thấy thông số tủ lạnh có {field} = {value}.")
+
+# Xóa các bản ghi có nhiệt độ = 5.0
+#delete_fridge_conditions_by_field("temperature", 5.0)
+
+# Xóa các bản ghi có eco mode đang bật
+#delete_fridge_conditions_by_field("ecod_friendly", True)
+
+
 # Thêm hoặc cập nhật món ăn
 def add_food(food: Food):
     doc_ref = db.collection("Food").document(food.id)

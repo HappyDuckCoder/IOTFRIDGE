@@ -23,22 +23,6 @@ class Food:
         self.user_preference = user_preference            # số điểm mà người dùng đánh giá, mặc định 6 điểm
         self.is_priority_food = is_priority_food          # nếu là món ăn ưu tiên thì sẽ là True, mặc định là False
         
-class FridgeConditions:
-    def __init__(
-        self,
-        temperature: float,               
-        humidity: float,                  
-        last_checked: datetime,           
-        number_of_items: int,              
-        food_goes_bad: bool,             
-        ecod_friendly: bool,                 
-    ):
-        self.temperature = temperature
-        self.humidity = humidity
-        self.last_checked = last_checked
-        self.number_of_items = number_of_items
-        self.food_goes_bad = food_goes_bad
-        self.ecod_friendly = ecod_friendly
 
     def to_dict(self):
         return {
@@ -78,6 +62,44 @@ class FridgeConditions:
     def __str__(self):
         return f"{self.name} ({self.quantity} {self.unit})"
 
+
+class FridgeConditions:
+    def __init__(
+        self,
+        temperature: float,
+        humidity: float,
+        last_checked: datetime,
+        number_of_items: int,
+        food_goes_bad: bool,
+        ecod_friendly: bool,
+    ):
+        self.temperature = temperature
+        self.humidity = humidity
+        self.last_checked = last_checked
+        self.number_of_items = number_of_items
+        self.food_goes_bad = food_goes_bad
+        self.ecod_friendly = ecod_friendly
+
+    def to_dict(self):
+        return {
+            "temperature": self.temperature,
+            "humidity": self.humidity,
+            "last_checked": self.last_checked.isoformat() if self.last_checked else None,
+            "number_of_items": self.number_of_items,
+            "food_goes_bad": self.food_goes_bad,
+            "ecod_friendly": self.ecod_friendly
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(
+            temperature=data.get("temperature", 0.0),
+            humidity=data.get("humidity", 0.0),
+            last_checked=datetime.fromisoformat(data["last_checked"]) if data.get("last_checked") else None,
+            number_of_items=data.get("number_of_items", 0),
+            food_goes_bad=data.get("food_goes_bad", False),
+            ecod_friendly=data.get("ecod_friendly", False)
+        )
 
 class User:
     def __init__(self, id: str, phone: str, password: str, detail_user_id: str, 
