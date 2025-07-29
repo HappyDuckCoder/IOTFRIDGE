@@ -1,5 +1,5 @@
 #include "constant.h"
-// #include "button.h"
+#include "button.h"
 // #include "DHTSensor.h"
 // #include "GasSensor.h"
 #include "HandleDelay.h"
@@ -10,12 +10,14 @@
 // #include "INMP.h"
 // #include "I2SRecorder.h"
 #include "HX711.h"
+#include "DoorTracking.h"
+#include "WeightTracking.h"
 
 // // =====================Define Object Section====================== //
 // // Button
 // Button button_mic(BUTTON_MIC_PIN);
 // Button button_fan(BUTTON_FAN_PIN);
-// Button button_door(BUTTON_DOOR_PIN);
+Button button_door(BUTTON_DOOR_PIN);
 // // DHT
 // DHTSensor dhtSensor(DHT_PIN, DHT11);
 // // MQ2, MQ135
@@ -32,10 +34,10 @@
 // INMP mic(INMP_BCLK_PIN, INMP_WS_PIN, INMP_DATA_PIN);
 // // Recorder
 // I2SRecorder recorder(mic, I2S_READ_LEN, SAMPLE_RATE, SAMPLE_BITS, CHANNEL_NUM);
-// HX711
-HX711 hx711(HX711_SCK_PIN, HX711_DOUT_PIN);
+// DoorTracking
+DoorTracking door;
+WeightTracking weight(HX711_DOUT_PIN, HX711_SCK_PIN);
 // // TimerReader
-HandleDelay hx711ReadTimer(2000);
 // HandleDelay dhtReadTimer(2000);
 // HandleDelay gasSystemReadTimer(2000);
 // HandleDelay InternetCheckingReadTimer(200);
@@ -162,11 +164,26 @@ public:
 
   void handleDoorChecking() 
   {
-    long m = hx711.read();
-    Serial.print("Khối lượng đo được: ");
-    Serial.println(m);
+    if (button_door.isHeld()) door.setCurrentState(DOOR_CLOSED);
+    else door.setCurrentState(DOOR_OPEN);
+    
+    // door.log(); // debug
 
-    // if else
+    if (door.isAlertNeeded())
+    {
+        Serial.println("Cửa mở lâu mà không đóng");
+        // TODO: Gửi thông báo lên server
+    } 
+
+    if (door.isDoorJustClosed())
+    {
+        Serial.println("Cửa vừa đóng, xem có thay đổi trọng lượng không");
+        // if (weight.checkWeightChange())
+        // {
+        //     Serial.println("có sự thay đổi --> yêu cầu cập nhật thực phẩm");
+        //     // TODO: Gửi thông báo yêu cầu nhập/chỉnh sửa thực phẩm trên website
+        // }
+    }
   }
 };
 HandleFunction handle;
@@ -187,10 +204,10 @@ void setup()
 //     Serial.println("Button Fan khởi tạo thành công");
 //   else
 //     Serial.println("Button Fan khởi tạo thất bại");
-//   if (button_door.begin())
-//     Serial.println("Button Door khởi tạo thành công");
-//   else
-//     Serial.println("Button Door khởi tạo thất bại");
+  if (button_door.begin())
+    Serial.println("Button Door khởi tạo thành công");
+  else
+    Serial.println("Button Door khởi tạo thất bại");
 
 //   // dht begin
 //   if (dhtSensor.begin())
@@ -236,10 +253,10 @@ void setup()
   //   Serial.println("INMP Khởi tạo thất bại");
 
   // HX711 begin 
-  if (hx711.begin())
-    Serial.println("HX711 khởi tạo thành công");
+  if (weight.begin())
+    Serial.println("cân khởi tạo thành công");
   else
-    Serial.println("HX711 Khởi tạo thất bại");
+    Serial.println("cân Khởi tạo thất bại");
 }
 
 void loop()

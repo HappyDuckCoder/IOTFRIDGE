@@ -4,49 +4,70 @@
 #include <Arduino.h>
 
 enum DoorState {
-    DOOR_OPEN,
-    DOOR_CLOSED,
-    DOOR_NOT_FIRM
+    DOOR_OPEN = 0,
+    DOOR_CLOSED = 1,
+    DOOR_NOT_FIRM = 2
 };
 
 class DoorTracking {
 private:
-    uint8_t buttonPin;
-    unsigned long openStartTime;
+    unsigned long openStartTime = 0;
     unsigned long alertThreshold;
-    DoorState lastState;
+    unsigned long justClosedThreshold; 
+
+    DoorState currentState = DOOR_CLOSED;
+    DoorState lastState = DOOR_CLOSED;
+
+    bool alertSent = false;
+    bool justClosedFlag = false;
 
 public:
-    DoorTracking(uint8_t pin, unsigned long thresholdMs = 120000)
-        : buttonPin(pin), alertThreshold(thresholdMs), openStartTime(0), lastState(DOOR_CLOSED) {}
+    // alertThreshold mặc định là 5 phút
+    DoorTracking(unsigned long thresholdMs = 30000, unsigned long justClosedThreshold = 20000)
+        : alertThreshold(thresholdMs), justClosedThreshold(justClosedThreshold) {}
 
-    void begin() {
-        pinMode(buttonPin, INPUT_PULLUP);
-    }
+    void setCurrentState(DoorState state) {
+        currentState = state;
 
-    DoorState getState() {
-        int signal = digitalRead(buttonPin);
-        if (signal == HIGH) return DOOR_OPEN;
-        return DOOR_CLOSED;
+        // Nếu cửa vừa mở thì bắt đầu đếm thời gian
+        if (lastState == DOOR_CLOSED && currentState == DOOR_OPEN) {
+            openStartTime = millis();
+            alertSent = false;
+        }
+
+        // Nếu cửa vừa đóng lại thì kiểm tra thời gian mở
+        if (lastState == DOOR_OPEN && currentState == DOOR_CLOSED) {
+            unsigned long duration = millis() - openStartTime;
+            justClosedFlag = (duration < justClosedThreshold);
+            openStartTime = 0;
+            alertSent = false;
+        }
+
+        lastState = currentState;
     }
 
     bool isAlertNeeded() {
-        DoorState currentState = getState();
         if (currentState == DOOR_OPEN) {
-            if (openStartTime == 0) openStartTime = millis();
-            if (millis() - openStartTime > alertThreshold) return true;
-        } else {
-            openStartTime = 0;
+            if (!alertSent && (millis() - openStartTime >= alertThreshold)) {
+                alertSent = true;
+                return true;
+            }
         }
-        lastState = currentState;
         return false;
     }
 
     bool isDoorJustClosed() {
-        DoorState currentState = getState();
-        bool justClosed = (lastState == DOOR_OPEN && currentState == DOOR_CLOSED);
-        lastState = currentState;
-        return justClosed;
+        if (justClosedFlag) {
+            justClosedFlag = false; 
+            return true;
+        }
+        return false;
+    }
+
+    void log() 
+    {
+        Serial.print("current state: ");
+        Serial.println(currentState);
     }
 };
 
