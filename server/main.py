@@ -4,7 +4,6 @@ import json
 import socket
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
-from util import *
 
 class Handler(BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):

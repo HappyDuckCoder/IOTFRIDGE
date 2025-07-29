@@ -1,7 +1,5 @@
-# những method bên model
-
-from model import Food, Recipe, Setting
-from connect import get_firestore_db
+from thirdparty.database.model import Food, Setting, Recipe
+from thirdparty.database.connect import get_firestore_db
 
 db = get_firestore_db()
 
@@ -87,12 +85,6 @@ def get_foods_by_status(field: str, value: bool):
     docs = db.collection("Food").where(field, "==", value).stream()
     return [Food.from_dict(doc.to_dict()) for doc in docs]
 
-
-
-
-
-
-
 def add_recipe(recipe: Recipe):
     doc_ref = db.collection("Recipe").document(recipe.id)
     doc_ref.set(recipe.to_dict())
@@ -125,11 +117,6 @@ def get_all_recipes():
         recipe = Recipe.from_dict(data)
         recipe_list.append(recipe)
     return recipe_list
-
-
-
-
-
 
 def add_settings_data(settings_data: Setting):
     doc_ref = db.collection("Settings").document(settings_data.id)
