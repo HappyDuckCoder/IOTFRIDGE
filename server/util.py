@@ -1,12 +1,9 @@
 import wave
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 import requests
-import json
-from typing import Optional, Dict, Any, List
-import time
-
+from typing import Optional, Dict, Any
+import random
+import string
+from datetime import datetime, timedelta
 from thirdparty.api.getImageUrl import ImageSearchTool
 from thirdparty.api.ClassificationFunction import Model, model_gemini_name
 
@@ -281,6 +278,13 @@ def test_calo_api():
                     print(f"   2 quả = {detail['total_calories']} kcal")
         else:
             print(f"❌ Không tìm thấy")
+
+def generate_random_id(length=20):
+    characters = string.ascii_letters + string.digits  # A-Z, a-z, 0-9
+    return ''.join(random.choice(characters) for _ in range(length))
+
+def get_default_expired_date(days=7):
+    return (datetime.now() + timedelta(days=days)).date()
 
 def main(): 
     print(get_category("sữa"))
