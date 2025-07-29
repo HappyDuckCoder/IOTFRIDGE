@@ -3,7 +3,7 @@ import random
 import string
 from datetime import datetime, timedelta
 from thirdparty.api.getImageUrl import ImageSearchTool
-from thirdparty.api.ClassificationFunction import Model, model_gemini_name
+from thirdparty.api.NLPapi import Model, model_gemini_name
 from thirdparty.api.GetCalo import GetCaloService
 
 def convert_pcm_to_wav(pcm_path, wav_path, sample_rate=16000, num_channels=1, sample_width=2):
