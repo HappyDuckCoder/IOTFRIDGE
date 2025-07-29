@@ -1,7 +1,6 @@
 from thirdparty.database.model import Food
 from thirdparty.database.method import add_food, get_all_foods, delete_food_by_id, delete_all_foods
-from util import get_calo_usda, get_category, get_image_url
-
+from my_util import get_calo_usda, get_category, get_image_url
 from datetime import datetime, timedelta
 
 def test_add_food():
@@ -19,7 +18,7 @@ def test_add_food():
                 output_date=now + timedelta(days=5), 
                 category=get_category("táo"),
                 image_url=get_image_url("táo"), 
-                calo=get_calo_usda("táo")
+                calo=get_calo_usda("táo", 10, "quả")
             ),
 
         Food(
@@ -33,7 +32,7 @@ def test_add_food():
                 output_date=now + timedelta(days=3), 
                 category=get_category("cá hồi"),
                 image_url=get_image_url("cá hồi"), 
-                calo=get_calo_usda("cá hồi")
+                calo=get_calo_usda("cá hồi", 200, "gam")
             ),
 
         Food(
@@ -47,7 +46,7 @@ def test_add_food():
                 output_date=now + timedelta(days=4), 
                 category=get_category("trứng"),
                 image_url=get_image_url("trứng"), 
-                calo=get_calo_usda("trứng")
+                calo=get_calo_usda("trứng", 20, "quả")
             ),
     ]
 
@@ -64,10 +63,10 @@ def test_get_all_foods():
 def test_delete_food_by_id():
     delete_food_by_id("2")  # Xóa chuối
 
-def main():
+def food_all_test():
     delete_all_foods_()
     test_add_food()
     test_get_all_foods()
 
 if __name__ == "__main__":
-    main()
+    food_all_test()

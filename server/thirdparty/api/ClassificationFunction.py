@@ -2,7 +2,7 @@ import google.generativeai as genai
 import json
 from thirdparty.database.model import Food
 from thirdparty.database.method import add_food, eat_food
-from util import generate_random_id, get_default_expired_date, get_category, get_calo_usda, get_image_url
+from my_util import  get_default_expired_date, get_category, get_calo_usda, get_image_url, generate_random_id_string
 from datetime import datetime
 
 API_GEMINI_KEY = "AIzaSyB5ZEm_hOqAf7APH3dzVSQ7_2Ezn_IYVn8"
@@ -158,7 +158,7 @@ def TaskWithActionAdd(action: str, quantity: str, unit: str, food: str):
     print(f"{action}: {quantity} {unit} {food}")
     
     food = Food(
-        id=generate_random_id(), 
+        id=generate_random_id_string(), 
         name=food, 
         quantity=quantity, 
         unit=unit, 
