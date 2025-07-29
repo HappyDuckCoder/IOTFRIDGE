@@ -11,14 +11,17 @@ private:
 
 public:
     WeightTracking(uint8_t doutPin, uint8_t sckPin, float threshold = 50.0)
-        : lastWeight(0), changeThreshold(threshold) {
-        scale.begin(doutPin, sckPin);
+        : lastWeight(0), changeThreshold(threshold) 
+    {
+        scale.set_pin(doutPin, sckPin);
+        scale.begin();
     }
 
-    void begin() {
-        scale.set_scale();      // Cần calibration cụ thể
+    bool begin() {
+        scale.set_scale(5000);      // Cần calibration cụ thể
         scale.tare();
         lastWeight = scale.get_units();
+        return true;
     }
 
     bool checkWeightChange() {
