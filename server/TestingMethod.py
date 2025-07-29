@@ -1,5 +1,5 @@
-from thirdparty.database.model import Food
-from thirdparty.database.method import add_food, get_all_foods, delete_food_by_id, delete_all_foods
+from thirdparty.database.model import Food, Condition
+from thirdparty.database.method import add_food, get_all_foods, delete_food_by_id, delete_all_foods, add_fridge_conditions
 from my_util import get_calo_usda, get_category, get_image_url
 from datetime import datetime, timedelta
 
@@ -67,6 +67,11 @@ def food_all_test():
     delete_all_foods_()
     test_add_food()
     test_get_all_foods()
+
+def add_condition(): 
+    now = datetime.now()
+    sample_condition = Condition("1", now, 0.0, 0.0, False, 0, "1")
+    add_fridge_conditions(sample_condition)
 
 if __name__ == "__main__":
     food_all_test()

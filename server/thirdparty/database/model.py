@@ -2,11 +2,11 @@
 
 class Food:
     def __init__(
-            self, id: str, name: str, quantity: float, unit: str, 
-            is_good: bool, is_expired: bool, input_date: datetime, output_date: datetime, 
-            category: str, calo: float, user_preference: int = 6, is_priority_food: bool = False, 
-            image_url = None
-        ):
+        self, id: str, name: str, quantity: float, unit: str,
+        is_good: bool, is_expired: bool, input_date: datetime, output_date: datetime,
+        category: str, calo: float, user_preference: int = 6, is_priority_food: bool = False,
+        image_url=None
+    ):
         self.id = id
         self.name = name
         self.quantity = quantity
@@ -20,29 +20,11 @@ class Food:
         self.image_url = image_url
 
         # for food suggestion
-        self.user_preference = user_preference            # số điểm mà người dùng đánh giá, mặc định 6 điểm
-        self.is_priority_food = is_priority_food          # nếu là món ăn ưu tiên thì sẽ là True, mặc định là False
-        
-class FridgeConditions:
-    def __init__(
-        self,
-        temperature: float,               
-        humidity: float,                  
-        last_checked: datetime,           
-        number_of_items: int,              
-        food_goes_bad: bool,             
-        ecod_friendly: bool,                 
-    ):
-        self.temperature = temperature
-        self.humidity = humidity
-        self.last_checked = last_checked
-        self.number_of_items = number_of_items
-        self.food_goes_bad = food_goes_bad
-        self.ecod_friendly = ecod_friendly
+        self.user_preference = user_preference
+        self.is_priority_food = is_priority_food
 
     def to_dict(self):
         return {
-            "id": self.id,
             "name": self.name,
             "quantity": self.quantity,
             "unit": self.unit,
@@ -51,33 +33,29 @@ class FridgeConditions:
             "input_date": self.input_date,
             "output_date": self.output_date,
             "category": self.category,
-            "image_url": self.image_url,
-            "user_preference": self.user_preference,  
+            "calo": self.calo,
+            "user_preference": self.user_preference,
             "is_priority_food": self.is_priority_food,
-            "calo": self.calo
+            "image_url": self.image_url,
         }
 
     @staticmethod
-    def from_dict(data):        
+    def from_dict(id: str, data):
         return Food(
-            data.get("id"),
-            data.get("name"),
-            data.get("quantity"),
-            data.get("unit"),
-            data.get("is_good", True),
-            data.get("is_expired", False),
-            data.get("input_date"),
-            data.get("output_date"),
-            data.get("category"),
-            data.get("user_preference", 6),
-            data.get("is_priority_food", False),
-            data.get("image_url"),
-            data.get("calo", 0.0)
+            id=id,
+            name=data.get("name"),
+            quantity=data.get("quantity"),
+            unit=data.get("unit"),
+            is_good=data.get("is_good"),
+            is_expired=data.get("is_expired"),
+            input_date=data.get("input_date"),         
+            output_date=data.get("output_date"),       
+            category=data.get("category"),
+            calo=data.get("calo"),
+            user_preference=data.get("user_preference", 6),
+            is_priority_food=data.get("is_priority_food", False),
+            image_url=data.get("image_url")
         )
-
-    def __str__(self):
-        return f"{self.name} ({self.quantity} {self.unit})"
-
 
 class User:
     def __init__(self, id: str, phone: str, password: str, detail_user_id: str, 
@@ -232,20 +210,20 @@ class Condition:
                  temperature: float, has_spoiled_food: bool, food_count: int, 
                  fridge_data_id: str):
         self.id = id
-        self.last_door_close = last_door_close
+        self.lastDateEntry = last_door_close
         self.humidity = humidity
         self.temperature = temperature
-        self.has_spoiled_food = has_spoiled_food
-        self.food_count = food_count
+        self.spoiledFood = has_spoiled_food
+        self.foodCount = food_count
         self.fridge_data_id = fridge_data_id
 
     def to_dict(self):
         return {
-            "last_door_close": self.last_door_close,
+            "lastDateEntry": self.lastDateEntry,
             "humidity": self.humidity,
             "temperature": self.temperature,
-            "has_spoiled_food": self.has_spoiled_food,
-            "food_count": self.food_count,
+            "spoiledFood": self.spoiledFood,
+            "foodCount": self.foodCount,
             "fridge_data_id": self.fridge_data_id
         }
 
