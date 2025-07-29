@@ -1,5 +1,5 @@
-﻿from model import Food
-from method import add_food, get_all_foods, delete_food_by_id
+from thirdparty.database.model import Food
+from thirdparty.database.method import add_food, get_all_foods, delete_food_by_id
 
 from datetime import datetime, timedelta
 
