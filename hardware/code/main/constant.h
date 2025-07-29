@@ -26,6 +26,21 @@
 #define TFT_SCREEN_WIDTH 240
 #define TFT_SCREEN_HEIGHT 320
 
+// INMP
+#define INMP_BCLK_PIN 12
+#define INMP_WS_PIN 13
+#define INMP_DATA_PIN 14
+
+// I2S 
+#define I2S_READ_LEN (2 * 1024)
+#define SAMPLE_RATE 16000
+#define SAMPLE_BITS 16
+#define CHANNEL_NUM 1
+
+// HX711
+#define HX711_SCK_PIN 35
+#define HX711_DOUT_PIN 15
+
 struct FridgeData
 {
   float temp;
