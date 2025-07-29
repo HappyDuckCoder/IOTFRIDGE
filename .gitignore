@@ -1,5 +1,6 @@
 # Bỏ qua file tạm của Visual Studio
 .vs/
+.vscode/
 
 # Bỏ qua file biên dịch Python
 __pycache__/
