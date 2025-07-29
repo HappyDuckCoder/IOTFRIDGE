@@ -1,7 +1,19 @@
 from thirdparty.database.model import Food, Setting, Recipe
 from thirdparty.database.connect import get_firestore_db
+from thirdparty.database.model import FridgeConditions
 
 db = get_firestore_db()
+
+def add_fridge_conditions(condition: FridgeConditions):
+    doc_ref = db.collection("FridgeConditions").document("current_conditions")
+    doc = doc_ref.get()
+
+    if doc.exists:
+        doc_ref.update(condition.to_dict())
+        print("Đã cập nhật thông số tủ lạnh hiện tại.")
+    else:
+        doc_ref.set(condition.to_dict())
+        print("Đã thêm thông số tủ lạnh mới.")
 
 # Thêm hoặc cập nhật món ăn
 def add_food(food: Food):
