@@ -23,6 +23,22 @@ class Food:
         self.user_preference = user_preference            # số điểm mà người dùng đánh giá, mặc định 6 điểm
         self.is_priority_food = is_priority_food          # nếu là món ăn ưu tiên thì sẽ là True, mặc định là False
         
+class FridgeConditions:
+    def __init__(
+        self,
+        temperature: float,               
+        humidity: float,                  
+        last_checked: datetime,           
+        number_of_items: int,              
+        food_goes_bad: bool,             
+        ecod_friendly: bool,                 
+    ):
+        self.temperature = temperature
+        self.humidity = humidity
+        self.last_checked = last_checked
+        self.number_of_items = number_of_items
+        self.food_goes_bad = food_goes_bad
+        self.ecod_friendly = ecod_friendly
 
     def to_dict(self):
         return {
