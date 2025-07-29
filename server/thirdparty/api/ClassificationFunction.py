@@ -1,11 +1,8 @@
 import google.generativeai as genai
 import json
 
-from thirdparty.database.method import *
-
 API_GEMINI_KEY = "AIzaSyB5ZEm_hOqAf7APH3dzVSQ7_2Ezn_IYVn8"
 model_gemini_name = "gemini-1.5-flash" 
-
 genai.configure(api_key=API_GEMINI_KEY)
 
 class Model: 
