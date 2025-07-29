@@ -1,5 +1,9 @@
 import google.generativeai as genai
 import json
+from thirdparty.database.model import Food
+from thirdparty.database.method import add_food, eat_food
+from util import generate_random_id, get_default_expired_date, get_category, get_calo_usda, get_image_url
+from datetime import datetime
 
 API_GEMINI_KEY = "AIzaSyB5ZEm_hOqAf7APH3dzVSQ7_2Ezn_IYVn8"
 model_gemini_name = "gemini-1.5-flash" 
@@ -151,46 +155,38 @@ Quy tắc phân loại:
 
 def TaskWithActionAdd(action: str, quantity: str, unit: str, food: str): 
     # In ra hành động
-    print(f"THÊM: {quantity} {unit} {food}")
+    print(f"{action}: {quantity} {unit} {food}")
     
-    add_food(Food(id=food, name=food, quantity=quantity, unit=unit, status="còn tồi"))
+    food = Food(
+        id=generate_random_id(), 
+        name=food, 
+        quantity=quantity, 
+        unit=unit, 
+        is_good=True, 
+        is_expired=False, 
+        input_date=datetime.now(), 
+        output_date=get_default_expired_date(7), 
+        category=get_category(food), 
+        calo=get_calo_usda(food),
+        image_url=get_image_url(food)
+    )
+
+    add_food(food)
 
     return f"Đã thêm {quantity} {unit} {food}"
 
 def TaskWithActionDelete(action: str, quantity: str, unit: str, food: str):
-    print(f"XÓA: {quantity} {unit} {food}")
+    print(f"{action}: {quantity} {unit} {food}")
     
-    eat_food(Food(id=food, name=food, quantity=quantity, unit=unit, status="còn tồi"))
+    eat_food(food, quantity)
 
     return f"Đã xóa {quantity} {unit} {food}"
-
-def TaskWithActionEdit(task: Task):
-    print(f"SỬA: ", end="")
-    
-    changes = []
-    if task.old_food and task.old_food != task.food:
-        changes.append(f"thực phẩm từ '{task.old_food}' thành '{task.food}'")
-    if task.old_quantity and task.old_quantity != task.quantity:
-        changes.append(f"số lượng từ '{task.old_quantity}' thành '{task.quantity}'")
-    if task.old_unit and task.old_unit != task.unit:
-        changes.append(f"đơn vị từ '{task.old_unit}' thành '{task.unit}'")
-    
-    if changes:
-        print("Thay đổi " + ", ".join(changes))
-    else:
-        print(f"Cập nhật thành {task.quantity} {task.unit} {task.food}")
-
-    # update_food(Food(id=task.food, name=task.food, quantity=task.quantity, unit=task.unit, status="còn tồi"))
-    
-    return f"Đã sửa {task.old_quantity} {task.old_unit} {task.old_food} thành {task.quantity} {task.unit} {task.food}"
 
 def executeTask(task: Task, classified_action: str):
     if classified_action == "thêm":
         return TaskWithActionAdd(classified_action, task.quantity, task.unit, task.food)
     elif classified_action == "xóa":
         return TaskWithActionDelete(classified_action, task.quantity, task.unit, task.food)
-    elif classified_action == "sửa":
-        return TaskWithActionEdit(task)
     else:
         print(f"Không thể thực hiện hành động: {classified_action}")
         return None
