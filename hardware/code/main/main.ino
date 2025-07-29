@@ -1,186 +1,251 @@
 #include "constant.h"
-#include "button.h"
-#include "DHTSensor.h"
-#include "GasSensor.h"
+// #include "button.h"
+// #include "DHTSensor.h"
+// #include "GasSensor.h"
 #include "HandleDelay.h"
-#include "Relay.h"
-#include "TFT.h"
-#include "internet.h"
-#include "Spiff.h"
+// #include "Relay.h"
+// #include "TFT.h"
+// #include "internet.h"
+// #include "Spiff.h"
+// #include "INMP.h"
+// #include "I2SRecorder.h"
+#include "HX711.h"
 
-// =====================Define Object Section====================== //
-// Button
-Button button_mic(BUTTON_MIC_PIN);
-Button button_fan(BUTTON_FAN_PIN);
-Button button_door(BUTTON_DOOR_PIN);
-// DHT
-DHTSensor dhtSensor(DHT_PIN, DHT11);
-// MQ2, MQ135
-GasSensorSystem gasSystem(MQ2_PIN, MQ135_PIN);
-// Relay
-RelayController fanRelay(RELAY_PIN);
-// ST7789 Display
-TFTDisplay tft(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, TFT_SCLK_PIN, TFT_MOSI_PIN, TFT_SCREEN_WIDTH, TFT_SCREEN_HEIGHT);
-// internet
-Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.9:8888");
-// spiff
-Spiff spiff;
-// TimerReader
-HandleDelay dhtReadTimer(2000);
-HandleDelay gasSystemReadTimer(2000);
-HandleDelay InternetCheckingReadTimer(200);
-HandleDelay SendDataReadTimer(5000);
-// =====================Define Object Section====================== //
+// // =====================Define Object Section====================== //
+// // Button
+// Button button_mic(BUTTON_MIC_PIN);
+// Button button_fan(BUTTON_FAN_PIN);
+// Button button_door(BUTTON_DOOR_PIN);
+// // DHT
+// DHTSensor dhtSensor(DHT_PIN, DHT11);
+// // MQ2, MQ135
+// GasSensorSystem gasSystem(MQ2_PIN, MQ135_PIN);
+// // Relay
+// RelayController fanRelay(RELAY_PIN);
+// // ST7789 Display
+// TFTDisplay tft(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, TFT_SCLK_PIN, TFT_MOSI_PIN, TFT_SCREEN_WIDTH, TFT_SCREEN_HEIGHT);
+// // internet
+// Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.9:8888");
+// // spiff
+// Spiff spiff;
+// // INMP
+// INMP mic(INMP_BCLK_PIN, INMP_WS_PIN, INMP_DATA_PIN);
+// // Recorder
+// I2SRecorder recorder(mic, I2S_READ_LEN, SAMPLE_RATE, SAMPLE_BITS, CHANNEL_NUM);
+// HX711
+HX711 hx711(HX711_SCK_PIN, HX711_DOUT_PIN);
+// // TimerReader
+HandleDelay hx711ReadTimer(2000);
+// HandleDelay dhtReadTimer(2000);
+// HandleDelay gasSystemReadTimer(2000);
+// HandleDelay InternetCheckingReadTimer(200);
+// HandleDelay SendDataReadTimer(5000);
+// // =====================Define Object Section====================== //
 
-// =====================Support Section====================== //
+// // =====================Support Section====================== //
 class HandleFunction
 {
+private:
+  bool record_state; // nếu đang record -> true, không record -> false
+
 public:
-  HandleFunction() {}
+  HandleFunction() : record_state(false) {}
 
   // Xử lý 2 gas sensor và 1 dht sensor
-  void handleSensors()
+  // void handleSensors()
+  // {
+  //   // Xử lý cảm biến DHT11
+  //   if (dhtReadTimer.isDue())
+  //   {
+  //     dhtSensor.handleRead();
+  //     dhtSensor.log();
+  //   }
+
+  //   // Xử lý cảm biến khí gas
+  //   if (gasSystemReadTimer.isDue())
+  //   {
+  //     gasSystem.handleRead();
+  //     gasSystem.log();
+  //   }
+  // }
+
+  // // Xử lý relay
+  // void handleRelay()
+  // {
+  //   fanRelay.update();
+  //   if (button_fan.isPressed())
+  //   {
+  //     fanRelay.nextMode();
+  //     fanRelay.log();
+  //   }
+  // }
+
+  // // Xử lý ST7789
+  // void handleDisplayTFT()
+  // {
+  //   // FridgeData f = internet.readData();
+
+  //   // để tạm thời
+  //   FridgeData f(0, 0, 0, 0, 0);
+  //   float temp = f.temp;
+  //   float humi = f.humi;
+  //   bool is_rotted_food = f.is_rotted_food;
+  //   int total_food = f.total_food;
+  //   int last_open = f.last_open;
+
+  //   tft.showMain(temp, humi, is_rotted_food, total_food, last_open);
+  // }
+
+  // void handleInternet()
+  // {
+  //   if (InternetCheckingReadTimer.isDue())
+  //   {
+  //     if (!internet.isConnected())
+  //     {
+  //       internet.checking();
+  //     }
+  //   }
+
+  //   // if (SendDataReadTimer.isDue())
+  //   // {
+  //   //   internet.testUploadingInMain();
+  //   // }
+  // }
+
+  // void handleTestSpiff()
+  // {
+  //   if (button_mic.isPressed())
+  //   {
+  //     spiff.deleteAllFiles();
+  //     spiff.writeFile("/log.txt", "Dữ liệu test SPIFFS\n");
+  //     String content = spiff.readFile("/log.txt");
+  //     if (spiff.exists("/log.txt"))
+  //     {
+  //       Serial.print("Nội dung đọc được: ");
+  //       Serial.println(content);
+  //       spiff.listFiles();
+  //     }
+  //     spiff.deleteFile("/log.txt");
+  //   }
+  // }
+
+  // void handleTestMic()
+  // {
+  //   if (button_mic.isPressed())
+  //   {
+  //     if (!record_state)
+  //     {
+  //       record_state = true;
+  //       Serial.println("Bắt đầu ghi âm...");
+  //       recorder.start("/mic.pcm");
+  //     }
+  //     else
+  //     {
+  //       record_state = false;
+  //       recorder.stop();
+
+  //       // chờ một xíu
+  //       delay(1000);
+
+  //       // send to server
+  //       if (!internet.uploadFile("/mic.pcm", "/uploadAudio"))
+  //         Serial.println("Lỗi upfile");
+
+  //       // chờ up một xíu
+  //       delay(1000);
+
+  //       if (!spiff.deleteFile("/mic.pcm")) 
+  //         Serial.println("lỗi xóa file");
+  //     }
+  //   }
+  // }
+
+  void handleDoorChecking() 
   {
-    // Xử lý cảm biến DHT11
-    if (dhtReadTimer.isDue())
-    {
-      dhtSensor.handleRead();
-      dhtSensor.log();
-    }
+    long m = hx711.read();
+    Serial.print("Khối lượng đo được: ");
+    Serial.println(m);
 
-    // Xử lý cảm biến khí gas
-    if (gasSystemReadTimer.isDue())
-    {
-      gasSystem.handleRead();
-      gasSystem.log();
-    }
-  }
-
-  // Xử lý relay
-  void handleRelay()
-  {
-    fanRelay.update();
-    if (button_fan.isPressed())
-    {
-      fanRelay.nextMode();
-      fanRelay.log();
-    }
-  }
-
-  // Xử lý ST7789
-  void handleDisplayTFT()
-  {
-    // FridgeData f = internet.readData();
-
-    // để tạm thời
-    FridgeData f(0, 0, 0, 0, 0);
-    float temp = f.temp;
-    float humi = f.humi;
-    bool is_rotted_food = f.is_rotted_food;
-    int total_food = f.total_food;
-    int last_open = f.last_open;
-
-    tft.showMain(temp, humi, is_rotted_food, total_food, last_open);
-  }
-
-  void handleInternet()
-  {
-    if (InternetCheckingReadTimer.isDue())
-    {
-      if (!internet.isConnected())
-      {
-        internet.checking();
-      }
-    }
-
-    if (SendDataReadTimer.isDue())
-    {
-      internet.testUploadingInMain();
-    }
-  }
-
-  void handleTestSpiff()
-  {
-    if (button_mic.isPressed())
-    {
-      spiff.deleteAllFiles();
-      spiff.writeFile("/log.txt", "Dữ liệu test SPIFFS\n");
-      String content = spiff.readFile("/log.txt");
-      if (spiff.exists("/log.txt"))
-      {
-        Serial.print("Nội dung đọc được: ");
-        Serial.println(content);
-        spiff.listFiles();
-      }
-      spiff.deleteFile("/log.txt");
-    }
+    // if else
   }
 };
 HandleFunction handle;
-// =====================Support Section====================== //
+// // =====================Support Section====================== //
 
-// =====================Loop, Setup Section====================== //
+// // =====================Loop, Setup Section====================== //
 void setup()
 {
-  // serial begin
+//   // serial begin
   Serial.begin(115200);
 
-  // buttons begin
-  if (button_mic.begin())
-    Serial.println("Button Mic khởi tạo thành công");
-  else
-    Serial.println("Button Mic khởi tạo thất bại");
-  if (button_fan.begin())
-    Serial.println("Button Fan khởi tạo thành công");
-  else
-    Serial.println("Button Fan khởi tạo thất bại");
-  if (button_door.begin())
-    Serial.println("Button Door khởi tạo thành công");
-  else
-    Serial.println("Button Door khởi tạo thất bại");
+//   // buttons begin
+  // if (button_mic.begin())
+  //   Serial.println("Button Mic khởi tạo thành công");
+  // else
+  //   Serial.println("Button Mic khởi tạo thất bại");
+//   if (button_fan.begin())
+//     Serial.println("Button Fan khởi tạo thành công");
+//   else
+//     Serial.println("Button Fan khởi tạo thất bại");
+//   if (button_door.begin())
+//     Serial.println("Button Door khởi tạo thành công");
+//   else
+//     Serial.println("Button Door khởi tạo thất bại");
 
-  // dht begin
-  if (dhtSensor.begin())
-    Serial.println("DHT khởi tạo thành công");
-  else
-    Serial.println("DHT khởi tạo thất bại");
+//   // dht begin
+//   if (dhtSensor.begin())
+//     Serial.println("DHT khởi tạo thành công");
+//   else
+//     Serial.println("DHT khởi tạo thất bại");
 
-  // gas begin
-  if (gasSystem.begin())
-    Serial.println("Hệ thống gas khởi tạo thành công");
-  else
-    Serial.println("Hệ thống gas khởi tạo thất bại");
-  // gasSystem.calibrate(); // hiệu chuẩn hóa gas sensor, tạm thời ẩn đi
+//   // gas begin
+//   if (gasSystem.begin())
+//     Serial.println("Hệ thống gas khởi tạo thành công");
+//   else
+//     Serial.println("Hệ thống gas khởi tạo thất bại");
+//   // gasSystem.calibrate(); // hiệu chuẩn hóa gas sensor, tạm thời ẩn đi
 
-  // relay begin
-  if (fanRelay.begin())
-    Serial.println("Relay khởi tạo thành công");
-  else
-    Serial.println("Relay khởi tạo thất bại");
+//   // relay begin
+//   if (fanRelay.begin())
+//     Serial.println("Relay khởi tạo thành công");
+//   else
+//     Serial.println("Relay khởi tạo thất bại");
 
-  // begin ST7789
-  if (tft.begin())
-    Serial.println("TFT khởi tạo thành công");
-  else
-    Serial.println("TFT Khởi tạo thất bại");
-
-  // internet Begin
-  if (internet.begin())
-    Serial.println("internet khởi tạo thành công");
-  else
-    Serial.println("internet Khởi tạo thất bại");
+//   // begin ST7789
+//   if (tft.begin())
+//     Serial.println("TFT khởi tạo thành công");
+//   else
+//     Serial.println("TFT Khởi tạo thất bại");
 
   // internet Begin
-  if (spiff.begin())
-    Serial.println("spiff khởi tạo thành công");
+  // if (internet.begin())
+  //   Serial.println("internet khởi tạo thành công");
+  // else
+  //   Serial.println("internet Khởi tạo thất bại");
+
+  // // spiff Begin
+  // if (spiff.begin())
+  //   Serial.println("spiff khởi tạo thành công");
+  // else
+  //   Serial.println("spiff Khởi tạo thất bại");
+
+  // // INMP Begin
+  // if (mic.begin())
+  //   Serial.println("INMP khởi tạo thành công");
+  // else
+  //   Serial.println("INMP Khởi tạo thất bại");
+
+  // HX711 begin 
+  if (hx711.begin())
+    Serial.println("HX711 khởi tạo thành công");
   else
-    Serial.println("spiff Khởi tạo thất bại");
+    Serial.println("HX711 Khởi tạo thất bại");
 }
 
 void loop()
 {
-  handle.handleTestSpiff();
+  handle.handleDoorChecking();
 
   delay(50);
 }
-// =====================Loop, Setup Section====================== //
+// // =====================Loop, Setup Section====================== //

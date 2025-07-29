@@ -1,13 +1,3 @@
-/*
- * ESP32 AUDIO RECORDING AND UPLOAD SYSTEM
- * Hệ thống ghi âm và upload file âm thanh lên server
- *
- * Chức năng chính:
- * - Ghi âm thông qua I2S microphone
- * - Lưu file WAV vào SPIFFS
- * - Upload file lên server Node.js qua HTTP
- * - Điều khiển bằng nút nhấn
- */
 
 #include <driver/i2s.h> // Thư viện I2S để ghi âm
 #include <SPIFFS.h>     // Thư viện file system

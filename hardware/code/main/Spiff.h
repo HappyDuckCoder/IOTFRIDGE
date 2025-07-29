@@ -54,6 +54,7 @@ public:
 
     bool deleteFile(const char *path)
     {
+        Serial.println("bắt đầu xóa file");
         if (SPIFFS.remove(path))
         {
             Serial.printf("Đã xóa file: %s\n", path);
@@ -64,10 +65,12 @@ public:
             Serial.printf("Không thể xóa file: %s\n", path);
             return false;
         }
+        Serial.println("xóa file thành công");
     }
 
     void deleteAllFiles(const char *dir = "/")
     {
+        Serial.println("bắt đầu xóa toàn bộ file");
         File root = SPIFFS.open(dir);
         if (!root || !root.isDirectory())
         {

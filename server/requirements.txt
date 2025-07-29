@@ -1,0 +1,8 @@
+sounddevice
+transformers
+torch #11.8
+genai 
+scipy
+numpy
+firebase_admin
+twilio

@@ -118,47 +118,69 @@ public:
         return success;
     }
 
-    bool uploadFile(const char *filename, const char *uploadURL)
+    bool uploadFile(const char *filename, const char *uploadPath)
     {
+        Serial.println("Bắt đầu up file");
+
         if (!isConnected())
         {
             logNotConnected();
             return false;
         }
 
-        File file = SPIFFS.open(filename, FILE_READ);
-        if (!file)
+        // Kiểm tra file tồn tại
+        if (!SPIFFS.exists(filename))
         {
-            Serial.println("FILE KHÔNG TỒN TẠI!");
+            Serial.printf("FILE KHÔNG TỒN TẠI: %s\n", filename);
             return false;
         }
 
-        Serial.println("===> Đang upload file lên server");
+        File file = SPIFFS.open(filename, FILE_READ);
+        if (!file)
+        {
+            Serial.println("KHÔNG THỂ MỞ FILE!");
+            return false;
+        }
+
+        // Tạo full URL
+        String fullURL = String(serverBaseURL) + String(uploadPath); 
+        Serial.printf("Upload URL: %s\n", fullURL.c_str());
+        Serial.printf("File size: %d bytes\n", file.size());
 
         HTTPClient client;
-        client.begin(uploadURL);
-        client.addHeader("Content-Type", "audio/wav");
+        client.begin(fullURL); 
+        client.addHeader("Content-Type", "audio/pcm");
+        client.setTimeout(10000); 
 
         int httpResponseCode = client.sendRequest("POST", &file, file.size());
-        Serial.print("Mã phản hồi HTTP: ");
-        Serial.println(httpResponseCode);
+        Serial.printf("Mã phản hồi HTTP: %d\n", httpResponseCode);
 
         bool success = false;
         if (httpResponseCode == 200)
         {
             String response = client.getString();
-            Serial.println("==================== Phiên âm ====================");
             Serial.println(response);
-            Serial.println("==================== Kết thúc ====================");
             success = true;
+        }
+        else if (httpResponseCode > 0)
+        {
+            String response = client.getString();
+            Serial.printf("Lỗi HTTP %d: %s\n", httpResponseCode, response.c_str());
         }
         else
         {
-            Serial.println("Lỗi upload");
+            Serial.printf("Lỗi kết nối: %d\n", httpResponseCode);
         }
 
-        file.close();
+        if (file) 
+        {
+            Serial.println("Reset file handle");
+            file = File(); 
+            Serial.flush();
+        }
+
         client.end();
+        Serial.println("Hoàn thành up file");
         return success;
     }
 
