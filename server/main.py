@@ -15,7 +15,6 @@ class Handler(BaseHTTPRequestHandler):
 
     def get_local_ip():
         try:
-            # Tạo socket UDP để lấy IP local
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.connect(("8.8.8.8", 80))  # IP bất kỳ, không cần truy cập được
             ip = s.getsockname()[0]
