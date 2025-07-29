@@ -1,7 +1,3 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
 import requests
 import re
 from typing import List, Optional
@@ -12,7 +8,9 @@ API_KEY = "73459d9516744851b2a4f7296cf675f5"
 API_URL = "https://api.spoonacular.com/recipes/complexSearch"
 
 class GetRecipeService:
-    @staticmethod
+    def __init__(self):
+        pass
+
     def get_list_recipe_by_spoonacular(ingredients: List[Food], diet: str, number: int = 10) -> List[Recipe]:
         try:
             # Tạo chuỗi ingredients từ danh sách Food
