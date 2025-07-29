@@ -1,6 +1,6 @@
 from thirdparty.database.model import Food
 from thirdparty.database.method import add_food, get_all_foods, delete_food_by_id
-
+from util import get_calo_usda, get_category
 
 from datetime import datetime, timedelta
 
