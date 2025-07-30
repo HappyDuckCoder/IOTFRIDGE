@@ -10,6 +10,10 @@ def convert_pcm_to_wav(pcm_path, wav_path, sample_rate=16000, num_channels=1, sa
     with open(pcm_path, 'rb') as pcmfile:
         pcmdata = pcmfile.read()
     
+    # Kiểm tra dữ liệu có đúng không
+    print(f"PCM file size: {len(pcmdata)} bytes")
+    print(f"Expected samples: {len(pcmdata) // sample_width}")
+    
     with wave.open(wav_path, 'wb') as wavfile:
         wavfile.setnchannels(num_channels)
         wavfile.setsampwidth(sample_width)

@@ -5,19 +5,19 @@
 #include "HandleDelay.h"
 // #include "Relay.h"
 // #include "TFT.h"
-// #include "internet.h"
-// #include "Spiff.h"
-// #include "INMP.h"
-// #include "I2SRecorder.h"
-#include "HX711.h"
-#include "DoorTracking.h"
-#include "WeightTracking.h"
+#include "internet.h"
+#include "Spiff.h"
+#include "INMP.h"
+#include "I2SRecorder.h"
+// #include "HX711.h"
+// #include "DoorTracking.h"
+// #include "WeightTracking.h"
 
 // // =====================Define Object Section====================== //
 // // Button
-// Button button_mic(BUTTON_MIC_PIN);
+Button button_mic(BUTTON_MIC_PIN);
 // Button button_fan(BUTTON_FAN_PIN);
-Button button_door(BUTTON_DOOR_PIN);
+// Button button_door(BUTTON_DOOR_PIN);
 // // DHT
 // DHTSensor dhtSensor(DHT_PIN, DHT11);
 // // MQ2, MQ135
@@ -27,20 +27,20 @@ Button button_door(BUTTON_DOOR_PIN);
 // // ST7789 Display
 // TFTDisplay tft(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, TFT_SCLK_PIN, TFT_MOSI_PIN, TFT_SCREEN_WIDTH, TFT_SCREEN_HEIGHT);
 // // internet
-// Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.9:8888");
+Internet internet("DRKHOADANG", "1234Dang", "http://192.168.1.9:8888");
 // // spiff
-// Spiff spiff;
+Spiff spiff;
 // // INMP
-// INMP mic(INMP_BCLK_PIN, INMP_WS_PIN, INMP_DATA_PIN);
+INMP mic(INMP_BCLK_PIN, INMP_WS_PIN, INMP_DATA_PIN);
 // // Recorder
-// I2SRecorder recorder(mic, I2S_READ_LEN, SAMPLE_RATE, SAMPLE_BITS, CHANNEL_NUM);
+I2SRecorder recorder(mic, I2S_READ_LEN, SAMPLE_RATE, SAMPLE_BITS, CHANNEL_NUM);
 // DoorTracking
-DoorTracking door;
-WeightTracking weight(HX711_DOUT_PIN, HX711_SCK_PIN);
+// DoorTracking door;
+// WeightTracking weight(HX711_DOUT_PIN, HX711_SCK_PIN);
 // // TimerReader
 // HandleDelay dhtReadTimer(2000);
 // HandleDelay gasSystemReadTimer(2000);
-// HandleDelay InternetCheckingReadTimer(200);
+HandleDelay InternetCheckingReadTimer(200);
 // HandleDelay SendDataReadTimer(5000);
 // // =====================Define Object Section====================== //
 
@@ -98,15 +98,16 @@ public:
   //   tft.showMain(temp, humi, is_rotted_food, total_food, last_open);
   // }
 
-  // void handleInternet()
-  // {
-  //   if (InternetCheckingReadTimer.isDue())
-  //   {
-  //     if (!internet.isConnected())
-  //     {
-  //       internet.checking();
-  //     }
-  //   }
+  void handleInternet()
+  {
+    if (InternetCheckingReadTimer.isDue())
+    {
+      if (!internet.isConnected())
+      {
+        internet.checking();
+      }
+    }
+  }
 
   //   // if (SendDataReadTimer.isDue())
   //   // {
@@ -131,60 +132,65 @@ public:
   //   }
   // }
 
-  // void handleTestMic()
+  void handleRecord()
+  {
+      if (button_mic.isPressed())
+      {
+          if (!record_state)
+          {
+              record_state = true;
+              Serial.println("Bắt đầu ghi âm...");
+              recorder.start("/mic.pcm");
+          }
+          else
+          {
+              record_state = false;
+              Serial.println("Đang dừng ghi âm...");
+              recorder.stop();
+
+              delay(300); // đợi file đóng
+
+              // send to server
+              if (internet.uploadFile("/mic.pcm", "/uploadAudio"))
+                  Serial.println("Upload OK");
+              else
+                  Serial.println("Upload lỗi");
+
+              // Kiểm tra file tồn tại trước khi xóa
+              if (spiff.exists("/mic.pcm")) {
+                  if (!spiff.deleteFile("/mic.pcm")) {
+                      Serial.println("Lỗi xóa file");
+                  }
+              } else {
+                  Serial.println("File không tồn tại để xóa");
+              }
+          }
+      }
+  }
+
+  // void handleDoorChecking() 
   // {
-  //   if (button_mic.isPressed())
+  //   if (button_door.isHeld()) door.setCurrentState(DOOR_CLOSED);
+  //   else door.setCurrentState(DOOR_OPEN);
+    
+  //   // door.log(); // debug
+
+  //   if (door.isAlertNeeded())
   //   {
-  //     if (!record_state)
-  //     {
-  //       record_state = true;
-  //       Serial.println("Bắt đầu ghi âm...");
-  //       recorder.start("/mic.pcm");
-  //     }
-  //     else
-  //     {
-  //       record_state = false;
-  //       recorder.stop();
+  //       Serial.println("Cửa mở lâu mà không đóng");
+  //       // TODO: Gửi thông báo lên server
+  //   } 
 
-  //       // chờ một xíu
-  //       delay(1000);
-
-  //       // send to server
-  //       if (!internet.uploadFile("/mic.pcm", "/uploadAudio"))
-  //         Serial.println("Lỗi upfile");
-
-  //       // chờ up một xíu
-  //       delay(1000);
-
-  //       if (!spiff.deleteFile("/mic.pcm")) 
-  //         Serial.println("lỗi xóa file");
-  //     }
+  //   if (door.isDoorJustClosed())
+  //   {
+  //       Serial.println("Cửa vừa đóng, xem có thay đổi trọng lượng không");
+  //       // if (weight.checkWeightChange())
+  //       // {
+  //       //     Serial.println("có sự thay đổi --> yêu cầu cập nhật thực phẩm");
+  //       //     // TODO: Gửi thông báo yêu cầu nhập/chỉnh sửa thực phẩm trên website
+  //       // }
   //   }
   // }
-
-  void handleDoorChecking() 
-  {
-    if (button_door.isHeld()) door.setCurrentState(DOOR_CLOSED);
-    else door.setCurrentState(DOOR_OPEN);
-    
-    // door.log(); // debug
-
-    if (door.isAlertNeeded())
-    {
-        Serial.println("Cửa mở lâu mà không đóng");
-        // TODO: Gửi thông báo lên server
-    } 
-
-    if (door.isDoorJustClosed())
-    {
-        Serial.println("Cửa vừa đóng, xem có thay đổi trọng lượng không");
-        // if (weight.checkWeightChange())
-        // {
-        //     Serial.println("có sự thay đổi --> yêu cầu cập nhật thực phẩm");
-        //     // TODO: Gửi thông báo yêu cầu nhập/chỉnh sửa thực phẩm trên website
-        // }
-    }
-  }
 };
 HandleFunction handle;
 // // =====================Support Section====================== //
@@ -196,18 +202,18 @@ void setup()
   Serial.begin(115200);
 
 //   // buttons begin
-  // if (button_mic.begin())
-  //   Serial.println("Button Mic khởi tạo thành công");
-  // else
-  //   Serial.println("Button Mic khởi tạo thất bại");
+  if (button_mic.begin())
+    Serial.println("Button Mic khởi tạo thành công");
+  else
+    Serial.println("Button Mic khởi tạo thất bại");
 //   if (button_fan.begin())
 //     Serial.println("Button Fan khởi tạo thành công");
 //   else
 //     Serial.println("Button Fan khởi tạo thất bại");
-  if (button_door.begin())
-    Serial.println("Button Door khởi tạo thành công");
-  else
-    Serial.println("Button Door khởi tạo thất bại");
+  // if (button_door.begin())
+  //   Serial.println("Button Door khởi tạo thành công");
+  // else
+  //   Serial.println("Button Door khởi tạo thất bại");
 
 //   // dht begin
 //   if (dhtSensor.begin())
@@ -235,33 +241,34 @@ void setup()
 //     Serial.println("TFT Khởi tạo thất bại");
 
   // internet Begin
-  // if (internet.begin())
-  //   Serial.println("internet khởi tạo thành công");
-  // else
-  //   Serial.println("internet Khởi tạo thất bại");
+  if (internet.begin())
+    Serial.println("internet khởi tạo thành công");
+  else
+    Serial.println("internet Khởi tạo thất bại");
 
   // // spiff Begin
-  // if (spiff.begin())
-  //   Serial.println("spiff khởi tạo thành công");
-  // else
-  //   Serial.println("spiff Khởi tạo thất bại");
+  if (spiff.begin())
+    Serial.println("spiff khởi tạo thành công");
+  else
+    Serial.println("spiff Khởi tạo thất bại");
 
   // // INMP Begin
-  // if (mic.begin())
-  //   Serial.println("INMP khởi tạo thành công");
-  // else
-  //   Serial.println("INMP Khởi tạo thất bại");
+  if (mic.begin())
+    Serial.println("INMP khởi tạo thành công");
+  else
+    Serial.println("INMP Khởi tạo thất bại");
 
   // HX711 begin 
-  if (weight.begin())
-    Serial.println("cân khởi tạo thành công");
-  else
-    Serial.println("cân Khởi tạo thất bại");
+  // if (weight.begin())
+  //   Serial.println("cân khởi tạo thành công");
+  // else
+  //   Serial.println("cân Khởi tạo thất bại");
 }
 
 void loop()
 {
-  handle.handleDoorChecking();
+  handle.handleInternet();
+  handle.handleRecord();
 
   delay(50);
 }
