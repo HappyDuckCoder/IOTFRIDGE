@@ -24,13 +24,15 @@ public:
         i2s_config_t i2s_config = {
             .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
             .sample_rate = 16000,
-            .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
+            .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,  // Thử 32bit thay vì 16bit
             .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
-            .communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
-            .intr_alloc_flags = 0,
-            .dma_buf_count = 8,
-            .dma_buf_len = 512,
-            .use_apll = true
+            .communication_format = I2S_COMM_FORMAT_STAND_I2S,  // Đơn giản hóa format
+            .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+            .dma_buf_count = 4,        // Giảm buffer count
+            .dma_buf_len = 1024,       // Tăng buffer length
+            .use_apll = false,         // Tắt APLL để giảm noise
+            .tx_desc_auto_clear = true,
+            .fixed_mclk = 0
         };
 
         esp_err_t err = i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
@@ -57,15 +59,21 @@ public:
         return true;
     }
 
-    size_t read(char *buffer, size_t len)
-    {
+    size_t read(int32_t *buffer, size_t len) {
         size_t bytesRead = 0;
-        esp_err_t result = i2s_read(I2S_NUM_0, buffer, len, &bytesRead, 100 / portTICK_RATE_MS);
-        if (result != ESP_OK) {
-            Serial.printf("I2S read error: %d\n", result);
-            return 0;
+        esp_err_t result = i2s_read(I2S_NUM_0, buffer, len * sizeof(int32_t), &bytesRead, portMAX_DELAY);
+        
+        if (result == ESP_OK && bytesRead > 0) {
+            size_t samples = bytesRead / sizeof(int32_t);
+            
+            // Convert 32-bit to 16-bit và loại bỏ noise
+            for (size_t i = 0; i < samples; i++) {
+                // Shift right 11 bits để lấy 24-bit MSB, sau đó shift thêm 8 bits để về 16-bit
+                buffer[i] = buffer[i] >> 11;  
+            }
+            return samples;
         }
-        return bytesRead;
+        return 0;
     }
 };
 

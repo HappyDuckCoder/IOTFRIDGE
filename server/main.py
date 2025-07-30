@@ -7,7 +7,7 @@ from pathlib import Path
 
 class Handler(BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        self.file_name = "./resources/recording.wav"
+        self.file_name = "./resources/mic.pcm"
         self.file_name_text = "./resources/text.txt"
         Path("./resources").mkdir(exist_ok=True)
         super().__init__(*args, **kwargs)

@@ -184,7 +184,7 @@ public:
         return success;
     }
 
-    bool uploadData(const char *data)
+    bool uploadData(const char *data, const char *link)
     {
         if (!isConnected())
         {
@@ -197,12 +197,7 @@ public:
         HTTPClient client;
 
         // Tạo URL với endpoint /uploadData
-        String uploadDataURL = String(serverURL);
-        if (!uploadDataURL.endsWith("/"))
-        {
-            uploadDataURL += "/";
-        }
-        uploadDataURL += "uploadData";
+        String uploadDataURL = String(serverBaseURL) + String(link);
 
         client.begin(uploadDataURL);
         client.addHeader("Content-Type", "application/json");
@@ -228,20 +223,19 @@ public:
         return success;
     }
 
-    bool uploadSensorData(float temperature, float humidity, float ch4_ppm, float nh3_ppm, float weight)
+    bool uploadSensorData(float temp, float humi, bool is_rotted_food, int total_food, int last_open)
     {
         // Tạo JSON string với 5 thông số cảm biến
         String jsonData = "{";
-        jsonData += "\"temperature\":" + String(temperature, 1) + ",";
-        jsonData += "\"humidity\":" + String(humidity, 1) + ",";
-        jsonData += "\"ch4_ppm\":" + String(ch4_ppm, 1) + ",";
-        jsonData += "\"nh3_ppm\":" + String(nh3_ppm, 1) + ",";
-        jsonData += "\"weight\":" + String(weight, 2) + ",";
-        jsonData += "\"timestamp\":" + String(millis());
+        jsonData += "\"temperature\":" + String(temp, 1) + ",";
+        jsonData += "\"humidity\":" + String(humi, 1) + ",";
+        jsonData += "\"spoiledFood\":" + String(is_rotted_food ? "true" : "false") + ",";
+        jsonData += "\"foodCount\":" + String(total_food) + ",";
+        jsonData += "\"lastDateEntry\":" + String(last_open) + ",";
         jsonData += "}";
 
         Serial.println("Dữ liệu JSON gửi: " + jsonData);
-        return uploadData(jsonData.c_str());
+        return uploadData(jsonData.c_str(), "/uploadData");
     }
 
     String getLocalIP()
