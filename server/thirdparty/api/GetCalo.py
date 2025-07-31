@@ -1,48 +1,8 @@
 import requests
+from my_util import translate_vietnamese_to_english
 
 api_key = "Q3Fip13CRKZgjCsMFqgdySadqTBTyQcg0XFJWida"
 base_url = "https://api.nal.usda.gov/fdc/v1/foods/search"
-vietnamese_to_english = {
-    "táo": "apple",
-    "chuối": "banana", 
-    "cam": "orange",
-    "thịt bò": "beef",
-    "thịt heo": "pork",
-    "thịt gà": "chicken",
-    "cá hồi": "salmon",
-    "cá": "fish",
-    "tôm": "shrimp",
-    "cua": "crab",
-    "cà chua": "tomato",
-    "cà rốt": "carrot",
-    "khoai tây": "potato",
-    "khoai lang": "sweet potato",
-    "gạo": "rice",
-    "bánh mì": "bread",
-    "sữa": "milk",
-    "trứng": "egg",
-    "đậu phụ": "tofu",
-    "rau cải": "cabbage",
-    "rau muống": "water spinach",
-    "bắp": "corn",
-    "đậu xanh": "mung bean",
-    "ớt": "pepper",
-    "hành": "onion",
-    "tỏi": "garlic",
-    "gừng": "ginger",
-    "nho": "grape",
-    "dưa hấu": "watermelon",
-    "dứa": "pineapple",
-    "xoài": "mango",
-    "đu đủ": "papaya",
-    "bơ": "avocado",
-    "pho mai": "cheese",
-    "phô mai": "cheese",
-    "bơ thực vật": "butter",
-    "dầu ăn": "oil",
-    "đường": "sugar",
-    "muối": "salt"
-}
 
 class GetCaloService:
     def __init__(self):
@@ -55,7 +15,8 @@ class GetCaloService:
         search_name = food_name.lower().strip()
         
         # Thử dịch sang tiếng Anh nếu là tiếng Việt
-        english_name = vietnamese_to_english.get(search_name, search_name)
+        # english_name = vietnamese_to_english.get(search_name, search_name)
+        english_name = translate_vietnamese_to_english(search_name)
         
         params = {
             "query": english_name,

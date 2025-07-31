@@ -1,4 +1,6 @@
 ﻿from datetime import datetime
+from my_util import convert_to_datetime
+
 
 class Food:
     def __init__(
@@ -40,7 +42,7 @@ class Food:
         }
 
     @staticmethod
-    def from_dict(id: str, data):
+    def from_dict(id, data):
         return Food(
             id=id,
             name=data.get("name"),
@@ -48,13 +50,13 @@ class Food:
             unit=data.get("unit"),
             is_good=data.get("is_good"),
             is_expired=data.get("is_expired"),
-            input_date=data.get("input_date"),         
-            output_date=data.get("output_date"),       
+            input_date=convert_to_datetime(data.get("input_date")),
+            output_date=convert_to_datetime(data.get("output_date")),
             category=data.get("category"),
             calo=data.get("calo"),
-            user_preference=data.get("user_preference", 6),
-            is_priority_food=data.get("is_priority_food", False),
-            image_url=data.get("image_url")
+            user_preference=data.get("user_preference"),
+            is_priority_food=data.get("is_priority_food"),
+            image_url=data.get("image_url"),
         )
 
 class User:

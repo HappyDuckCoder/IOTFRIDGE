@@ -1,12 +1,17 @@
-from my_util import convert_pcm_to_wav
+from my_util import convert_pcm_to_wav, translate_vietnamese_to_english
 from thirdparty.services.handleTask import TaskHandling
+from thirdparty.services.FoodSuggested import FoodSuggestedService
 from thirdparty.api.SpeechToText import AudioModel
+from thirdparty.database.method import get_all_foods
+from thirdparty.api.GetRecipe import GetRecipeService
 
+TOP_FOOD = 3
+TOP_RECIPE = 5
 
-def convert_autio(inp_path, out_path):
+def convert_audio(inp_path, out_path):
     convert_pcm_to_wav(inp_path, out_path)
 
-def main():
+def testMicFlow():
     stt = AudioModel()
     stt.load()
 
@@ -34,6 +39,39 @@ def main():
     result = taskHandling.executeTask(component, classified_action)
     if result:
         print(f"Output: {result}")
+
+def testCreateRecipeFlow():
+    model_choose_ingredients = FoodSuggestedService()
+    model_get_recipe = GetRecipeService()
+    
+    foods = get_all_foods()
+
+    # diet = get_setting() 
+    diet = "vegetarian" 
+
+    top_suggestions = model_choose_ingredients.get_top_food_suggestions(foods, diet, top_n=TOP_FOOD)
+
+    print(f"Top {TOP_FOOD} gợi ý:")
+    for i, (food, score) in enumerate(top_suggestions, 1):
+        print(f"  {i}. {food.name} - Điểm: {score:.3f} ({food.category})")
+    print() 
+
+    ingredients = [translate_vietnamese_to_english(food.name) for food, _ in top_suggestions]
+
+    # ingredients_test = ['salmon', 'eggs']
+
+    recipes = model_get_recipe.get_list_recipe_by_spoonacular(
+        ingredients=ingredients,
+        diet=diet,
+        number=TOP_RECIPE
+    )
+
+    model_get_recipe.print_debug(recipes)
+
+    # push list recipe to firebase
+
+def main():
+    testCreateRecipeFlow()
 
 if __name__ == "__main__":
     main()

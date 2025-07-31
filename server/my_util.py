@@ -4,7 +4,65 @@ import string
 from datetime import datetime, timedelta
 from thirdparty.api.getImageUrl import ImageSearchTool
 from thirdparty.api.NLPapi import Model, model_gemini_name
-from thirdparty.api.GetCalo import GetCaloService
+
+vietnamese_to_english = {
+    "táo": "apple",
+    "chuối": "banana", 
+    "cam": "orange",
+    "thịt bò": "beef",
+    "thịt heo": "pork",
+    "thịt gà": "chicken",
+    "cá hồi": "salmon",
+    "cá": "fish",
+    "tôm": "shrimp",
+    "cua": "crab",
+    "cà chua": "tomato",
+    "cà rốt": "carrot",
+    "khoai tây": "potato",
+    "khoai lang": "sweet potato",
+    "gạo": "rice",
+    "bánh mì": "bread",
+    "sữa": "milk",
+    "trứng": "egg",
+    "đậu phụ": "tofu",
+    "rau cải": "cabbage",
+    "rau muống": "water spinach",
+    "bắp": "corn",
+    "đậu xanh": "mung bean",
+    "ớt": "pepper",
+    "hành": "onion",
+    "tỏi": "garlic",
+    "gừng": "ginger",
+    "nho": "grape",
+    "dưa hấu": "watermelon",
+    "dứa": "pineapple",
+    "xoài": "mango",
+    "đu đủ": "papaya",
+    "bơ": "avocado",
+    "pho mai": "cheese",
+    "phô mai": "cheese",
+    "bơ thực vật": "butter",
+    "dầu ăn": "oil",
+    "đường": "sugar",
+    "muối": "salt"
+}
+
+def translate_vietnamese_to_english(name):
+    return vietnamese_to_english.get(name, name)
+
+def convert_to_datetime(date_obj):
+    if date_obj is None:
+        return None
+    if isinstance(date_obj, datetime):
+        return date_obj.replace(tzinfo=None)
+    if hasattr(date_obj, "to_datetime"):
+        return date_obj.to_datetime().replace(tzinfo=None)
+    if isinstance(date_obj, str):
+        try:
+            return datetime.fromisoformat(date_obj).replace(tzinfo=None)
+        except:
+            return None
+    return date_obj
 
 def convert_pcm_to_wav(pcm_path, wav_path, sample_rate=16000, num_channels=1, sample_width=2):
     with open(pcm_path, 'rb') as pcmfile:
@@ -35,10 +93,6 @@ Chỉ trả về 1 giá trị duy nhất trong các loại: 'vitamin_and_fruits'
     response = model.generate_content(prompt)
     response_text = response.text.strip()
     return response_text
-
-def get_calo_usda(food_name, quantity, unit): 
-    service = GetCaloService()
-    return service.get_calo_with_quantity(food_name, quantity, unit)
 
 def generate_random_id_string(length=20):
     characters = string.ascii_letters + string.digits  # A-Z, a-z, 0-9
