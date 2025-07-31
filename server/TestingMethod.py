@@ -1,7 +1,12 @@
 from thirdparty.database.model import Food, Condition
+from thirdparty.api.GetCalo import GetCaloService
 from thirdparty.database.method import add_food, get_all_foods, delete_food_by_id, delete_all_foods, add_fridge_conditions
-from my_util import get_calo_usda, get_category, get_image_url
+from my_util import get_category, get_image_url
 from datetime import datetime, timedelta
+
+def get_calo_usda(food_name, quantity, unit): 
+    service = GetCaloService()
+    return service.get_calo_with_quantity(food_name, quantity, unit)
 
 def test_add_food():
     now = datetime.now()
@@ -58,14 +63,15 @@ def delete_all_foods_():
 
 def test_get_all_foods():
     foods = get_all_foods()
-    return foods
+    for food in foods:
+        print(food.to_dict())
 
 def test_delete_food_by_id():
     delete_food_by_id("2")  # Xóa chuối
 
 def food_all_test():
-    delete_all_foods_()
-    test_add_food()
+    # delete_all_foods_()
+    # test_add_food()
     test_get_all_foods()
 
 def add_condition(): 

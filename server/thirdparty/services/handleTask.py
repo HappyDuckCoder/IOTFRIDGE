@@ -1,9 +1,14 @@
 from thirdparty.api.NLPapi import Model, model_gemini_name
 import json
-from my_util import get_default_expired_date, get_category, get_calo_usda, get_image_url, generate_random_id_string
+from my_util import get_default_expired_date, get_category, get_image_url, generate_random_id_string
 from thirdparty.database.method import add_food, eat_food
 from thirdparty.database.model import Food  
 from datetime import datetime
+from thirdparty.api.GetCalo import GetCaloService
+
+def get_calo_usda(food_name, quantity, unit): 
+    service = GetCaloService()
+    return service.get_calo_with_quantity(food_name, quantity, unit)
 
 class Task:
     def __init__(self, action, quantity, unit, food, old_food=None, old_quantity=None, old_unit=None):

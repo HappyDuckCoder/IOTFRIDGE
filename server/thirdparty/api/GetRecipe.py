@@ -11,11 +11,12 @@ class GetRecipeService:
     def __init__(self):
         pass
 
-    def get_list_recipe_by_spoonacular(ingredients: List[Food], diet: str, number: int = 10) -> List[Recipe]:
+    @staticmethod
+    def get_list_recipe_by_spoonacular(ingredients: List[str], diet: str, number: int = 10) -> List[Recipe]:
         try:
             # Tạo chuỗi ingredients từ danh sách Food
-            ingredient_names = [food.name for food in ingredients if food.name]
-            ingredients_str = ",".join(ingredient_names)
+            ingredients_str = ",".join(ingredients)
+            print("tìm recipes với: ", ingredients_str)
             
             # Tham số cho API
             params = {
@@ -121,7 +122,7 @@ class GetRecipeService:
         return instructions
     
     @staticmethod
-    def print_debug(): 
+    def print_debug(recipes: List[Recipe]): 
         print(f"Tìm thấy {len(recipes)} công thức phù hợp:")
         print("=" * 60)
 
@@ -181,5 +182,5 @@ if __name__ == "__main__":
         number=5
     )
     
-    GetRecipeService.print_debug()
+    GetRecipeService.print_debug(recipes)
     

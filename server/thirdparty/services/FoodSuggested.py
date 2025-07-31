@@ -1,10 +1,6 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
 from thirdparty.database.model import Food
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class FoodSuggestedService:
@@ -87,6 +83,7 @@ class FoodSuggestedService:
             
         # Tính số ngày còn lại đến hạn sử dụng
         today = datetime.now()
+
         if food.output_date:
             days_until_expiry = (food.output_date - today).days
             if days_until_expiry <= 0:
@@ -134,24 +131,6 @@ class FoodSuggestedService:
         return score
 
     @staticmethod
-    def get_food_priority(foods, diet="healthy"):
-        w, u, t = FoodSuggestedService.heuristic_preparation()
-        food_suggested = None
-        max_score = -np.inf
-        
-        for food in foods:
-            # Bỏ qua thực phẩm đã hết hạn
-            if food.is_expired:
-                continue
-                
-            score = FoodSuggestedService.heuristic_priority(w, u, t, food, diet)
-            if score > max_score:
-                max_score = score
-                food_suggested = food
-                
-        return food_suggested, max_score
-
-    @staticmethod
     def get_top_food_suggestions(foods, diet="healthy", top_n=5):
         """Lấy top N món ăn được gợi ý cao nhất"""
         w, u, t = FoodSuggestedService.heuristic_preparation()
@@ -169,77 +148,10 @@ class FoodSuggestedService:
         food_scores.sort(key=lambda x: x[1], reverse=True)
         
         return food_scores[:top_n]
-
-
-# Sử dụng class Food thật
-def create_test_foods():
-    """Tạo dữ liệu test với class Food thật"""
-    today = datetime.now()
-    return [
-        Food(
-            id="1", name="Cà rót", quantity=2.0, unit="kg",
-            is_good=True, is_expired=False,
-            input_date=today - timedelta(days=1),
-            output_date=today + timedelta(days=5),
-            category="vegetables", user_preference=7, is_priority_food=False
-        ),
-        Food(
-            id="2", name="Thịt gà", quantity=1.0, unit="kg",
-            is_good=True, is_expired=False,
-            input_date=today - timedelta(days=2),
-            output_date=today + timedelta(days=2),
-            category="lean_protein", user_preference=9, is_priority_food=True
-        ),
-        Food(
-            id="3", name="Bánh mì", quantity=5.0, unit="ổ",
-            is_good=False, is_expired=False,
-            input_date=today - timedelta(days=3),
-            output_date=today + timedelta(days=1),
-            category="processed", user_preference=6, is_priority_food=False
-        ),
-        Food(
-            id="4", name="Sữa tươi", quantity=1.0, unit="lít",
-            is_good=True, is_expired=False,
-            input_date=today,
-            output_date=today + timedelta(days=7),
-            category="dairy", user_preference=8, is_priority_food=False
-        ),
-        Food(
-            id="5", name="Táo", quantity=2.0, unit="kg",
-            is_good=True, is_expired=False,
-            input_date=today - timedelta(days=1),
-            output_date=today + timedelta(days=10),
-            category="fruits", user_preference=7, is_priority_food=False
-        ),
-        Food(
-            id="6", name="Kẹo", quantity=0.5, unit="kg",
-            is_good=True, is_expired=True,
-            input_date=today - timedelta(days=10),
-            output_date=today - timedelta(days=1),
-            category="sweets", user_preference=5, is_priority_food=False
-        ),
-    ]
-
-def main():
-    # Tạo dữ liệu test
-    foods = create_test_foods()
     
-    # Test với các loại diet khác nhau
-    list_diets = ["healthy", "vegetarian", "low-calories", "high-calories", "clean-eating"]
-    
-    top_suggestions = FoodSuggestedService.get_top_food_suggestions(foods, "vegetarian", top_n=3)
-    print("Top 3 gợi ý:")
-    for i, (food, score) in enumerate(top_suggestions, 1):
-        print(f"  {i}. {food.name} - Điểm: {score:.3f} ({food.category})")
-    print()
+    @staticmethod
+    def debug(food, w, u, t):
 
-    # Phân tích chi tiết cho diet "healthy"
-    w, u, t = FoodSuggestedService.heuristic_preparation()
-    
-    for food in foods[:3]:  # Test 3 món đầu tiên
-        if food.is_expired:
-            continue
-            
         cosine_sim = FoodSuggestedService.calculate_cosine_similarity(w, u)
         nutrition_fit = FoodSuggestedService.calculate_nutrition_fitness(food, "healthy")
         user_pref = FoodSuggestedService.calculate_user_preference(food)
@@ -254,5 +166,28 @@ def main():
         print(f"  Tổng điểm: {total_score:.3f}")
         print()
 
+def main():
+    foods = [
+        Food(name="Món 1", category="healthy", is_priority_food=True, is_good=True),
+        Food(name="Món 2", category="healthy", is_priority_food=False, is_good=True),
+        Food(name="Món 3", category="healthy", is_priority_food=False, is_good=True),
+    ]    
+    # Test với các loại diet khác nhau
+    list_diets = ["healthy", "vegetarian", "low-calories", "high-calories", "clean-eating"]
+    
+    top_suggestions = FoodSuggestedService.get_top_food_suggestions(foods, "vegetarian", top_n=3)
+    print("Top 3 gợi ý:")
+    for i, (food, score) in enumerate(top_suggestions, 1):
+        print(f"  {i}. {food.name} - Điểm: {score:.3f} ({food.category})")
+    print()    
+    
+    w, u, t = FoodSuggestedService.heuristic_preparation()
+
+    for food in foods[:3]:  # Test 3 món đầu tiên
+        if food.is_expired:
+            continue
+
+        FoodSuggestedService.debug(food, w, u, t)
+        
 if __name__ == "__main__":
     main()
