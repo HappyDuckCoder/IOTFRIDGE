@@ -4,6 +4,7 @@ from thirdparty.services.FoodSuggested import FoodSuggestedService
 from thirdparty.api.SpeechToText import AudioModel
 from thirdparty.database.method import get_all_foods
 from thirdparty.api.GetRecipe import GetRecipeService
+from thirdparty.database.method import add_recipe, get_all_recipes
 
 TOP_FOOD = 3
 TOP_RECIPE = 5
@@ -68,7 +69,8 @@ def testCreateRecipeFlow():
 
     model_get_recipe.print_debug(recipes)
 
-    # push list recipe to firebase
+    for recipe in recipes:
+        add_recipe(recipe)
 
 def main():
     testCreateRecipeFlow()
