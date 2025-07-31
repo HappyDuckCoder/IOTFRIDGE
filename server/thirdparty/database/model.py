@@ -244,16 +244,14 @@ class Condition:
 class Recipe:
     def __init__(self, id: str, title: str, cook_time: int, people_serving: int,
                  difficulty: str, instructions: str, ingredient_ids = None,
-                 nutrient_ids = None, image_url = None):
+                image_url = None):
         self.id = id
         self.title = title
         self.cook_time = cook_time  # minutes
         self.people_serving = people_serving
         self.difficulty = difficulty  # "easy", "medium", "hard"
-        self.ingredient_ids = ingredient_ids
         self.instructions = instructions
         self.ingredient_ids = ingredient_ids if ingredient_ids else []
-        self.nutrient_ids = nutrient_ids if nutrient_ids else []
         self.image_url = image_url
 
     def to_dict(self):
@@ -264,7 +262,6 @@ class Recipe:
             "difficulty": self.difficulty,
             "instructions": self.instructions,
             "ingredient_ids": self.ingredient_ids,
-            "nutrient_ids": self.nutrient_ids,
             "image_url": self.image_url
         }
 
@@ -278,7 +275,6 @@ class Recipe:
             difficulty=data.get("difficulty"),
             instructions=data.get("instructions"),
             ingredient_ids=data.get("ingredient_ids", []),
-            nutrient_ids=data.get("nutrient_ids", []),
             image_url=data.get("image_url")
         )
 
