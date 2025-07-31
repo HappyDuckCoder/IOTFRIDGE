@@ -3,7 +3,7 @@ from thirdparty.database.connect import get_firestore_db
 
 db = get_firestore_db()
 
-
+# ================ FOOD ================
 # Thêm hoặc cập nhật món ăn
 def add_food(food: Food):
     doc_ref = db.collection("Food").document(food.id)
@@ -85,7 +85,10 @@ def get_foods_by_status(field: str, value: bool):
         raise ValueError("Chỉ hỗ trợ tìm theo 'is_good' hoặc 'is_expired'")
     docs = db.collection("Food").where(field, "==", value).stream()
     return [Food.from_dict(doc.to_dict()) for doc in docs]
+# ================ FOOD ================
 
+
+# ================ RECIPE ================
 def add_recipe(recipe: Recipe):
     doc_ref = db.collection("Recipe").document(recipe.id)
     doc_ref.set(recipe.to_dict())
@@ -118,33 +121,10 @@ def get_all_recipes():
         recipe = Recipe.from_dict(data)
         recipe_list.append(recipe)
     return recipe_list
+# ================ RECIPE ================
 
-def add_settings_data(settings_data: Setting):
-    doc_ref = db.collection("Settings").document(settings_data.id)
-    doc_ref.set(settings_data.to_dict())
-    print("đã thêm setting mới")
 
-def get_settings_data(setting_data_id):
-    doc_ref = db.collection("Settings").document(setting_data_id)
-    doc = doc_ref.get()
-    if doc.exists:
-        return Setting.from_dict(doc.to_dict())
-    else:
-        return None
-    
-def delete_settings_data(setting_data_id):
-    doc_ref = db.collection("Settings").document(setting_data_id)
-    if doc_ref.get().exists:
-        doc_ref.delete()
-        print(f"Đã xóa setting với ID: {setting_data_id}")
-    else:
-        print(f"Không tìm thấy setting với ID: {setting_data_id}")
-
-def update_settings_data(setting_data_id, data):
-    doc_ref = db.collection("Settings").document(setting_data_id)
-    doc_ref.update(data) # ví dụ: update_settings_data("setting_001", {"diet_data": "low-carb"})
-    print(f"Đã cập nhật setting với ID: {setting_data_id}")
-    
+# ================ CONDITION ================
 def add_fridge_conditions(condition: Condition):
     doc_ref = db.collection("Condition").document(condition.id)
     doc = doc_ref.get()
@@ -165,3 +145,32 @@ def delete_fridge_conditions_by_id(doc_id: str):
         print(f"Đã xoá thông số tủ lạnh với ID '{doc_id}'.")
     else:
         print(f"Không tìm thấy thông số với ID '{doc_id}'.")
+# ================ CONDITION ================
+
+
+# ================ SETTING ================
+setting_collection = db.collection("Setting")
+def add_setting(setting: Setting):
+    doc_ref = setting_collection.document(setting.id)
+    doc_ref.set(setting.to_dict())
+
+def delete_setting_by_id(doc_id: str):
+    doc_ref = setting_collection.document(doc_id)
+    doc_ref.delete()
+
+def get_setting_by_id(doc_id: str):
+    doc_ref = setting_collection.document(doc_id)
+    doc = doc_ref.get()
+    if doc.exists:
+        return Setting.from_dict(doc.id, doc.to_dict())
+    return None
+
+def get_all_settings():
+    docs = setting_collection.stream()
+    return [Setting.from_dict(doc.id, doc.to_dict()) for doc in docs]
+
+def update_setting_by_id(doc_id: str, data: dict):
+    doc_ref = setting_collection.document(doc_id)
+    doc_ref.update(data)
+
+# ================ SETTING ================
