@@ -4,7 +4,7 @@ from thirdparty.services.FoodSuggested import FoodSuggestedService
 from thirdparty.api.SpeechToText import AudioModel
 from thirdparty.database.method import get_all_foods
 from thirdparty.api.GetRecipe import GetRecipeService
-from thirdparty.database.method import add_recipe, get_all_recipes
+from thirdparty.database.method import add_recipe, get_setting_by_id
 
 TOP_FOOD = 3
 TOP_RECIPE = 5
@@ -45,10 +45,15 @@ def testCreateRecipeFlow():
     model_choose_ingredients = FoodSuggestedService()
     model_get_recipe = GetRecipeService()
     
+    # lấy danh sách các môn ăn
     foods = get_all_foods()
 
-    # diet = get_setting() 
-    diet = "vegetarian" 
+    # lấy setting diet
+    setting = get_setting_by_id("1")
+    if setting:
+        diet = setting.diet
+    else:
+        diet = None 
 
     top_suggestions = model_choose_ingredients.get_top_food_suggestions(foods, diet, top_n=TOP_FOOD)
 
