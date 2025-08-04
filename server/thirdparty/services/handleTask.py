@@ -154,17 +154,17 @@ class TaskHandling():
         print(f"{action}: {quantity} {unit} {food}")
         
         food = Food(
-            id=generate_random_id_string(), 
+            id=generate_random_id_string(),  # tạo id ngẫu nhiên
             name=food, 
             quantity=quantity, 
             unit=unit, 
             is_good=True, 
             is_expired=False, 
-            input_date=datetime.now(), 
-            output_date=get_default_expired_date(7), 
-            category=get_category(food), 
-            calo=get_calo_usda(food),
-            image_url=get_image_url(food)
+            input_date=datetime.now(), # ngày hiện tại
+            output_date=get_default_expired_date(7), # tạm thời
+            category=get_category(food), # tạo 1 trong 4 default category
+            calo=get_calo_usda(food), # api calo
+            image_url=get_image_url(food) # api image
         )
 
         add_food(food)
@@ -184,8 +184,7 @@ class TaskHandling():
         elif classified_action == "xóa":
             return self.TaskWithActionDelete(classified_action, task.quantity, task.unit, task.food)
         else:
-            print(f"Không thể thực hiện hành động: {classified_action}")
-            return None
+            return f"Không thể thực hiện hành động: {classified_action}"
     
 def main():
     taskHandling = TaskHandling()
