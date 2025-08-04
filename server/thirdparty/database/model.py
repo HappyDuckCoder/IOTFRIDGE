@@ -23,7 +23,6 @@ class Food:
 
         # for food suggestion
         self.user_preference = user_preference
-        self.is_priority_food = is_priority_food
 
     def to_dict(self):
         return {
@@ -37,7 +36,6 @@ class Food:
             "category": self.category,
             "calo": self.calo,
             "user_preference": self.user_preference,
-            "is_priority_food": self.is_priority_food,
             "image_url": self.image_url,
         }
 
@@ -55,7 +53,6 @@ class Food:
             category=data.get("category"),
             calo=data.get("calo"),
             user_preference=data.get("user_preference"),
-            is_priority_food=data.get("is_priority_food"),
             image_url=data.get("image_url"),
         )
 
