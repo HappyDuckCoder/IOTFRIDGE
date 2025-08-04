@@ -2,8 +2,58 @@ import signal
 import sys
 import json
 import socket
+import threading
+import time
+import requests
+from thirdparty.database.method import *
+from thirdparty.api.SpeechToText import AudioModel
+from thirdparty.services.handleTask import TaskHandling
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
+
+def get_setting_from_firebase():
+    setting_data = get_setting_by_id(1)
+    return setting_data
+
+def send_test_data_to_esp(ip="192.168.1.1", port=8000):
+    while True:
+        try:
+            test_data = {"test_data": 1}
+            url = f"http://{ip}:{port}/receiveSetting"
+            response = requests.post(url, json=test_data, timeout=5)
+            print(f"Đã gửi setting tới ESP: {response.status_code}")
+        except Exception as e:
+            print(f"Lỗi khi gửi setting đến ESP: {e}")
+        time.sleep(5)
+
+def send_setting_to_esp(ip="192.168.1.1", port=8000):
+    while True:
+        try:
+            setting_data = get_setting_from_firebase()
+            url = f"http://{ip}:{port}/receiveSetting"
+            response = requests.post(url, json=setting_data, timeout=5)
+            print(f"Đã gửi setting tới ESP: {response.status_code}")
+        except Exception as e:
+            print(f"Lỗi khi gửi setting đến ESP: {e}")
+        time.sleep(5)
+
+def send_data_to_firebase(data):
+    add_fridge_conditions(data)
+
+def handle_add_food():    
+    # speech to text resources/mic.pcm 
+    stt = AudioModel()
+    stt.load()
+    text = stt.transcribe("resources/mic.pcm")
+
+    # tách các thành phần và phân loại hành động
+    taskHandling = TaskHandling()
+    component = taskHandling.DevideComponentInInput(text)
+    classified_action = taskHandling.classifyAction(component.action)
+
+    # thực hiện task
+    result = taskHandling.executeTask(component, classified_action)
+    return result
 
 class Handler(BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -32,6 +82,9 @@ class Handler(BaseHTTPRequestHandler):
                 f.write(audio_data)
 
             print("Đã nhận file ghi âm từ ESP32")
+
+            handle_add_food()
+
             self.send_response(200)
             self.send_header('Content-Type', 'text/plain')
             self.end_headers()
@@ -71,10 +124,11 @@ class Handler(BaseHTTPRequestHandler):
             raw_data = self.rfile.read(content_length)
             json_data = json.loads(raw_data.decode('utf-8'))
 
-            print("Dữ liệu thật nhận từ ESP32:")
+            print("Dữ liệu thật nhận từ ESP32: ")
             print(json.dumps(json_data, indent=2))
 
-            # TODO: Gửi lên Firebase tại đây (sau)
+            send_data_to_firebase(json_data)
+
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
@@ -113,6 +167,11 @@ def main():
 
     local_ip = Handler.get_local_ip() # Note: Sau này đổi thành IP server 
     print(f"Server đang chạy tại IP: {local_ip}, cổng: {port}")
+
+    # Khởi chạy luồng gửi setting
+    # TODO: Đang đợi để test tiếp
+    # threading.Thread(target=send_setting_to_esp, daemon=True).start()
+    # threading.Thread(target=send_test_data_to_esp, daemon=True).start()
 
     try:
         httpd.serve_forever()
