@@ -2,7 +2,6 @@ from thirdparty.database.model import Food
 import numpy as np
 from datetime import datetime
 
-
 class FoodSuggestedService:
     def __init__(self):
         pass

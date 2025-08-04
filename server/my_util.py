@@ -50,6 +50,8 @@ vietnamese_to_english = {
 def translate_vietnamese_to_english(name):
     return vietnamese_to_english.get(name, name)
 
+from datetime import datetime
+
 def convert_to_datetime(date_obj):
     if date_obj is None:
         return None
@@ -59,7 +61,12 @@ def convert_to_datetime(date_obj):
         return date_obj.to_datetime().replace(tzinfo=None)
     if isinstance(date_obj, str):
         try:
-            return datetime.fromisoformat(date_obj).replace(tzinfo=None)
+            # nếu chỉ có ngày → thêm giờ mặc định
+            if len(date_obj) == 10:     # "YYYY-MM-DD"
+                date_obj += " 00:00:00.000000"
+            elif len(date_obj) == 19:   # "YYYY-MM-DD HH:MM:SS"
+                date_obj += ".000000"
+            return datetime.fromisoformat(date_obj)
         except:
             return None
     return date_obj
