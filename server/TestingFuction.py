@@ -48,15 +48,22 @@ def testCreateRecipeFlow():
     # lấy danh sách các môn ăn
     foods = get_all_foods()
 
+    print("Danh sách các môn ăn:")
+    for i, food in enumerate(foods, 1):
+        print(f"  {i}. {food.name} ({food.category}) {food.input_date} - {food.output_date}")
+
+
     # lấy setting diet
     setting = get_setting_by_id("1")
     if setting:
         diet = setting.diet
     else:
-        diet = None 
+        diet = "healthy"
 
+    print("Diet hiện tại: ", diet)
+     
     top_suggestions = model_choose_ingredients.get_top_food_suggestions(foods, diet, top_n=TOP_FOOD)
-
+    
     print(f"Top {TOP_FOOD} gợi ý:")
     for i, (food, score) in enumerate(top_suggestions, 1):
         print(f"  {i}. {food.name} - Điểm: {score:.3f} ({food.category})")
