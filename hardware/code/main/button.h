@@ -9,6 +9,7 @@ private:
     bool lastState;
     unsigned long lastPressTime;
     unsigned long debounceDelay;
+    unsigned long pressStartTime;
 
 public:
     Button(int buttonPin, unsigned long debounce = 200)
@@ -18,6 +19,7 @@ public:
         lastState = false;
         lastPressTime = 0;
         debounceDelay = debounce;
+        pressStartTime = 0;
     }
 
     bool begin()
@@ -45,11 +47,38 @@ public:
         return result;
     }
 
-
     bool isHeld()
     {
         return digitalRead(pin) == HIGH;
     }
+
+    bool isHeldtSecond(int sec)
+    {
+        static bool alreadySwitched = false;
+
+        unsigned long now = millis();
+        unsigned long ms = sec * 1000;
+
+        if (digitalRead(pin) == HIGH)
+        {
+            if (pressStartTime == 0)
+                pressStartTime = now;
+
+            if (!alreadySwitched && (now - pressStartTime >= ms))
+            {
+                alreadySwitched = true;
+                return true;
+            }
+        }
+        else
+        {
+            pressStartTime = 0;
+            alreadySwitched = false; // reset khi thả nút
+        }
+
+        return false;
+    }
+
 };
 
 #endif

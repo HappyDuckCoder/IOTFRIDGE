@@ -21,10 +21,12 @@ private:
     const int dutyCycle[4] = { 0, 250, 500, 750 }; // thời gian bật (ms) cho từng mode
 
     // Ngưỡng nhiệt độ để điều khiển quạt
-    const float TEMP_OFF = 4.0;        // Dưới 4°C: tắt quạt
-    const float TEMP_LOW = 6.0;        // 4-6°C: quạt nhẹ
-    const float TEMP_MEDIUM = 8.0;     // 6-8°C: quạt trung bình
-    const float TEMP_HIGH = 10.0;      // Trên 8°C: quạt mạnh
+    const float TEMP_OFF = 2.0;        // Dưới 4°C: tắt quạt
+    const float TEMP_LOW = 10;        // 4-6°C: quạt nhẹ
+    const float TEMP_MEDIUM = 20;     // 6-8°C: quạt trung bình
+    const float TEMP_HIGH = 40;      // Trên 8°C: quạt mạnh
+
+    bool automationMode;
 
     float currentTemp;
     unsigned long lastTempCheck;
@@ -39,6 +41,7 @@ public:
         cycleStart = 0;
         currentTemp = 0.0;
         lastTempCheck = 0;
+        automationMode = 0;
     }
 
     bool begin()
@@ -48,9 +51,24 @@ public:
         return true;
     }
 
+    void setAutomationMode(bool mode)
+    {
+        automationMode = mode;
+    }
+
+    bool getCurrentAutomationMode() 
+    {
+        return automationMode;
+    }
+
     // Cập nhật nhiệt độ từ cảm biến
     void updateTemperature(float temperature)
     {
+        if (!automationMode) 
+        {
+            return;
+        }
+
         currentTemp = temperature;
 
         // Tự động điều chỉnh chế độ quạt dựa trên nhiệt độ
@@ -77,6 +95,7 @@ public:
         if (newMode != currentMode)
         {
             setMode(newMode);
+
             Serial.print("Nhiệt độ: ");
             Serial.print(currentTemp);
             Serial.print("°C - Chuyển sang chế độ: ");

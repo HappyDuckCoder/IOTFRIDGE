@@ -48,9 +48,11 @@ struct FridgeData
   bool is_rotted_food;
   int total_food;
   int last_open;
+  bool is_auto_mode;
 
-  FridgeData(float temp, float humi, bool is_rotted_food, int total_food, int last_open)
-      : temp(temp), humi(humi), is_rotted_food(is_rotted_food), total_food(total_food), last_open(last_open) {}
+  FridgeData() : temp(0), humi(0), is_rotted_food(0), total_food(0), last_open(0), is_auto_mode(0) {}
+  FridgeData(float temp, float humi, bool is_rotted_food, int total_food, int last_open, bool is_auto_mode)
+      : temp(temp), humi(humi), is_rotted_food(is_rotted_food), total_food(total_food), last_open(last_open), is_auto_mode(is_auto_mode) {}
 };
 
 #endif
