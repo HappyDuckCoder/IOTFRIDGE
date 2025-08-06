@@ -72,15 +72,44 @@ public:
   // }
 
   // // Xử lý relay
-  // void handleRelay()
-  // {
-  //   fanRelay.update();
-  //   if (button_fan.isPressed())
-  //   {
-  //     fanRelay.nextMode();
-  //     fanRelay.log();
-  //   }
-  // }
+  void handleRelay()
+  {
+    if (button_fan.isHeldtSecond(5)) 
+    {
+      bool automationMode = fanRelay.getCurrentAutomationMode();
+
+      if (automationMode == true)
+      {
+        Serial.println("Đang đổi chế độ tự động");
+      }
+      else
+      {
+        Serial.println("Đang đổi chế độ thủ công");
+      }
+
+      fanRelay.setAutomationMode(!automationMode);
+    }
+
+    fanRelay.update();
+
+    if (fanRelay.getCurrentAutomationMode() == false)
+    {
+      if (button_fan.isPressed())
+      {
+        fanRelay.nextMode();
+        fanRelay.log();
+      }
+    }
+    else
+    {
+      if (dhtReadTimer.isDue())
+      { 
+        dhtSensor.handleRead();
+        float t = dhtSensor.getData().temperature;
+        fanRelay.updateTemperature(t);
+      }
+    }
+  }
 
   // // Xử lý ST7789
   // void handleDisplayTFT()
