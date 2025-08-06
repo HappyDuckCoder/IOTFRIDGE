@@ -223,7 +223,7 @@ public:
         return success;
     }
 
-    bool uploadSensorData(float temp, float humi, bool is_rotted_food, int total_food, int last_open)
+    bool uploadSensorData(float temp, float humi, bool is_rotted_food, int total_food, int last_open, bool is_auto_mode)
     {
         // Tạo JSON string với 5 thông số cảm biến
         String jsonData = "{";
@@ -232,6 +232,7 @@ public:
         jsonData += "\"spoiledFood\":" + String(is_rotted_food ? "true" : "false") + ",";
         jsonData += "\"foodCount\":" + String(total_food) + ",";
         jsonData += "\"lastDateEntry\":" + String(last_open) + ",";
+        jsonData += "\"isAutoMode\":" + String(is_auto_mode) + ",";
         jsonData += "}";
 
         Serial.println("Dữ liệu JSON gửi: " + jsonData);
