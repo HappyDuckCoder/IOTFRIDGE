@@ -5,6 +5,7 @@ from thirdparty.api.SpeechToText import AudioModel
 from thirdparty.database.method import get_all_foods
 from thirdparty.api.GetRecipe import GetRecipeService
 from thirdparty.database.method import add_recipe, get_setting_by_id
+from thirdparty.services.notification import Notification
 
 TOP_FOOD = 3
 TOP_RECIPE = 5
@@ -84,8 +85,12 @@ def testCreateRecipeFlow():
     for recipe in recipes:
         add_recipe(recipe)
 
+def testSendNotification():
+    sample_text = "test mess"
+    Notification.sendMessage(sample_text)
+
 def main():
-    testCreateRecipeFlow()
+    testSendNotification()
 
 if __name__ == "__main__":
     main()

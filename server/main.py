@@ -10,6 +10,7 @@ from thirdparty.api.SpeechToText import AudioModel
 from thirdparty.services.handleTask import TaskHandling
 from thirdparty.services.FoodSuggested import FoodSuggestedService
 from thirdparty.api.GetRecipe import GetRecipeService
+from thirdparty.services.notification import Notification
 from my_util import *
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
@@ -219,6 +220,30 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Failed to receive data")
 
+    def post_notification(self):
+        try:
+            content_length = int(self.headers['Content-Length'])
+            raw_data = self.rfile.read(content_length)
+            json_data = json.loads(raw_data.decode('utf-8'))
+
+            message = json.dumps(json_data, indent=2)
+
+            print("Notification nhận từ ESP32:")
+            print(message)
+
+            Notification.sendMessage(message)
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(b'{"status": "test received"}')
+
+        except Exception as error:
+            print(f"Lỗi trong post_notification: {error}")
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(b"Failed to receive notification")
+
     def do_POST(self):
         if self.path == "/uploadAudio":
             self.post_audio()
@@ -226,6 +251,8 @@ class Handler(BaseHTTPRequestHandler):
             self.post_data()
         elif self.path == "/uploadTestData":
             self.post_test_data()
+        elif self.path == "/uploadNotification":
+            self.post_notification()
         else:
             print("Error: Đường dẫn không hợp lệ")
             self.send_response(405)
