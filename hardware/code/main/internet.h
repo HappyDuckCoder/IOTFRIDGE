@@ -238,6 +238,48 @@ public:
         return uploadData(jsonData.c_str(), "/uploadData");
     }
 
+    bool uploadNotification(String message, const char* link)
+    {
+        if (!isConnected())
+        {
+            Serial.println("WiFi chưa kết nối!");
+            return false;
+        }
+
+        Serial.println("===> Đang gửi tin nhắn lên server");
+
+        HTTPClient client;
+
+        String uploadURL = String(serverBaseURL) + String(link);
+        client.begin(uploadURL);
+        client.addHeader("Content-Type", "application/json");
+
+        String jsonPayload = "{\"message\": " + String(message) + "}";
+
+        Serial.println("Đang gửi tin nhắn đến server");
+
+        int httpResponseCode = client.POST(jsonPayload);
+
+        Serial.print("Mã phản hồi HTTP: ");
+        Serial.println(httpResponseCode);
+
+        bool success = false;
+        if (httpResponseCode == 200)
+        {
+            String response = client.getString();
+            Serial.println("Phản hồi từ server đối với test_data:");
+            Serial.println(response);
+            success = true;
+        }
+        else
+        {
+            Serial.println("Lỗi khi gửi dữ liệu test_data");
+        }
+
+        client.end();
+        return success;
+    } 
+
     String getLocalIP()
     {
         if (isConnected())
