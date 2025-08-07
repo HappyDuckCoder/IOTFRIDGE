@@ -260,6 +260,39 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Method not allowed")
 
+    def get_setting(self):
+        try:
+            condition_data = get_setting_from_firebase()
+
+            # Trả về JSON cấu hình
+            response = {
+                "temp": condition_data.temp,
+                "humi": condition_data.humi,
+                "is_rotted_food": condition_data.is_rotted_food,
+                "total_food": condition_data.total_food,
+                "last_open": condition_data.last_open,
+                "is_saving_mode": condition_data.is_saving_mode
+            }
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode('utf-8'))
+
+        except Exception as e:
+            print(f"Lỗi trong get_setting: {e}")
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(b"Failed to get setting")
+
+    def do_GET(self):
+        if self.path == "/receiveSetting":
+            self.get_setting()
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"Not found")
+
 def signal_handler(sig, frame):
     print("\nĐang đóng server...")
     print("Server đã đóng")

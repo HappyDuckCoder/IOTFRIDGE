@@ -205,24 +205,27 @@ class Setting:
 
 
 class Condition:
-    def __init__(self, id: str, last_door_close: datetime, humidity: float, 
-                 temperature: float, has_spoiled_food: bool, food_count: int, 
+    def __init__(self, id: str, last_open: int, humi: float, 
+                 temp: float, is_rotted_food: bool, total_food: int, is_saving_mode: bool,
                  fridge_data_id: str):
         self.id = id
-        self.lastDateEntry = last_door_close
-        self.humidity = humidity
-        self.temperature = temperature
-        self.spoiledFood = has_spoiled_food
-        self.foodCount = food_count
+        self.temp = temp
+        self.humi = humi
+        self.is_rotted_food = is_rotted_food
+        self.total_food = total_food
+        self.last_open = last_open
+        self.is_saving_mode = is_saving_mode
         self.fridge_data_id = fridge_data_id
 
     def to_dict(self):
         return {
-            "lastDateEntry": self.lastDateEntry,
-            "humidity": self.humidity,
-            "temperature": self.temperature,
-            "spoiledFood": self.spoiledFood,
-            "foodCount": self.foodCount,
+            "id": self.id,
+            "temp": self.temp,
+            "humi": self.humi,
+            "is_rotted_food": self.is_rotted_food,
+            "total_food": self.total_food,
+            "last_open": self.last_open,
+            "is_saving_mode": self.is_saving_mode,
             "fridge_data_id": self.fridge_data_id
         }
 
@@ -230,11 +233,12 @@ class Condition:
     def from_dict(id: str, data):
         return Condition(
             id=id,
-            last_door_close=data.get("last_door_close"),
-            humidity=data.get("humidity"),
-            temperature=data.get("temperature"),
-            has_spoiled_food=data.get("has_spoiled_food", False),
-            food_count=data.get("food_count", 0),
+            temp=data.get("temp"),
+            humi=data.get("humi"),
+            is_rotted_food=data.get("is_rotted_food"),
+            total_food=data.get("total_food"),
+            last_open=data.get("last_open"),
+            is_saving_mode=data.get("is_saving_mode"),
             fridge_data_id=data.get("fridge_data_id")
         )
 

@@ -1,6 +1,6 @@
 from thirdparty.database.model import Food, Condition, Setting
 from thirdparty.api.GetCalo import GetCaloService
-from thirdparty.database.method import add_food, get_all_foods, delete_food_by_id, delete_all_foods, add_fridge_conditions, add_setting, delete_setting_by_id, get_setting_by_id, update_setting_by_id
+from thirdparty.database.method import *
 from my_util import get_category, get_image_url
 from datetime import datetime, timedelta
 
@@ -109,5 +109,21 @@ def test_setting():
     print("Kết quả sau khi xoá:", get_setting if get_setting else "Không tồn tại")
 
 
+def test_condition():
+    test_condition = Condition(
+        id="1",
+        temp=5.2,
+        humi=70.1,
+        is_rotted_food=False,
+        total_food=12,
+        last_open=2,
+        is_saving_mode=True,
+        fridge_data_id="1"
+    )
+
+    add_fridge_conditions(test_condition)
+    get_condition = get_fridge_conditions_by_id("1")
+    print(get_condition.to_dict())
+
 if __name__ == "__main__":
-    test_setting()
+    test_condition()
