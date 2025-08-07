@@ -254,7 +254,8 @@ public:
         client.begin(uploadURL);
         client.addHeader("Content-Type", "application/json");
 
-        String jsonPayload = "{\"message\": " + String(message) + "}";
+        // String jsonPayload = "{\"message\": " + String(message) + "}";
+        String jsonPayload = "{\"message\": \"" + message + "\"}";
 
         Serial.println("Đang gửi tin nhắn đến server");
 
@@ -273,7 +274,7 @@ public:
         }
         else
         {
-            Serial.println("Lỗi khi gửi dữ liệu test_data");
+            Serial.println("Lỗi khi gửi tin nhắn");
         }
 
         client.end();

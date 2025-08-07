@@ -53,31 +53,34 @@ public:
 
     virtual void handleRead()
     {
+        if (!calibrated)
+            return;
+
+        int adc = analogRead(pin);
+
+        Rs = calculateRs(adc);
+        if (Rs <= 0)
         {
-            if (!calibrated)
-                return;
-
-            int adc = analogRead(pin);
-
-            Rs = calculateRs(adc);
-            if (Rs <= 0)
-            {
-                dataValid = false;
-                ppm = 0;
-                return;
-            }
-
-            ratio = Rs / Ro;
-            if (ratio <= 0)
-            {
-                dataValid = false;
-                ppm = 0;
-                return;
-            }
-
-            ppm = calculatePPM(ratio, sensorA, sensorB);
-            dataValid = !isnan(ppm) && ppm >= 0;
+            dataValid = false;
+            ppm = 0;
+            return;
         }
+
+        ratio = Rs / Ro;
+        if (ratio <= 0)
+        {
+            dataValid = false;
+            ppm = 0;
+            return;
+        }
+
+        ppm = calculatePPM(ratio, sensorA, sensorB);
+
+        // Serial.printf("[%s] ADC: %d | Rs: %.2f | Ro: %.2f | Ratio: %.2f\n", 
+        // sensorName.c_str(), adc, Rs, Ro, ratio);
+        // Serial.println();
+
+        dataValid = !isnan(ppm) && ppm >= 0;
     }
 
     float getPPM() const { return ppm; }
@@ -134,7 +137,7 @@ public:
         sensorA = -0.38;
         sensorB = 1.48;
         roRatio = 4.4;      // Rs/Ro trong không khí sạch
-        threshold = 3000.0; // ppm
+        threshold = 30.0; // ppm // mức chuẩn là 3000.0
     }
 };
 
@@ -149,7 +152,7 @@ public:
         sensorA = -0.45;
         sensorB = 2.95;
         roRatio = 3.7;    // Rs/Ro trong không khí sạch
-        threshold = 50.0; // ppm
+        threshold = 500.0; // ppm // mức chuẩn là 50.0
     }
 };
 
@@ -205,7 +208,7 @@ public:
     }
 
     void handleRead()
-    {
+    {   
         mq2Sensor.handleRead();
         mq135Sensor.handleRead();
         updateSystemData();

@@ -225,8 +225,7 @@ class Handler(BaseHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             raw_data = self.rfile.read(content_length)
             json_data = json.loads(raw_data.decode('utf-8'))
-
-            message = json.dumps(json_data, indent=2)
+            message = json_data.get("message", "Không có nội dung")
 
             print("Notification nhận từ ESP32:")
             print(message)
@@ -236,13 +235,14 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
-            self.wfile.write(b'{"status": "test received"}')
+            self.wfile.write(b'{"status": "message received"}')
 
         except Exception as error:
             print(f"Lỗi trong post_notification: {error}")
             self.send_response(500)
             self.end_headers()
             self.wfile.write(b"Failed to receive notification")
+
 
     def do_POST(self):
         if self.path == "/uploadAudio":

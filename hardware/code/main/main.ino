@@ -1,7 +1,7 @@
 #include "constant.h"
 // #include "button.h"
 // #include "DHTSensor.h"
-// #include "GasSensor.h"
+#include "GasSensor.h"
 #include "HandleDelay.h"
 // #include "Relay.h"
 #include "TFT.h"
@@ -20,7 +20,7 @@
 // DHT
 // DHTSensor dhtSensor(DHT_PIN, DHT11);
 // MQ2, MQ135
-// GasSensorSystem gasSystem(MQ2_PIN, MQ135_PIN);
+GasSensorSystem gasSystem(MQ2_PIN, MQ135_PIN);
 // Relay
 // RelayController fanRelay(RELAY_PIN);
 // ST7789 Display
@@ -38,7 +38,7 @@ TFTDisplay tft(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, TFT_SCLK_PIN, TFT_MOSI_PIN, 
 InternetProvisioning net;
 // TimerReader
 // HandleDelay dhtReadTimer(2000);
-// HandleDelay gasSystemReadTimer(2000);
+HandleDelay gasSystemReadTimer(2000);
 // HandleDelay InternetCheckingReadTimer(200);
 // HandleDelay SendDataReadTimer(5000);
 HandleDelay ReceiveDataReadTimer(5000);
@@ -54,17 +54,17 @@ public:
   HandleFunction() : record_state(false) {}
 
   // Xử lý luồng cảm biến đồ ăn bị hư
-  // void handleSensors()
-  // {
-  //   // Xử lý cảm biến khí gas
-  //   if (gasSystemReadTimer.isDue())
-  //   {
-  //     gasSystem.handleRead();
-  //     gasSystem.log();
-  //     if (gasSystem.isSystemInDanger()) 
-  //       net.uploadNotification("Cảnh báo có đồ ăn bị hư", "/uploadNotification");
-  //   }
-  // }
+  void handleSensors()
+  {
+    // Xử lý cảm biến khí gas
+    if (gasSystemReadTimer.isDue())
+    {
+      gasSystem.handleRead();
+      gasSystem.log();
+      if (gasSystem.isSystemInDanger()) 
+        net.uploadNotification("Cảnh báo có đồ ăn bị hư", "/uploadNotification");
+    }
+  }
 
   // Xử lý luồng nhiệt độ và độ ẩm
   // void handleRelay()
@@ -257,10 +257,10 @@ void setup()
   //   Serial.println("DHT khởi tạo thất bại");
 
   // gas begin
-  // if (gasSystem.begin())
-  //   Serial.println("Hệ thống gas khởi tạo thành công");
-  // else
-  //   Serial.println("Hệ thống gas khởi tạo thất bại");
+  if (gasSystem.begin())
+    Serial.println("Hệ thống gas khởi tạo thành công");
+  else
+    Serial.println("Hệ thống gas khởi tạo thất bại");
 
   // relay begin
   // if (fanRelay.begin())
@@ -317,7 +317,7 @@ void loop()
   // handle.handleDoorChecking();
 
   // xử lý luồng 4: 
-  // handle.handleSensors();
+  handle.handleSensors();
 
   delay(50);
 }
