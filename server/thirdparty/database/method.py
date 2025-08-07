@@ -145,6 +145,14 @@ def delete_fridge_conditions_by_id(doc_id: str):
         print(f"Đã xoá thông số tủ lạnh với ID '{doc_id}'.")
     else:
         print(f"Không tìm thấy thông số với ID '{doc_id}'.")
+
+def get_fridge_conditions_by_id(doc_id: str):   
+    doc_ref = db.collection("Condition").document(doc_id)
+    doc = doc_ref.get()
+
+    if doc.exists:
+        return Condition.from_dict(doc.id, doc.to_dict())
+    return None
 # ================ CONDITION ================
 
 

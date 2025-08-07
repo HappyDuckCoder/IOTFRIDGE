@@ -279,10 +279,55 @@ public:
         return success;
     } 
 
-    // FridgeData readData() 
-    // {
-    //     FridgeData res = ...
-    // }
+    FridgeData readData(const char* link)
+    {
+        FridgeData data = {0};
+
+        if (!isConnected())
+        {
+            logNotConnected();
+            return data;
+        }
+
+        String url = String(serverBaseURL) + String(link);
+        Serial.println("Đang gửi yêu cầu GET tới: " + url);
+
+        HTTPClient http;
+        http.begin(url);
+        int httpCode = http.GET();
+
+        if (httpCode == 200)
+        {
+            String payload = http.getString();
+            Serial.println("Phản hồi từ server:");
+            Serial.println(payload);
+
+            StaticJsonDocument<512> doc;
+            DeserializationError err = deserializeJson(doc, payload);
+
+            if (!err)
+            {
+                data.temp = doc["temp"] | 0.0;
+                data.humi = doc["humi"] | 0.0;
+                data.is_rotted_food = doc["is_rotted_food"] | false;
+                data.total_food = doc["total_food"] | 0;
+                data.last_open = doc["last_open"] | 0;
+                data.is_saving_mode = doc["is_saving_mode"] | false;
+            }
+            else
+            {
+                Serial.println("Lỗi parse JSON: " + String(err.c_str()));
+            }
+        }
+        else
+        {
+            Serial.printf("Lỗi kết nối server: %d\n", httpCode);
+        }
+
+        http.end();
+        return data;
+    }
+
 
 private:
     void startAPMode()
