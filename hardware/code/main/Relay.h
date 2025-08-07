@@ -41,7 +41,7 @@ public:
         cycleStart = 0;
         currentTemp = 0.0;
         lastTempCheck = 0;
-        automationMode = 0;
+        automationMode = false;
     }
 
     bool begin()

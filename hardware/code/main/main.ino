@@ -1,9 +1,9 @@
 #include "constant.h"
-// #include "button.h"
-// #include "DHTSensor.h"
+#include "button.h"
+#include "DHTSensor.h"
 #include "GasSensor.h"
 #include "HandleDelay.h"
-// #include "Relay.h"
+#include "Relay.h"
 #include "TFT.h"
 // #include "Spiff.h"
 // #include "INMP.h"
@@ -15,14 +15,14 @@
 // // =====================Define Object Section====================== //
 // Button
 // Button button_mic(BUTTON_MIC_PIN);
-// Button button_fan(BUTTON_FAN_PIN);
+Button button_fan(BUTTON_FAN_PIN);
 // Button button_door(BUTTON_DOOR_PIN);
 // DHT
-// DHTSensor dhtSensor(DHT_PIN, DHT11);
+DHTSensor dhtSensor(DHT_PIN, DHT11);
 // MQ2, MQ135
 GasSensorSystem gasSystem(MQ2_PIN, MQ135_PIN);
 // Relay
-// RelayController fanRelay(RELAY_PIN);
+RelayController fanRelay(RELAY_PIN);
 // ST7789 Display
 TFTDisplay tft(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, TFT_SCLK_PIN, TFT_MOSI_PIN, TFT_SCREEN_WIDTH, TFT_SCREEN_HEIGHT);
 // spiff
@@ -37,7 +37,7 @@ TFTDisplay tft(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, TFT_SCLK_PIN, TFT_MOSI_PIN, 
 // ap mode
 InternetProvisioning net;
 // TimerReader
-// HandleDelay dhtReadTimer(2000);
+HandleDelay dhtReadTimer(2000);
 HandleDelay gasSystemReadTimer(2000);
 // HandleDelay InternetCheckingReadTimer(200);
 // HandleDelay SendDataReadTimer(5000);
@@ -67,44 +67,46 @@ public:
   }
 
   // Xử lý luồng nhiệt độ và độ ẩm
-  // void handleRelay()
-  // {
-  //   if (button_fan.isHeldtSecond(5)) // nhấn giữ 5 giây để đổi chế độ
-  //   {
-  //     bool automationMode = fanRelay.getCurrentAutomationMode();
+  void handleRelay()
+  {
+    if (button_fan.isHeldtSecond(5)) // nhấn giữ 5 giây để đổi chế độ
+    {
+      bool automationMode = fanRelay.getCurrentAutomationMode();
 
-  //     if (automationMode == true)
-  //     {
-  //       Serial.println("Đang đổi chế độ tự động");
-  //     }
-  //     else
-  //     {
-  //       Serial.println("Đang đổi chế độ thủ công");
-  //     }
+      if (automationMode == true)
+      {
+        Serial.println("Đang đổi chế độ tự động");
+      }
+      else
+      {
+        Serial.println("Đang đổi chế độ thủ công");
+      }
 
-  //     fanRelay.setAutomationMode(!automationMode);
-  //   }
+      fanRelay.setAutomationMode(!automationMode);
+    }
 
-  //   fanRelay.update();
+    fanRelay.update();
 
-  //   if (fanRelay.getCurrentAutomationMode() == false)
-  //   {
-  //     if (button_fan.isPressed())
-  //     {
-  //       fanRelay.nextMode();
-  //       fanRelay.log();
-  //     }
-  //   }
-  //   else
-  //   {
-  //     if (dhtReadTimer.isDue())
-  //     {
-  //       dhtSensor.handleRead();
-  //       float t = dhtSensor.getData().temperature;
-  //       fanRelay.updateTemperature(t);
-  //     }
-  //   }
-  // }
+    if (fanRelay.getCurrentAutomationMode() == false)
+    {
+      if (button_fan.isPressed())
+      {
+        fanRelay.nextMode();
+        fanRelay.log();
+      }
+    }
+    else
+    {
+      if (dhtReadTimer.isDue())
+      {
+        dhtSensor.handleRead();
+        float t = dhtSensor.getData().temperature;
+        Serial.print("Nhiệt độ hiện tại: ");
+        Serial.println(t);
+        fanRelay.updateTemperature(t);
+      }
+    }
+  }
 
   // Xử lý ST7789
   void handleDisplayTFT()
@@ -241,32 +243,26 @@ void setup()
   //   Serial.println("Button Mic khởi tạo thành công");
   // else
   //   Serial.println("Button Mic khởi tạo thất bại");
-  //   if (button_fan.begin())
-  //     Serial.println("Button Fan khởi tạo thành công");
-  //   else
-  //     Serial.println("Button Fan khởi tạo thất bại");
+    if (button_fan.begin())
+      Serial.println("Button Fan khởi tạo thành công");
+    else
+      Serial.println("Button Fan khởi tạo thất bại");
   // if (button_door.begin())
   //   Serial.println("Button Door khởi tạo thành công");
   // else
   //   Serial.println("Button Door khởi tạo thất bại");
 
   // dht begin
-  // if (dhtSensor.begin())
-  //   Serial.println("DHT khởi tạo thành công");
-  // else
-  //   Serial.println("DHT khởi tạo thất bại");
-
-  // gas begin
-  if (gasSystem.begin())
-    Serial.println("Hệ thống gas khởi tạo thành công");
+  if (dhtSensor.begin())
+    Serial.println("DHT khởi tạo thành công");
   else
-    Serial.println("Hệ thống gas khởi tạo thất bại");
+    Serial.println("DHT khởi tạo thất bại");
 
   // relay begin
-  // if (fanRelay.begin())
-  //   Serial.println("Relay khởi tạo thành công");
-  // else
-  //   Serial.println("Relay khởi tạo thất bại");
+  if (fanRelay.begin())
+    Serial.println("Relay khởi tạo thành công");
+  else
+    Serial.println("Relay khởi tạo thất bại");
 
   // begin ST7789
   if (tft.begin())
@@ -297,6 +293,12 @@ void setup()
     Serial.println("internet khởi tạo thành công");
   else
     Serial.println("internet khởi tạo thất bại");
+
+  // gas begin
+  if (gasSystem.begin())
+    Serial.println("Hệ thống gas khởi tạo thành công");
+  else
+    Serial.println("Hệ thống gas khởi tạo thất bại");
 }
 
 void loop()
@@ -307,16 +309,16 @@ void loop()
   // xử lý hiện thông số ra tft
   handle.handleDisplayTFT();
 
-  // xử lý luồng 1:
+  // xử lý luồng 1: ghi âm, thêm hoặc xóa food
   // handle.handleRecord();
 
-  // xử lý luồng 2:
-  // handle.handleRelay();
+  // xử lý luồng 2: điều chỉnh nhiệt độ phù hợp
+  handle.handleRelay();
 
-  // xử lý luồng 3:
+  // xử lý luồng 3: cảnh báo đóng cửa tủ, quên thêm đồ ăn
   // handle.handleDoorChecking();
 
-  // xử lý luồng 4: 
+  // xử lý luồng 4: cảnh báo có đồ ăn bị hư
   handle.handleSensors();
 
   delay(50);
