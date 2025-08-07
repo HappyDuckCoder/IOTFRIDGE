@@ -9,11 +9,14 @@
 #include "INMP.h"
 #include "I2SRecorder.h"
 #include "InternetProvisioning.h"
+// #include "WeightTracking.h"
+// #include "DoorTracking.h"
 
 // =====================Define Object Section====================== //
 // Button
 Button button_mic(BUTTON_MIC_PIN);
 Button button_fan(BUTTON_FAN_PIN);
+// Button button_door(BUTTON_DOOR_PIN);
 // DHT
 DHTSensor dhtSensor(DHT_PIN, DHT11);
 // MQ2, MQ135
@@ -30,6 +33,9 @@ INMP mic(INMP_BCLK_PIN, INMP_WS_PIN, INMP_DATA_PIN);
 I2SRecorder recorder(mic, I2S_READ_LEN, SAMPLE_RATE, SAMPLE_BITS, CHANNEL_NUM);
 // ap mode
 InternetProvisioning net;
+// weight + door
+// DoorTracking door(BUTTON_PIN);
+// WeightTracking weight(HX711_DOUT, HX711_SCK);
 
 // TimerReader - Điều chỉnh timer cho recording mode
 HandleDelay dhtReadTimer(2000);
@@ -159,6 +165,27 @@ public:
     net.handleClient();
   }
 
+  // void handleDoorTracking()
+  // {
+  //   if (door.isAlertNeeded())
+  //   {
+  //       Serial.println("ALERT: Door open too long!");
+
+  //       net.uploadNotification("Cửa mở quá lâu", "/uploadNotification");
+  //   }
+
+  //   if (door.isDoorJustClosed())
+  //   {
+  //       Serial.println("Door just closed. Checking weight...");
+  //       if (weight.checkWeightChange())
+  //       {
+  //         Serial.println("Weight changed significantly!");
+
+  //         net.uploadNotification("Quên thay đổi lượng thức ăn trong tủ lạnh", "/uploadNotification");
+  //       }
+  //   }
+  // }
+
   // xử lý luồng thêm, xóa thức ăn - CHÍNH
   void handleRecord()
   {
@@ -171,7 +198,7 @@ public:
         is_recording_mode = true; // Set mode ngay lập tức
         
         Serial.println("Bắt đầu ghi âm...");
-        Serial.println(">>> PAUSE CÁC SENSOR KHÁC <<<");
+        Serial.println(">>> PAUSE CÁC LUỒNG KHÁC <<<");
         
         // Delay ngắn để các sensor dừng hoàn toàn
         delay(200);
@@ -209,7 +236,7 @@ public:
         // Delay trước khi resume sensors
         delay(500);
         is_recording_mode = false; // Resume các sensor khác
-        Serial.println(">>> RESUME CÁC SENSOR KHÁC <<<");
+        Serial.println(">>> RESUME CÁC LUỒNG KHÁC <<<");
       }
     }
   }
@@ -231,6 +258,10 @@ void setup()
     Serial.println("Button Fan khởi tạo thành công");
   else
     Serial.println("Button Fan khởi tạo thất bại");
+  // if (button_door.begin())
+  //   Serial.println("Button Door khởi tạo thành công");
+  // else
+  //   Serial.println("Button Door khởi tạo thất bại");
 
   // gas begin
   if (gasSystem.begin())
@@ -268,6 +299,12 @@ void setup()
   else
     Serial.println("INMP khởi tạo thất bại");
 
+  // weight begin 
+  // if (weightTracking.begin())
+  //   Serial.println("cân khởi tạo thành công");
+  // else
+  //   Serial.println("cân khởi tạo thất bại");
+
   // ap mode begin
   if (net.begin())
     Serial.println("internet khởi tạo thành công");
@@ -294,6 +331,9 @@ void loop()
 
   // xử lý luồng 2: điều chỉnh nhiệt độ phù hợp - PAUSE khi recording
   handle.handleRelay();
+
+  // xử lý luồng 3: kiểm tra xem đã thêm thức ăn hay chưa - PAUSE khi recording
+  // handle.handleDoorTracking();
 
   // xử lý luồng 4: cảnh báo có đồ ăn bị hư - PAUSE khi recording
   handle.handleSensors();
