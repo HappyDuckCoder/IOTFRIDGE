@@ -24,13 +24,13 @@ public:
         i2s_config_t i2s_config = {
             .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
             .sample_rate = 16000,
-            .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,  // Thử 32bit thay vì 16bit
+            .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,  
             .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
-            .communication_format = I2S_COMM_FORMAT_STAND_I2S,  // Đơn giản hóa format
+            .communication_format = I2S_COMM_FORMAT_STAND_I2S,
             .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-            .dma_buf_count = 4,        // Giảm buffer count
-            .dma_buf_len = 1024,       // Tăng buffer length
-            .use_apll = false,         // Tắt APLL để giảm noise
+            .dma_buf_count = 4,
+            .dma_buf_len = 1024,
+            .use_apll = false,
             .tx_desc_auto_clear = true,
             .fixed_mclk = 0
         };
@@ -59,19 +59,13 @@ public:
         return true;
     }
 
-    size_t read(int32_t *buffer, size_t len) {
+    // Ghi đúng kiểu 16-bit (signed short)
+    size_t read(int16_t *buffer, size_t samples) {
         size_t bytesRead = 0;
-        esp_err_t result = i2s_read(I2S_NUM_0, buffer, len * sizeof(int32_t), &bytesRead, portMAX_DELAY);
-        
+        esp_err_t result = i2s_read(I2S_NUM_0, buffer, samples * sizeof(int16_t), &bytesRead, portMAX_DELAY);
+
         if (result == ESP_OK && bytesRead > 0) {
-            size_t samples = bytesRead / sizeof(int32_t);
-            
-            // Convert 32-bit to 16-bit và loại bỏ noise
-            for (size_t i = 0; i < samples; i++) {
-                // Shift right 11 bits để lấy 24-bit MSB, sau đó shift thêm 8 bits để về 16-bit
-                buffer[i] = buffer[i] >> 11;  
-            }
-            return samples;
+            return bytesRead / sizeof(int16_t);  // Trả về số samples đã đọc
         }
         return 0;
     }

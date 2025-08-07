@@ -4,6 +4,7 @@ import string
 from datetime import datetime, timedelta
 from thirdparty.api.getImageUrl import ImageSearchTool
 from thirdparty.api.NLPapi import Model, model_gemini_name
+from datetime import datetime
 
 vietnamese_to_english = {
     "táo": "apple",
@@ -47,10 +48,28 @@ vietnamese_to_english = {
     "muối": "salt"
 }
 
+number_to_string = {
+    "một": 1,
+    "hai": 2,
+    "ba": 3,
+    "bốn": 4,
+    "năm": 5,
+    "sáu": 6,
+    "bảy": 7,
+    "tám": 8,
+    "chín": 9,
+    "mười": 10
+}
+
+def string_to_number(t):
+    if isinstance(t, (int, float)):
+        return t
+    elif isinstance(t, str):
+        return number_to_string.get(t.strip().lower(), None)
+    return None
+
 def translate_vietnamese_to_english(name):
     return vietnamese_to_english.get(name, name)
-
-from datetime import datetime
 
 def convert_to_datetime(date_obj):
     if date_obj is None:

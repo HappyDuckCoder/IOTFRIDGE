@@ -53,7 +53,6 @@ def testCreateRecipeFlow():
     for i, food in enumerate(foods, 1):
         print(f"  {i}. {food.name} ({food.category}) {food.input_date} - {food.output_date}")
 
-
     # lấy setting diet
     setting = get_setting_by_id("1")
     if setting:
@@ -90,7 +89,7 @@ def testSendNotification():
     Notification.sendMessage(sample_text)
 
 def main():
-    testSendNotification()
+    testCreateRecipeFlow()
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 from thirdparty.api.NLPapi import Model, model_gemini_name
 import json
-from my_util import get_default_expired_date, get_category, get_image_url, generate_random_id_string
+from my_util import get_default_expired_date, get_category, get_image_url, generate_random_id_string, string_to_number
 from thirdparty.database.method import add_food, eat_food
 from thirdparty.database.model import Food  
 from datetime import datetime
@@ -8,7 +8,7 @@ from thirdparty.api.GetCalo import GetCaloService
 
 def get_calo_usda(food_name, quantity, unit): 
     service = GetCaloService()
-    return service.get_calo_with_quantity(food_name, quantity, unit)
+    return service.get_calo_usda(food_name) # *NOTE: CODE DƠ 
 
 class Task:
     def __init__(self, action, quantity, unit, food, old_food=None, old_quantity=None, old_unit=None):
@@ -156,14 +156,14 @@ class TaskHandling():
         food = Food(
             id=generate_random_id_string(),  # tạo id ngẫu nhiên
             name=food, 
-            quantity=quantity, 
+            quantity=string_to_number(quantity), 
             unit=unit, 
             is_good=True, 
             is_expired=False, 
             input_date=datetime.now(), # ngày hiện tại
             output_date=get_default_expired_date(7), # tạm thời
             category=get_category(food), # tạo 1 trong 4 default category
-            calo=get_calo_usda(food), # api calo
+            calo=get_calo_usda(food, quantity, unit), # api calo
             image_url=get_image_url(food) # api image
         )
 

@@ -3,6 +3,13 @@
 
 #include <math.h>
 
+// Thêm include cho ADC driver mới
+#if defined(ESP_IDF_VERSION) && ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 0, 0)
+    #include "driver/adc.h"
+    #include "esp_adc_cal.h"
+    #define USE_NEW_ADC_DRIVER
+#endif
+
 // Base class cho tất cả gas sensor
 class GasSensor
 {
@@ -28,13 +35,50 @@ protected:
     String gasType;
     float threshold = 0.0;
 
+    #ifdef USE_NEW_ADC_DRIVER
+    adc1_channel_t adc_channel;
+    #endif
+
 public:
-    GasSensor(int sensorPin) : pin(sensorPin) {}
+    GasSensor(int sensorPin) : pin(sensorPin) 
+    {
+        #ifdef USE_NEW_ADC_DRIVER
+        // Map GPIO pin to ADC channel
+        switch(sensorPin) {
+            case 36: adc_channel = ADC1_CHANNEL_0; break;
+            case 37: adc_channel = ADC1_CHANNEL_1; break;
+            case 38: adc_channel = ADC1_CHANNEL_2; break;
+            case 39: adc_channel = ADC1_CHANNEL_3; break;
+            case 32: adc_channel = ADC1_CHANNEL_4; break;
+            case 33: adc_channel = ADC1_CHANNEL_5; break;
+            case 34: adc_channel = ADC1_CHANNEL_6; break;
+            case 35: adc_channel = ADC1_CHANNEL_7; break;
+            default: adc_channel = ADC1_CHANNEL_0; break; // fallback
+        }
+        #endif
+    }
 
     virtual bool begin()
     {
+        #ifdef USE_NEW_ADC_DRIVER
+        // Configure ADC using new driver
+        adc1_config_width(ADC_WIDTH_BIT_12);
+        adc1_config_channel_atten(adc_channel, ADC_ATTEN_DB_11);
+        #else
+        // Legacy setup
         pinMode(pin, INPUT);
+        #endif
         return true;
+    }
+
+    // Safe ADC read function
+    int readADC()
+    {
+        #ifdef USE_NEW_ADC_DRIVER
+        return adc1_get_raw(adc_channel);
+        #else
+        return analogRead(pin);
+        #endif
     }
 
     virtual void calibrate(int samples = 100)
@@ -43,7 +87,7 @@ public:
 
         for (int i = 0; i < samples; i++)
         {
-            sum += calculateRs(analogRead(pin));
+            sum += calculateRs(readADC()); // Sử dụng readADC() thay vì analogRead()
             delay(100);
         }
 
@@ -56,7 +100,7 @@ public:
         if (!calibrated)
             return;
 
-        int adc = analogRead(pin);
+        int adc = readADC(); // Sử dụng readADC() thay vì analogRead()
 
         Rs = calculateRs(adc);
         if (Rs <= 0)

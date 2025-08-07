@@ -51,6 +51,7 @@ class AudioModel:
             decoder_start_token_id=self.model.config.decoder_start_token_id,
             use_cache=False
         )
+        print("Mô hình Whisper đã tải.")
 
     def transcribe(self, wav_path):
         print(f"Đang đọc file: {wav_path}")

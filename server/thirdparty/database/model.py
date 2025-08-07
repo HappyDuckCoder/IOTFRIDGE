@@ -1,4 +1,4 @@
-﻿from datetime import datetime
+﻿from datetime import datetime, date
 from my_util import convert_to_datetime
 
 
@@ -6,7 +6,7 @@ class Food:
     def __init__(
         self, id: str, name: str, quantity: float, unit: str,
         is_good: bool, is_expired: bool, input_date: datetime, output_date: datetime,
-        category: str, calo: float, user_preference: int = 6, is_priority_food: bool = False,
+        category: str, calo: float, user_preference: int = 6,
         image_url=None
     ):
         self.id = id
@@ -25,14 +25,19 @@ class Food:
         self.user_preference = user_preference
 
     def to_dict(self):
+        def ensure_datetime(value):
+            if isinstance(value, date) and not isinstance(value, datetime):
+                return datetime.combine(value, datetime.min.time())
+            return value
+
         return {
             "name": self.name,
             "quantity": self.quantity,
             "unit": self.unit,
             "is_good": self.is_good,
             "is_expired": self.is_expired,
-            "input_date": self.input_date,
-            "output_date": self.output_date,
+            "input_date": ensure_datetime(self.input_date),
+            "output_date": ensure_datetime(self.output_date),
             "category": self.category,
             "calo": self.calo,
             "user_preference": self.user_preference,

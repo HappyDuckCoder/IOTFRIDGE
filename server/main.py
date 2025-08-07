@@ -17,6 +17,8 @@ from pathlib import Path
 
 TOP_FOOD = 3
 TOP_RECIPE = 5
+stt = AudioModel()
+stt.load()
 
 def get_len_food_default():
     return len(get_all_foods())
@@ -113,25 +115,32 @@ def send_setting_to_esp(ip="192.168.1.1", port=8000):
 def send_data_to_firebase(data):
     add_fridge_conditions(data)
 
-def handle_add_food():    
+def handle_add_food():
+    # chuyển từ file pcm sang wav
+    print("1. Chuyển file pcm sang wav")
+    convert_pcm_to_wav("resources/mic.pcm", "resources/mic.wav")
+
     # speech to text resources/mic.pcm 
-    stt = AudioModel()
-    stt.load()
-    text = stt.transcribe("resources/mic.pcm")
+    print("2. Speech to text resources/mic.wav")
+    text = stt.transcribe("resources/mic.wav")
+    print(f"Nội dung từ speech-to-text: '{text}'")
 
     # tách các thành phần và phân loại hành động
+    print("3. Tách thành phần câu lệnh")
     taskHandling = TaskHandling()
     component = taskHandling.DevideComponentInInput(text)
 
     if component is None:
         return "Lỗi khi thực hiện hàm DevideComponentInInput. Vui lòng thử laị."
 
+    print("4. Phân loại hành động")
     classified_action = taskHandling.classifyAction(component.action)
 
     if classified_action is None:
         return "Không thể phân loại hành động."
 
     # thực hiện task
+    print("5. Thực hiện thêm hoặc xóa")
     result = taskHandling.executeTask(component, classified_action)
     return result
 
@@ -161,7 +170,7 @@ class Handler(BaseHTTPRequestHandler):
             with open(self.file_name, 'wb') as f:
                 f.write(audio_data)
 
-            print("Đã nhận file ghi âm từ ESP32")
+            print("Đã nhận file ghi âm pcm từ ESP32")
 
             handle_add_food()
 
