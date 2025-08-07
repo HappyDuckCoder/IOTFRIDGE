@@ -18,9 +18,9 @@
 #define RELAY_PIN 21
 
 // TFT
-#define TFT_CS_PIN 5
+// #define TFT_CS_PIN 5
 #define TFT_DC_PIN 2
-#define TFT_RST_PIN 4
+// #define TFT_RST_PIN 4
 #define TFT_SCLK_PIN 22
 #define TFT_MOSI_PIN 23
 #define TFT_SCREEN_WIDTH 240
@@ -38,8 +38,8 @@
 #define CHANNEL_NUM 1
 
 // HX711
-#define HX711_SCK_PIN 35
-#define HX711_DOUT_PIN 15
+#define HX711_SCK_PIN 4
+#define HX711_DOUT_PIN 5
 
 struct FridgeData
 {

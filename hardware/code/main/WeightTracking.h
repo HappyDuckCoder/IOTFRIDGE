@@ -17,18 +17,13 @@ public:
         scale.begin();
     }
 
-    bool begin() {
-        if (!scale.is_ready()) {
-            Serial.println("HX711 không sẵn sàng!");
-            return false;
-        }
-        
+    bool begin() {        
         Serial.println("Đang tare cân...");
         scale.set_scale();
-        scale.tare(10); // Tare với 10 lần đọc để độ chính xác cao hơn
-        
+        scale.tare(10); 
+
         // Đặt calibration factor (cần được tính toán từ calibration)
-        scale.set_scale(1000.0);
+        scale.set_scale(5000.0);
         
         // Đọc giá trị ban đầu
         delay(1000); // Đợi ổn định

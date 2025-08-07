@@ -1,5 +1,5 @@
 #include "constant.h"
-#include "button.h"
+// #include "button.h"
 // #include "DHTSensor.h"
 // #include "GasSensor.h"
 #include "HandleDelay.h"
@@ -9,15 +9,16 @@
 // #include "Spiff.h"
 // #include "INMP.h"
 // #include "I2SRecorder.h"
-#include "HX711.h"
-#include "DoorTracking.h"
-#include "WeightTracking.h"
+// #include "HX711.h"
+// #include "DoorTracking.h"
+// #include "WeightTracking.h"
+#include "InternetProvisioning.h"
 
 // // =====================Define Object Section====================== //
 // // Button
 // Button button_mic(BUTTON_MIC_PIN);
 // Button button_fan(BUTTON_FAN_PIN);
-Button button_door(BUTTON_DOOR_PIN);
+// Button button_door(BUTTON_DOOR_PIN);
 // // DHT
 // DHTSensor dhtSensor(DHT_PIN, DHT11);
 // // MQ2, MQ135
@@ -35,13 +36,15 @@ Button button_door(BUTTON_DOOR_PIN);
 // // Recorder
 // I2SRecorder recorder(mic, I2S_READ_LEN, SAMPLE_RATE, SAMPLE_BITS, CHANNEL_NUM);
 // DoorTracking
-DoorTracking doorTracker(10000, 3000);
-WeightTracking weightTracker(HX711_DOUT_PIN, HX711_SCK_PIN, 20.0);
+// DoorTracking doorTracker(10000, 3000);
+// WeightTracking weightTracker(HX711_DOUT_PIN, HX711_SCK_PIN, 20.0);
+// ap mdoe
+InternetProvisioning net;
 // // TimerReader
 // HandleDelay dhtReadTimer(2000);
 // HandleDelay gasSystemReadTimer(2000);
 // HandleDelay InternetCheckingReadTimer(200);
-// HandleDelay SendDataReadTimer(5000);
+HandleDelay SendDataReadTimer(5000);
 // // =====================Define Object Section====================== //
 
 // // =====================Support Section====================== //
@@ -127,22 +130,15 @@ public:
   //   tft.showMain(temp, humi, is_rotted_food, total_food, last_open);
   // }
 
-  // void handleInternet()
-  // {
-  //   if (InternetCheckingReadTimer.isDue())
-  //   {
-  //     if (!internet.isConnected())
-  //     {
-  //       internet.checking();
-  //     }
-  //   }
-  // }
-
-  //   // if (SendDataReadTimer.isDue())
-  //   // {
-  //   //   internet.testUploadingInMain();
-  //   // }
-  // }
+  void handleInternet()
+  {
+    net.handleClient();
+    
+    if (SendDataReadTimer.isDue())
+    {
+      net.uploadTestData(100, "/uploadTestData");
+    }
+  }
 
   // void handleTestSpiff()
   // {
@@ -201,31 +197,31 @@ public:
   //   }
   // }
 
-  void handleDoorChecking()
-  {
-    DoorState doorState = button_door.isHeld() == LOW ? DOOR_OPEN : DOOR_CLOSED;
-    doorTracker.setCurrentState(doorState);
+  // void handleDoorChecking()
+  // {
+  //   DoorState doorState = button_door.isHeld() == LOW ? DOOR_OPEN : DOOR_CLOSED;
+  //   doorTracker.setCurrentState(doorState);
 
-    // Serial.print("state: ");
-    // Serial.println(doorState);
+  //   // Serial.print("state: ");
+  //   // Serial.println(doorState);
 
-    if (doorTracker.isAlertNeeded())
-    {
-      Serial.println("[ALERT] Door has been open too long!");
-    }
+  //   if (doorTracker.isAlertNeeded())
+  //   {
+  //     Serial.println("[ALERT] Door has been open too long!");
+  //   }
 
-    if (doorTracker.isDoorJustClosed())
-    {
-      Serial.println("[INFO] Door just closed quickly.");
-    }
+  //   if (doorTracker.isDoorJustClosed())
+  //   {
+  //     Serial.println("[INFO] Door just closed quickly.");
+  //   }
 
-    if (weightTracker.checkWeightChange())
-    {
-      Serial.println(2);
-      Serial.print("[INFO] Weight changed. Current weight: ");
-      Serial.println(weightTracker.getCurrentWeight());
-    }
-  }
+  //   if (weightTracker.checkWeightChange())
+  //   {
+  //     Serial.println(2);
+  //     Serial.print("[INFO] Weight changed. Current weight: ");
+  //     Serial.println(weightTracker.getCurrentWeight());
+  //   }
+  // }
 };
 HandleFunction handle;
 // // =====================Support Section====================== //
@@ -245,10 +241,10 @@ void setup()
   //     Serial.println("Button Fan khởi tạo thành công");
   //   else
   //     Serial.println("Button Fan khởi tạo thất bại");
-  if (button_door.begin())
-    Serial.println("Button Door khởi tạo thành công");
-  else
-    Serial.println("Button Door khởi tạo thất bại");
+  // if (button_door.begin())
+  //   Serial.println("Button Door khởi tạo thành công");
+  // else
+  //   Serial.println("Button Door khởi tạo thất bại");
 
   //   // dht begin
   //   if (dhtSensor.begin())
@@ -273,13 +269,13 @@ void setup()
   //   if (tft.begin())
   //     Serial.println("TFT khởi tạo thành công");
   //   else
-  //     Serial.println("TFT Khởi tạo thất bại");
+  //     Serial.println("TFT khởi tạo thất bại");
 
   // internet Begin
   // if (internet.begin())
   //   Serial.println("internet khởi tạo thành công");
   // else
-  //   Serial.println("internet Khởi tạo thất bại");
+  //   Serial.println("internet khởi tạo thất bại");
 
   // // spiff Begin
   // if (spiff.begin())
@@ -291,18 +287,25 @@ void setup()
   // if (mic.begin())
   //   Serial.println("INMP khởi tạo thành công");
   // else
-  //   Serial.println("INMP Khởi tạo thất bại");
+  //   Serial.println("INMP khởi tạo thất bại");
 
   // HX711 begin
-  if (weightTracker.begin())
-    Serial.println("cân khởi tạo thành công");
+  // if (weightTracker.begin())
+  //   Serial.println("cân khởi tạo thành công");
+  // else
+  //   Serial.println("cân khởi tạo thất bại");
+
+  // ap mode begin
+  if (net.begin())
+    Serial.println("internet khởi tạo thành công");
   else
-    Serial.println("cân Khởi tạo thất bại");
+    Serial.println("internet khởi tạo thất bại");
+  net.setServerBaseURL("http://192.168.120.6:8888"); // tạm thời
 }
 
 void loop()
 {
-  handle.handleDoorChecking();
+  handle.handleInternet();
 
   delay(50);
 }
