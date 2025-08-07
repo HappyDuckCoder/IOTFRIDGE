@@ -16,7 +16,7 @@ private:
     SemaphoreHandle_t stopSemaphore;
 
     // thông số cấu hình
-    long int i2s_read_len;  // số sample sẽ đọc mỗi vòng
+    long int i2s_read_len; // số sample sẽ đọc mỗi vòng
     long int sample_rate;
     int sample_bits;
     int channel;
@@ -31,26 +31,29 @@ public:
 
     ~I2SRecorder()
     {
-        if (stopSemaphore) {
+        if (stopSemaphore)
+        {
             vSemaphoreDelete(stopSemaphore);
         }
     }
 
     void start(const char *file_path)
     {
-        if (isRecording_) return;
+        if (isRecording_)
+            return;
 
         filename = file_path;
         isRecording_ = true;
 
         file = SPIFFS.open(filename, FILE_WRITE);
-        if (!file) {
+        if (!file)
+        {
             Serial.println("Không thể mở file để ghi.");
             isRecording_ = false;
             return;
         }
 
-        xSemaphoreTake(stopSemaphore, 0);  // reset trước khi tạo task
+        xSemaphoreTake(stopSemaphore, 0); // reset trước khi tạo task
         xTaskCreate(taskEntry, "recordTask", 8192, this, 1, &taskHandle);
     }
 
@@ -58,24 +61,30 @@ public:
     {
         Serial.println("Bắt đầu dừng ghi âm...");
 
-        if (!isRecording_) {
+        if (!isRecording_)
+        {
             Serial.println("Không đang ghi âm, return");
             return;
         }
 
         isRecording_ = false;
 
-        if (taskHandle) {
+        if (taskHandle)
+        {
             Serial.println("Đợi task kết thúc an toàn...");
-            if (xSemaphoreTake(stopSemaphore, pdMS_TO_TICKS(2000)) == pdTRUE) {
+            if (xSemaphoreTake(stopSemaphore, pdMS_TO_TICKS(2000)) == pdTRUE)
+            {
                 Serial.println("Task đã kết thúc an toàn");
-            } else {
+            }
+            else
+            {
                 Serial.println("Timeout khi đợi task kết thúc");
             }
             taskHandle = NULL;
         }
 
-        if (file) {
+        if (file)
+        {
             Serial.println("Đóng file...");
             file.flush();
             file.close();
@@ -101,7 +110,8 @@ private:
         const size_t sample_count = i2s_read_len;
         int16_t *buffer = (int16_t *)malloc(sample_count * sizeof(int16_t));
 
-        if (!buffer) {
+        if (!buffer)
+        {
             Serial.println("Không thể cấp phát bộ nhớ cho buffer");
             isRecording_ = false;
             xSemaphoreGive(stopSemaphore);
@@ -118,7 +128,8 @@ private:
             {
                 size_t bytesToWrite = samplesRead * sizeof(int16_t);
                 size_t written = file.write((const uint8_t *)buffer, bytesToWrite);
-                if (written != bytesToWrite) {
+                if (written != bytesToWrite)
+                {
                     Serial.println("Lỗi ghi file, dừng ghi âm");
                     break;
                 }

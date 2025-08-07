@@ -18,13 +18,13 @@ private:
     unsigned long lastUpdate;
     unsigned long cycleStart;
     const int cycleDuration = 1000;              // 1 giây
-    const int dutyCycle[4] = { 0, 250, 500, 750 }; // thời gian bật (ms) cho từng mode
+    const int dutyCycle[4] = {0, 250, 500, 750}; // thời gian bật (ms) cho từng mode
 
     // Ngưỡng nhiệt độ để điều khiển quạt
-    const float TEMP_OFF = 2.0;        // Dưới 4°C: tắt quạt
-    const float TEMP_LOW = 10;        // 4-6°C: quạt nhẹ
-    const float TEMP_MEDIUM = 20;     // 6-8°C: quạt trung bình
-    const float TEMP_HIGH = 40;      // Trên 8°C: quạt mạnh
+    const float TEMP_OFF = 2.0;   // Dưới 4°C: tắt quạt
+    const float TEMP_LOW = 10;    // 4-6°C: quạt nhẹ
+    const float TEMP_MEDIUM = 20; // 6-8°C: quạt trung bình
+    const float TEMP_HIGH = 40;   // Trên 8°C: quạt mạnh
 
     bool automationMode;
 
@@ -56,7 +56,7 @@ public:
         automationMode = mode;
     }
 
-    bool getCurrentAutomationMode() 
+    bool getCurrentAutomationMode()
     {
         return automationMode;
     }
@@ -64,7 +64,7 @@ public:
     // Cập nhật nhiệt độ từ cảm biến
     void updateTemperature(float temperature)
     {
-        if (!automationMode) 
+        if (!automationMode)
         {
             return;
         }
@@ -138,7 +138,7 @@ public:
         Serial.println(getModeString(next));
     }
 
-    const char* getModeString(FanMode mode) const
+    const char *getModeString(FanMode mode) const
     {
         switch (mode)
         {

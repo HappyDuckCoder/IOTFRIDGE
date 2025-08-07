@@ -24,7 +24,7 @@ public:
         connected = false;
     }
 
-    void setServerBaseURL(String baseURL) 
+    void setServerBaseURL(String baseURL)
     {
         serverBaseURL = baseURL;
     }
@@ -73,7 +73,7 @@ public:
         return password;
     }
 
-    bool uploadTestData(int test_data, const char *link) 
+    bool uploadTestData(int test_data, const char *link)
     {
         if (!isConnected())
         {
@@ -238,7 +238,7 @@ public:
         return uploadData(jsonData.c_str(), "/uploadData");
     }
 
-    bool uploadNotification(String message, const char* link)
+    bool uploadNotification(String message, const char *link)
     {
         if (!isConnected())
         {
@@ -279,9 +279,9 @@ public:
 
         client.end();
         return success;
-    } 
+    }
 
-    FridgeData readData(const char* link)
+    FridgeData readData(const char *link)
     {
         FridgeData data(0, 0, 0, 0, 0, 0);
 
@@ -332,7 +332,6 @@ public:
         return data;
     }
 
-
 private:
     void startAPMode()
     {
@@ -346,7 +345,8 @@ private:
 
     void startWebPortal()
     {
-        server.on("/", [this]() {
+        server.on("/", [this]()
+                  {
             String page = "<html><head><title>IOTsmartFridge WiFi Config</title></head><body>";
             page += "<h2>Wifi & Server Configuration</h2>";
             page += "<form action='/save' method='POST'>";
@@ -369,10 +369,10 @@ private:
             page += "<input type='submit' value='Save' style='padding:10px 20px; background:#4CAF50; color:white; border:none; cursor:pointer;'>";
             page += "</form></body></html>";
             
-            server.send(200, "text/html", page);
-        });
+            server.send(200, "text/html", page); });
 
-        server.on("/save", [this]() {
+        server.on("/save", [this]()
+                  {
             String newSSID = server.arg("ssid");
             String newPASS = server.arg("pass");
             String newServerURL = server.arg("serverurl");
@@ -388,8 +388,7 @@ private:
             
             server.send(200, "text/html", response);
             delay(2000);
-            ESP.restart();
-        });
+            ESP.restart(); });
 
         server.begin();
     }
@@ -403,12 +402,13 @@ private:
     {
         prefs.putString("ssid", newSSID);
         prefs.putString("password", newPassword);
-        
-        if (!newServerURL.isEmpty()) {
+
+        if (!newServerURL.isEmpty())
+        {
             prefs.putString("serverURL", newServerURL);
             serverBaseURL = newServerURL;
         }
-        
+
         Serial.printf("Đã lưu WiFi: %s\n", newSSID.c_str());
         Serial.printf("Đã lưu Server URL: %s\n", serverBaseURL.c_str());
     }

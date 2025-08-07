@@ -73,32 +73,34 @@ public:
     {
         drawBackground();
 
-        const char *labels[] = {
-            "Temp:",
-            "Humidity:",
-            "Food count:",
-            "Rotten food:",
-            "Last open:",
-            "Saving Mode:"
-        };
+        const char *labels[] =
+            {
+                "Temp:",
+                "Humidity:",
+                "Food count:",
+                "Rotten food:",
+                "Last open:",
+                "Saving Mode:"};
 
-        String values[] = {
-            String(temp) + " C",
-            String(humi) + " %",
-            String(total_food),
-            is_rotted_food ? "Yes" : "No",
-            String(last_open) + "h",
-            is_saving_mode ? "Yes" : "No",
-        };
+        String values[] =
+            {
+                String(temp) + " C",
+                String(humi) + " %",
+                String(total_food),
+                is_rotted_food ? "Yes" : "No",
+                String(last_open) + "h",
+                is_saving_mode ? "Yes" : "No",
+            };
 
-        uint16_t colors[] = {
-            ST77XX_WHITE,
-            ST77XX_WHITE,
-            ST77XX_WHITE,
-            is_rotted_food ? ST77XX_RED : ST77XX_GREEN,
-            ST77XX_WHITE,
-            is_saving_mode ? ST77XX_RED : ST77XX_GREEN,
-        };
+        uint16_t colors[] =
+            {
+                ST77XX_WHITE,
+                ST77XX_WHITE,
+                ST77XX_WHITE,
+                is_rotted_food ? ST77XX_RED : ST77XX_GREEN,
+                ST77XX_WHITE,
+                is_saving_mode ? ST77XX_RED : ST77XX_GREEN,
+            };
 
         int startY = 100;
         int startX_sub_title = 20;

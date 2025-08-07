@@ -5,9 +5,9 @@
 
 // Thêm include cho ADC driver mới
 #if defined(ESP_IDF_VERSION) && ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 0, 0)
-    #include "driver/adc.h"
-    #include "esp_adc_cal.h"
-    #define USE_NEW_ADC_DRIVER
+#include "driver/adc.h"
+#include "esp_adc_cal.h"
+#define USE_NEW_ADC_DRIVER
 #endif
 
 // Base class cho tất cả gas sensor
@@ -35,50 +35,69 @@ protected:
     String gasType;
     float threshold = 0.0;
 
-    #ifdef USE_NEW_ADC_DRIVER
+#ifdef USE_NEW_ADC_DRIVER
     adc1_channel_t adc_channel;
-    #endif
+#endif
 
 public:
-    GasSensor(int sensorPin) : pin(sensorPin) 
+    GasSensor(int sensorPin) : pin(sensorPin)
     {
-        #ifdef USE_NEW_ADC_DRIVER
+#ifdef USE_NEW_ADC_DRIVER
         // Map GPIO pin to ADC channel
-        switch(sensorPin) {
-            case 36: adc_channel = ADC1_CHANNEL_0; break;
-            case 37: adc_channel = ADC1_CHANNEL_1; break;
-            case 38: adc_channel = ADC1_CHANNEL_2; break;
-            case 39: adc_channel = ADC1_CHANNEL_3; break;
-            case 32: adc_channel = ADC1_CHANNEL_4; break;
-            case 33: adc_channel = ADC1_CHANNEL_5; break;
-            case 34: adc_channel = ADC1_CHANNEL_6; break;
-            case 35: adc_channel = ADC1_CHANNEL_7; break;
-            default: adc_channel = ADC1_CHANNEL_0; break; // fallback
+        switch (sensorPin)
+        {
+        case 36:
+            adc_channel = ADC1_CHANNEL_0;
+            break;
+        case 37:
+            adc_channel = ADC1_CHANNEL_1;
+            break;
+        case 38:
+            adc_channel = ADC1_CHANNEL_2;
+            break;
+        case 39:
+            adc_channel = ADC1_CHANNEL_3;
+            break;
+        case 32:
+            adc_channel = ADC1_CHANNEL_4;
+            break;
+        case 33:
+            adc_channel = ADC1_CHANNEL_5;
+            break;
+        case 34:
+            adc_channel = ADC1_CHANNEL_6;
+            break;
+        case 35:
+            adc_channel = ADC1_CHANNEL_7;
+            break;
+        default:
+            adc_channel = ADC1_CHANNEL_0;
+            break; // fallback
         }
-        #endif
+#endif
     }
 
     virtual bool begin()
     {
-        #ifdef USE_NEW_ADC_DRIVER
+#ifdef USE_NEW_ADC_DRIVER
         // Configure ADC using new driver
         adc1_config_width(ADC_WIDTH_BIT_12);
         adc1_config_channel_atten(adc_channel, ADC_ATTEN_DB_11);
-        #else
+#else
         // Legacy setup
         pinMode(pin, INPUT);
-        #endif
+#endif
         return true;
     }
 
     // Safe ADC read function
     int readADC()
     {
-        #ifdef USE_NEW_ADC_DRIVER
+#ifdef USE_NEW_ADC_DRIVER
         return adc1_get_raw(adc_channel);
-        #else
+#else
         return analogRead(pin);
-        #endif
+#endif
     }
 
     virtual void calibrate(int samples = 100)
@@ -120,7 +139,7 @@ public:
 
         ppm = calculatePPM(ratio, sensorA, sensorB);
 
-        // Serial.printf("[%s] ADC: %d | Rs: %.2f | Ro: %.2f | Ratio: %.2f\n", 
+        // Serial.printf("[%s] ADC: %d | Rs: %.2f | Ro: %.2f | Ratio: %.2f\n",
         // sensorName.c_str(), adc, Rs, Ro, ratio);
         // Serial.println();
 
@@ -180,7 +199,7 @@ public:
         gasType = "CH4";
         sensorA = -0.38;
         sensorB = 1.48;
-        roRatio = 4.4;      // Rs/Ro trong không khí sạch
+        roRatio = 4.4;    // Rs/Ro trong không khí sạch
         threshold = 30.0; // ppm // mức chuẩn là 3000.0
     }
 };
@@ -195,7 +214,7 @@ public:
         gasType = "NH3";
         sensorA = -0.45;
         sensorB = 2.95;
-        roRatio = 3.7;    // Rs/Ro trong không khí sạch
+        roRatio = 3.7;     // Rs/Ro trong không khí sạch
         threshold = 500.0; // ppm // mức chuẩn là 50.0
     }
 };
@@ -252,7 +271,7 @@ public:
     }
 
     void handleRead()
-    {   
+    {
         mq2Sensor.handleRead();
         mq135Sensor.handleRead();
         updateSystemData();

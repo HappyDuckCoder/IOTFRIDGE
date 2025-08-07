@@ -6,8 +6,8 @@
 class HX711
 {
 private:
-    int PD_SCK; // Pin Clock
-    int DOUT;   // Pin Data
+    int PD_SCK;  // Pin Clock
+    int DOUT;    // Pin Data
     long OFFSET; // Giá trị offset (tare)
     float SCALE; // Hệ số scale
 
@@ -18,12 +18,12 @@ public:
     // Khởi tạo chân giao tiếp
     bool begin()
     {
-      pinMode(PD_SCK, OUTPUT);
-      pinMode(DOUT, INPUT);
-      return true;
+        pinMode(PD_SCK, OUTPUT);
+        pinMode(DOUT, INPUT);
+        return true;
     }
 
-    void set_pin(int sck, int dout) 
+    void set_pin(int sck, int dout)
     {
         PD_SCK = sck;
         DOUT = dout;
