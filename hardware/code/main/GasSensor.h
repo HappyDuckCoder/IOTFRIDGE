@@ -194,6 +194,8 @@ public:
         bool mq2Ok = mq2Sensor.begin();
         bool mq135Ok = mq135Sensor.begin();
 
+        calibrate(100); // calibrate trong begin luôn
+
         if (mq2Ok && mq135Ok)
         {
             return true;

@@ -46,7 +46,6 @@ public:
             data.temperature = newTemp;
             data.humidity = newHumidity;
             data.isValid = true;
-            data.lastReadTime = millis();
         }
         else
         {

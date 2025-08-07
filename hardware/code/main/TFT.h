@@ -7,7 +7,7 @@
 #include <SPI.h>
 
 // Những thông tin muốn hiện
-// Nhiệt độ, độ ẩm, có đồ ăn bị hư, tổng số lượng món ăn, lần cuối đóng mở cửa tủ
+// Nhiệt độ, độ ẩm, có đồ ăn bị hư, tổng số lượng món ăn, lần cuối đóng mở cửa tủ, có bật trạng thái saving không
 
 class TFTDisplay
 {
@@ -69,7 +69,7 @@ public:
         drawText("title", "IOT Fridge", 30, 70, ST77XX_CYAN);
     }
 
-    void showMain(float temp, float humi, bool is_rotted_food, int total_food, int last_open)
+    void showMain(float temp, float humi, bool is_rotted_food, int total_food, int last_open, bool is_saving_mode)
     {
         drawBackground();
 
@@ -78,26 +78,32 @@ public:
             "Humidity:",
             "Food count:",
             "Rotten food:",
-            "Last open:"};
+            "Last open:",
+            "Saving Mode:"
+        };
 
         String values[] = {
             String(temp) + " C",
             String(humi) + " %",
             String(total_food),
             is_rotted_food ? "Yes" : "No",
-            String(last_open) + "h"};
+            String(last_open) + "h",
+            is_saving_mode ? "Yes" : "No",
+        };
 
         uint16_t colors[] = {
             ST77XX_WHITE,
             ST77XX_WHITE,
             ST77XX_WHITE,
             is_rotted_food ? ST77XX_RED : ST77XX_GREEN,
-            ST77XX_WHITE};
+            ST77XX_WHITE,
+            is_saving_mode ? ST77XX_RED : ST77XX_GREEN,
+        };
 
         int startY = 100;
         int startX_sub_title = 20;
         int startX_body = 190;
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < 6; ++i)
         {
             drawText("sub_title", labels[i], startX_sub_title, startY + i * 30, ST77XX_YELLOW);
             drawText("body", values[i], startX_body, startY + i * 30 + 5, colors[i]);

@@ -110,7 +110,7 @@ private:
     void taskLoop()
     {
         const size_t buffer_size = i2s_read_len;
-        char *buffer = (char *)malloc(buffer_size);
+        int32_t *buffer = (int32_t *)malloc(buffer_size);
         
         if (!buffer) {
             Serial.println("Không thể cấp phát bộ nhớ cho buffer");
