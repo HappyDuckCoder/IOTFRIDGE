@@ -6,6 +6,7 @@
 #include <Preferences.h>
 #include <HTTPClient.h>
 #include <SPIFFS.h>
+#include <ArduinoJson.h>
 
 class InternetProvisioning
 {
@@ -281,7 +282,7 @@ public:
 
     FridgeData readData(const char* link)
     {
-        FridgeData data = {0};
+        FridgeData data(0, 0, 0, 0, 0, 0);
 
         if (!isConnected())
         {
@@ -313,6 +314,8 @@ public:
                 data.total_food = doc["total_food"] | 0;
                 data.last_open = doc["last_open"] | 0;
                 data.is_saving_mode = doc["is_saving_mode"] | false;
+
+                logDebugReceiveData(data);
             }
             else
             {
@@ -427,6 +430,23 @@ private:
     void logNotConnected()
     {
         Serial.println("WiFi chưa kết nối, không thể gửi dữ liệu!");
+    }
+
+    void logDebugReceiveData(FridgeData data)
+    {
+        Serial.println("Dữ liệu đã parse:");
+        Serial.print("  Nhiệt độ: ");
+        Serial.println(data.temp);
+        Serial.print("  Độ ẩm: ");
+        Serial.println(data.humi);
+        Serial.print("  Có đồ ăn bị hư: ");
+        Serial.println(data.is_rotted_food ? "Có" : "Không");
+        Serial.print("  Tổng số món ăn: ");
+        Serial.println(data.total_food);
+        Serial.print("  Lần cuối mở cửa: ");
+        Serial.println(data.last_open);
+        Serial.print("  Đang ở chế độ tiết kiệm: ");
+        Serial.println(data.is_saving_mode ? "Có" : "Không");
     }
 };
 

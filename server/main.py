@@ -262,7 +262,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def get_setting(self):
         try:
-            condition_data = get_setting_from_firebase()
+            condition_data = get_fridge_conditions_by_id("1")
 
             # Trả về JSON cấu hình
             response = {

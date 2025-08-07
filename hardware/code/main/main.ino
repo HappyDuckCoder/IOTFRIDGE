@@ -2,7 +2,7 @@
 // #include "button.h"
 // #include "DHTSensor.h"
 // #include "GasSensor.h"
-// #include "HandleDelay.h"
+#include "HandleDelay.h"
 // #include "Relay.h"
 #include "TFT.h"
 // #include "Spiff.h"
@@ -34,13 +34,14 @@ TFTDisplay tft(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, TFT_SCLK_PIN, TFT_MOSI_PIN, 
 // DoorTracking
 // DoorTracking doorTracker(10000, 3000);
 // WeightTracking weightTracker(HX711_DOUT_PIN, HX711_SCK_PIN, 20.0);
-// ap mdoe
+// ap mode
 InternetProvisioning net;
 // TimerReader
 // HandleDelay dhtReadTimer(2000);
 // HandleDelay gasSystemReadTimer(2000);
 // HandleDelay InternetCheckingReadTimer(200);
 // HandleDelay SendDataReadTimer(5000);
+HandleDelay ReceiveDataReadTimer(5000);
 // =====================Define Object Section====================== //
 
 // =====================Support Section====================== //
@@ -108,31 +109,35 @@ public:
   // Xử lý ST7789
   void handleDisplayTFT()
   {
-    FridgeData f = net.readData();
+      static FridgeData f(0, 0, 0, 0, 0, 0); // giữ lại giá trị giữa các lần gọi
 
-    // để tạm thời
-    FridgeData f(0, 0, 0, 0, 0, 0);
-    float temp = f.temp;
-    float humi = f.humi;
-    bool is_rotted_food = f.is_rotted_food;
-    int total_food = f.total_food;
-    int last_open = f.last_open;
-    bool is_saving_mode = f.is_saving_mode;
+      if (ReceiveDataReadTimer.isDue()) 
+      {
+          f = net.readData("/receiveSetting"); // cập nhật nếu đủ 5 giây
+      }
 
-    tft.showMain(temp, humi, is_rotted_food, total_food, last_open, is_saving_mode);
+      // luôn hiển thị thông số mới nhất hiện có
+      tft.showMain(
+          f.temp,
+          f.humi,
+          f.is_rotted_food,
+          f.total_food,
+          f.last_open,
+          f.is_saving_mode
+      );
   }
 
   // xử lý internet
-  // void handleInternet()
-  // {
-  //   net.handleClient();
+  void handleInternet()
+  {
+    net.handleClient();
     
-  //   // test
-  //   // if (SendDataReadTimer.isDue())
-  //   // {
-  //   //   net.uploadTestData(100, "/uploadTestData");
-  //   // }
-  // }
+    // test
+    // if (SendDataReadTimer.isDue())
+    // {
+    //   net.uploadTestData(100, "/uploadTestData");
+    // }
+  }
 
   // test
   // void handleTestSpiff()
@@ -288,16 +293,16 @@ void setup()
   //   Serial.println("cân khởi tạo thất bại");
 
   // ap mode begin
-  // if (net.begin())
-  //   Serial.println("internet khởi tạo thành công");
-  // else
-  //   Serial.println("internet khởi tạo thất bại");
+  if (net.begin())
+    Serial.println("internet khởi tạo thành công");
+  else
+    Serial.println("internet khởi tạo thất bại");
 }
 
 void loop()
 {
   // Xử lý kết nối internet trước
-  // handle.handleInternet();
+  handle.handleInternet();
 
   // xử lý hiện thông số ra tft
   handle.handleDisplayTFT();
