@@ -279,6 +279,11 @@ public:
         return success;
     } 
 
+    // FridgeData readData() 
+    // {
+    //     FridgeData res = ...
+    // }
+
 private:
     void startAPMode()
     {
