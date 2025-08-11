@@ -206,7 +206,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Failed to receive test data")
 
-    # Nhận dữ liệu chính (ví dụ gửi lên Firebase sau này)
+    # Nhận dữ liệu condition
     def post_data(self):
         try:
             content_length = int(self.headers['Content-Length'])
@@ -229,6 +229,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Failed to receive data")
 
+    # Nhận notification
     def post_notification(self):
         try:
             content_length = int(self.headers['Content-Length'])
@@ -252,7 +253,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Failed to receive notification")
 
-
+    # Xử lý post tương ứng
     def do_POST(self):
         if self.path == "/uploadAudio":
             self.post_audio()
@@ -269,6 +270,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Method not allowed")
 
+    # Nhận dữ liệu condition từ firebase
     def get_setting(self):
         try:
             condition_data = get_fridge_conditions_by_id("1")
@@ -294,6 +296,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Failed to get setting")
 
+    # xử lý get tương ứng
     def do_GET(self):
         if self.path == "/receiveSetting":
             self.get_setting()
@@ -315,11 +318,6 @@ def main():
 
     local_ip = Handler.get_local_ip() # Note: Sau này đổi thành IP server 
     print(f"Server đang chạy tại IP: {local_ip}, cổng: {port}")
-
-    # Khởi chạy luồng gửi setting
-    # TODO: Đang đợi để test tiếp
-    # threading.Thread(target=send_setting_to_esp, daemon=True).start()
-    # threading.Thread(target=send_test_data_to_esp, daemon=True).start()
 
     # Khởi chạy luồng theo dõi thay đổi thực phẩm
     threading.Thread(target=monitor_food_changes, daemon=True).start()

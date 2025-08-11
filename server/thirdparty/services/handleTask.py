@@ -16,7 +16,7 @@ class Task:
         self.quantity = quantity
         self.unit = unit
         self.food = food
-        # Thêm các trường cho chức năng sửa
+        # Thêm các trường cho chức năng sửa, tạm thời đang bỏ chức năng sửa
         self.old_food = old_food
         self.old_quantity = old_quantity
         self.old_unit = old_unit

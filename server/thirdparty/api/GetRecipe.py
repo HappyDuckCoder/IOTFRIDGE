@@ -136,7 +136,7 @@ class GetRecipeService:
             print("-" * 60)
 
 
-# Ví dụ sử dụng
+# Ví dụ mẫu để test
 if __name__ == "__main__":
     # Tạo danh sách nguyên liệu mẫu
     ingredients = [
