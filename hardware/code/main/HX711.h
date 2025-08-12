@@ -29,11 +29,15 @@ public:
         DOUT = dout;
     }
 
+    bool is_ready()
+    {
+        return digitalRead(DOUT) == LOW;
+    }
+
     // Đọc giá trị raw từ HX711 (24-bit signed)
     long read()
     {
-        while (digitalRead(DOUT) == HIGH)
-            ; // Chờ dữ liệu sẵn sàng
+        while (!is_ready());            
 
         unsigned long value = 0;
         for (int i = 0; i < 24; i++)
