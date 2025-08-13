@@ -6,8 +6,8 @@
 class HX711
 {
 private:
-    int PD_SCK;  // Pin Clock
-    int DOUT;    // Pin Data
+    int PD_SCK; // Pin Clock
+    int DOUT;   // Pin Data
     long OFFSET; // Giá trị offset (tare)
     float SCALE; // Hệ số scale
 
@@ -18,22 +18,26 @@ public:
     // Khởi tạo chân giao tiếp
     bool begin()
     {
-        pinMode(PD_SCK, OUTPUT);
-        pinMode(DOUT, INPUT);
-        return true;
+      pinMode(PD_SCK, OUTPUT);
+      pinMode(DOUT, INPUT);
+      return true;
     }
 
-    void set_pin(int sck, int dout)
+    void set_pin(int sck, int dout) 
     {
         PD_SCK = sck;
         DOUT = dout;
     }
 
+    bool is_ready()
+    {
+        return digitalRead(DOUT) == LOW;
+    }
+
     // Đọc giá trị raw từ HX711 (24-bit signed)
     long read()
     {
-        while (digitalRead(DOUT) == HIGH)
-            ; // Chờ dữ liệu sẵn sàng
+        while (!is_ready());            
 
         unsigned long value = 0;
         for (int i = 0; i < 24; i++)
