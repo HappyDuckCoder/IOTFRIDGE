@@ -215,7 +215,7 @@ public:
         sensorA = -0.45;
         sensorB = 2.95;
         roRatio = 3.7;     // Rs/Ro trong không khí sạch
-        threshold = 500.0; // ppm // mức chuẩn là 50.0
+        threshold = 600.0; // ppm // mức chuẩn là 50.0
     }
 };
 
