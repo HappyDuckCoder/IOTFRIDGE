@@ -125,16 +125,14 @@ def get_all_recipes():
 
 
 # ================ CONDITION ================
-def add_fridge_conditions(condition: Condition):
-    doc_ref = db.collection("Condition").document(condition.id)
-    doc = doc_ref.get()
-
-    if doc.exists:
-        doc_ref.update(condition.to_dict())
-        print("Đã cập nhật thông số tủ lạnh hiện tại.")
+def add_fridge_conditions(condition: dict):
+    doc_ref = db.collection("Condition").document("1")
+    if doc_ref.get().exists:
+        doc_ref.update(condition)
+        print("Đã cập nhật.")
     else:
-        doc_ref.set(condition.to_dict())
-        print("Đã thêm thông số tủ lạnh mới.")
+        doc_ref.set(condition)
+        print("Đã thêm mới.")
 
 def delete_fridge_conditions_by_id(doc_id: str):
     doc_ref = db.collection("Condition").document(doc_id)

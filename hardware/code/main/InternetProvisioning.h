@@ -17,8 +17,6 @@ private:
     String password;
     bool connected;
     String serverBaseURL;
-    String EmailUser; 
-    String PasswordUser;
 
 public:
     InternetProvisioning() : server(80), serverBaseURL("")
@@ -224,21 +222,21 @@ public:
         return success;
     }
 
-    bool uploadSensorData(float temp, float humi, bool is_rotted_food, int total_food, int last_open, bool is_saving_mode)
+     bool uploadSensorData(float temp, float humi, bool is_rotted_food, int total_food, int last_open, bool is_saving_mode)
     {
-        // Tạo JSON string với 5 thông số cảm biến
         String jsonData = "{";
         jsonData += "\"temp\":" + String(temp, 1) + ",";
         jsonData += "\"humi\":" + String(humi, 1) + ",";
         jsonData += "\"is_rotted_food\":" + String(is_rotted_food ? "true" : "false") + ",";
         jsonData += "\"total_food\":" + String(total_food) + ",";
         jsonData += "\"last_open\":" + String(last_open) + ",";
-        jsonData += "\"is_saving_mode\":" + String(is_saving_mode ? "true" : "false") + ",";
+        jsonData += "\"is_saving_mode\":" + String(is_saving_mode ? "true" : "false");
         jsonData += "}";
 
         Serial.println("Dữ liệu JSON gửi: " + jsonData);
         return uploadData(jsonData.c_str(), "/uploadData");
     }
+
 
     bool uploadNotification(String message, const char *link)
     {
@@ -436,11 +434,11 @@ private:
             page += "<label for='serverurl'><span class='server-icon'></span>Server Address</label>";
             page += "<input type='text' name='serverurl' id='serverurl' class='form-control' value='" + serverBaseURL + "' placeholder='http://192.168.4.11:8888'>";
 
-            page += "<label for='account_user'><span class='account-icon'></span>Account: </label>";
-            page += "<input type='text' name='account_user' id='account_user' class='form-control' value='" + EmailUser + "' placeholder='duck@gmail.com'>";
+            // page += "<label for='account_user'><span class='account-icon'></span>Account: </label>";
+            // page += "<input type='text' name='account_user' id='account_user' class='form-control' value='" + EmailUser + "' placeholder='duck@gmail.com'>";
 
-            page += "<label for='password_user'><span class='server-icon'></span>Password: </label>";
-            page += "<input type='text' name='password_user' id='password_user' class='form-control' value='" + PasswordUser + "' placeholder='********'>";
+            // page += "<label for='password_user'><span class='server-icon'></span>Password: </label>";
+            // page += "<input type='text' name='password_user' id='password_user' class='form-control' value='" + PasswordUser + "' placeholder='********'>";
 
             page += "</div>";
             page += "</div>";
@@ -467,8 +465,6 @@ private:
             String newSSID = server.arg("ssid");
             String newPASS = server.arg("pass");
             String newServerURL = server.arg("serverurl");
-            String newEmail = server.arg("user_email");
-            // String newPassword = server.arg("user_password"); // không cần
 
             saveCredentials(newSSID, newPASS, newServerURL);
             
@@ -505,11 +501,6 @@ private:
             response += "<div class='info-value'>" + newServerURL + "</div>";
             response += "</div>";
 
-            response += "<div class='info'>";
-            response += "<div class='info-label'>Email:</div>";
-            response += "<div class='info-value'>" + newEmail + "</div>";
-            response += "</div>";
-
             response += "<div class='loading'>";
             response += "<div class='spinner'></div>";
             response += "<p>Đang khởi động lại thiết bị...</p>";
@@ -531,7 +522,7 @@ private:
         WiFi.scanNetworks();
     }
 
-    void saveCredentials(String newSSID, String newPassword, String newServerURL, String newEmail, String newPassword)
+    void saveCredentials(String newSSID, String newPassword, String newServerURL)
     {
         prefs.putString("ssid", newSSID);
         prefs.putString("password", newPassword);
@@ -542,22 +533,8 @@ private:
             serverBaseURL = newServerURL;
         }
 
-        if (!newAccount.isEmpty())
-        {
-            prefs.putString("user_email", newAccount);
-            EmailUser = newEmail;
-        }
-
-        if (!newPassword.isEmpty())
-        {
-            prefs.putString("user_password", newServerURL);
-            Password = newPassword;
-        }
-
         Serial.printf("Đã lưu WiFi: %s\n", newSSID.c_str());
         Serial.printf("Đã lưu Server URL: %s\n", serverBaseURL.c_str());
-        Serial.printf("Đã lưu Email: %s\n", newEmail.c_str());
-        Serial.printf("Đã lưu Password: %s\n", newPassword.c_str());
     }
 
     bool connectToSavedWiFi()

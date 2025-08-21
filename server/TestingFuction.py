@@ -89,7 +89,7 @@ def testSendNotification():
     Notification.sendMessage(sample_text)
 
 def main():
-    testCreateRecipeFlow()
+    testSendNotification()
 
 if __name__ == "__main__":
     main()

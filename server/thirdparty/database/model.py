@@ -224,7 +224,7 @@ class Condition:
 
     def to_dict(self):
         return {
-            "id": self.id,
+            # "id": self.id,
             "temp": self.temp,
             "humi": self.humi,
             "is_rotted_food": self.is_rotted_food,
