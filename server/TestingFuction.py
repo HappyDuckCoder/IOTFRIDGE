@@ -13,6 +13,9 @@ TOP_RECIPE = 5
 def convert_audio(inp_path, out_path):
     convert_pcm_to_wav(inp_path, out_path)
 
+def get_len_food_default():
+    return len(get_all_foods())
+
 def testMicFlow():
     stt = AudioModel()
     stt.load()
@@ -88,8 +91,34 @@ def testSendNotification():
     sample_text = "test mess"
     Notification.sendMessage(sample_text)
 
+def test_monitor_food():
+    import time
+    """Theo dõi thay đổi số lượng thực phẩm và cập nhật recipe khi cần"""
+    print("Bắt đầu theo dõi thay đổi thực phẩm...")
+    old_len = get_len_food_default()
+    print(f"Bắt đầu theo dõi thay đổi thực phẩm. Số lượng hiện tại: {old_len}", flush=True)
+    
+    while True:
+        try:
+            time.sleep(5)  # Chờ 5 giây
+            current_len = get_len_food_default()
+            
+            if current_len != old_len:
+                print(f"Phát hiện thay đổi: {old_len} -> {current_len}")
+                print("Đang cập nhật thực đơn mới...")
+                old_len = current_len
+                print("Cập nhật thực đơn hoàn thành!")
+            else:
+                print(f"Không có thay đổi thực phẩm (hiện tại: {current_len})")
+                
+        except Exception as e:
+            print(f"Lỗi khi theo dõi thay đổi thực phẩm: {e}")
+            time.sleep(5)  # Tiếp tục sau 5 giây nếu có lỗi
+
 def main():
-    testSendNotification()
+    print("Testing Function Module")
+    x = get_all_foods()
+    print(x)
 
 if __name__ == "__main__":
     main()
