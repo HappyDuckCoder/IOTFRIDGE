@@ -1,1 +1,37 @@
-hihi haha
+1. INMP
+    a. Mô tả
+    - Thu âm giọng nói, thêm đồ ăn --> cập nhật firebase và sử dụng nó thể hiện trên web (chức năng xóa, cập nhật chưa test)
+    b. Các công cụ phần cứng sử dụng
+    - INMP441 
+    - 1 nút bấm 
+    c. Mô tả luồng
+    - Bấm nút ghi âm (bấm 1 lần) --> bắt đầu thu (thu = ghi và lưu vào spiff) --> bấm nút lần nữa --> chờ xử lý 
+    - lấy file có định dạng pcm --> gửi HTTP qua server python --> chờ python xử lý và phản hồi --> xóa file pcm đi
+    - server nhận file âm thanh pcm 
+        --> chuyển pcm về wav 
+        --> Wishper chuyển wav về text
+        --> text làm đầu vào cho mô hình NLP (gemini) để tách các thành phần câu. vd: thêm/4/quả/táo --> lưu vào Food
+        --> lấy action tiếp tục qua NLP --> phân loại là thêm hay xóa hay cập nhật
+        --> thực hiện task theo phân loại hành động để lưu vào firebase
+        --> từ firebase hiện lên web
+    d. Chi tiết 
+    
+https://github.com/0015/ThatProject/tree/master/ESP32_MICROPHONE/ESP32_INMP441_SPEECH_TO_TEXT
+
+2. MQ
+    a. Mô tả
+    - Đo mức độ độc của đồ ăn trong không khí, thông báo cho người dùng
+    b. Các công cụ phần cứng sử dụng
+    - MQ-2
+    - MQ-135
+    c. Mô tả luồng
+    - Đo nồng độ khí độc --> nếu vượt quá ngưỡng --> thông báo
+    d. Chi tiết 
+
+3. food suggestion 
+
+4. Notification 
+
+5. setting
+
+6. thêm thức ăn mới

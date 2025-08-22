@@ -147,8 +147,6 @@ class TaskHandling():
             print(f"Lỗi khi phân loại hành động: {e}")
             return None
 
-    # Note: sửa lại các Task with action theo food mới 
-
     def TaskWithActionAdd(self, action: str, quantity: str, unit: str, food: str): 
         # In ra hành động
         print(f"{action}: {quantity} {unit} {food}")
