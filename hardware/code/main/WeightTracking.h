@@ -74,7 +74,7 @@ private:
     }
 
 public:
-    WeightTracking(uint8_t doutPin, uint8_t sckPin, float threshold = 50.0)
+    WeightTracking(uint8_t doutPin, uint8_t sckPin, float threshold = 10.0)
         : lastWeight(0), 
           changeThreshold(threshold),
           calibrationFactor(5000.0),
@@ -148,15 +148,14 @@ public:
         updateCacheIfNeeded();
         float currentWeight = cachedWeight;
         
-        Serial.print("Current: ");
-        Serial.print(currentWeight);
-        Serial.print("g, Last: ");
-        Serial.print(lastWeight);
-        Serial.print("g, Diff: ");
-        Serial.print(fabs(currentWeight - lastWeight));
-        Serial.println("g");
-        
         if (fabs(currentWeight - lastWeight) >= changeThreshold) {
+            Serial.print("Current: ");
+            Serial.print(currentWeight);
+            Serial.print("g, Last: ");
+            Serial.print(lastWeight);
+            Serial.print("g, Diff: ");
+            Serial.print(fabs(currentWeight - lastWeight));
+            Serial.println("g");
             lastWeight = currentWeight;
             return true;
         }

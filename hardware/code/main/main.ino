@@ -9,14 +9,14 @@
 #include "INMP.h"
 #include "I2SRecorder.h"
 #include "InternetProvisioning.h"
-// #include "WeightTracking.h"
-// #include "DoorTracking.h"
+#include "WeightTracking.h"
+#include "DoorTracking.h"
 
 // =====================Define Object Section====================== //
 // Button
 Button button_mic(BUTTON_MIC_PIN);
 Button button_fan(BUTTON_FAN_PIN);
-// Button button_door(BUTTON_DOOR_PIN);
+Button button_door(BUTTON_DOOR_PIN);
 // DHT
 DHTSensor dhtSensor(DHT_PIN, DHT11);
 // MQ2, MQ135
@@ -34,8 +34,8 @@ I2SRecorder recorder(mic, I2S_READ_LEN, SAMPLE_RATE, SAMPLE_BITS, CHANNEL_NUM);
 // ap mode
 InternetProvisioning net;
 // weight + door
-// DoorTracking doorTracker(10000, 3000);                             // alertThreshold = 10s, justClosedThreshold = 3s
-// WeightTracking weightTracker(HX711_DOUT_PIN, HX711_SCK_PIN, 20.0); // Threshold = 20g
+DoorTracking doorTracker(DOOR_ALERT_TIMEOUT, DOOR_JUST_CLOSED_TIME);
+WeightTracking weightTracker(HX711_DOUT_PIN, HX711_SCK_PIN, WEIGHT_CHANGE_THRESHOLD);
 
 // TimerReader - Điều chỉnh timer cho recording mode
 HandleDelay dhtReadTimer(2000);
@@ -179,53 +179,53 @@ public:
             f.is_rotted_food = gasSystem.isSystemInDanger();
             f.total_food = 0;
             f.is_saving_mode = fanRelay.getCurrentAutomationMode();
-            // f.last_open = doorTracker.getOpenDuration();
-            f.last_open = 0;
+            f.last_open = doorTracker.getSecondsSinceLastClose();
 
             net.uploadSensorData(f.temp, f.humi, f.is_rotted_food, f.total_food, f.last_open, f.is_saving_mode);
         }
     }
 
-    // void handleDoorEvents()
-    // {
-    //     DoorState currentDoorState = DOOR_CLOSED;
-    //     if (button_door.isHeld())
-    //       currentDoorState = DOOR_CLOSED; 
-    //     else 
-    //       currentDoorState = DOOR_OPEN;
-    //     DoorState lastDoorState = doorTracker.getCurrentState();
-    //     doorTracker.setCurrentState(currentDoorState);
+    void handleDoorEvents() 
+    {
+        if (is_recording_mode)
+        {
+            return;
+        }
 
-    //     // Có hiện tượng thay đổi trạng thái đóng mở cửa tủ
-    //     if (lastDoorState != currentDoorState)
-    //     {
-    //         doorTracker.log();
-    //     }
+        DoorState currentDoorState = button_door.isHeld() ? DOOR_CLOSED : DOOR_OPEN;
+        doorTracker.setCurrentState(currentDoorState);
+        // int SecondsSinceLastClose = doorTracker.getSecondsSinceLastClose();
+        // Serial.println(SecondsSinceLastClose);
 
-    //     if (doorTracker.isDoorJustClosed())
-    //     {
-    //         delay(2000); // chờ cân không cong nữa
-    //         weightTracker.recalibrate();
-    //     }
+        // Khi cửa mở thì kiểm tra thay đổi khối lượng
+        if (doorTracker.getCurrentState() == DOOR_OPEN) {
+            if (weightTracker.isReady()) {
+                if (weightTracker.checkWeightChange()) {
+                    float w = weightTracker.getCurrentWeight();
+                    Serial.print("Có sự thay đổi trọng lượng: ");
+                    Serial.print(w);
+                    Serial.println("g");
+                    Serial.println("NOTI: có sự thay đổi trọng lượng");
 
-    //     if (weightTracker.checkWeightChange())
-    //     {
-    //         float currentWeight = weightTracker.getCurrentWeight();
-    //         Serial.print("Weight change detected! New weight: ");
-    //         Serial.print(currentWeight);
-    //         Serial.println("g");
-    //     }
+                    net.uploadNotification("Thông báo: có sự thay đổi trọng lượng", "/uploadNotification");
+                }
+            }
+        }
 
-    //     if (doorTracker.isAlertNeeded())
-    //     {
-    //         Serial.println("ALERT: Door has been open too long!");
-    //         Serial.print("Open duration: ");
-    //         Serial.print(doorTracker.getOpenDuration() / 1000 / 60);
-    //         Serial.println(" minutes");
+        // Cảnh báo cửa mở lâu
+        if (doorTracker.isAlertNeeded()) {
+            Serial.println("ALERT: cửa mở quá lâu");
 
-    //         net.uploadNotification("Cảnh cáo: quên đóng cửa tủ!", "/uploadNotification");
-    //     }
-    // }
+            net.uploadNotification("ALERT: cửa mở quá lâu!, hãy đóng cửa", "/uploadNotification");
+        }
+
+        // Cửa vừa đóng thì hiệu chuẩn lại cân
+        if (doorTracker.isDoorJustClosed()) {
+            Serial.println("Door just closed - recalibrating");
+            delay(2000);
+            weightTracker.recalibrate();
+        }
+    }
 
     // xử lý luồng thêm, xóa thức ăn - CHÍNH
     void handleRecord()
@@ -299,10 +299,10 @@ void setup()
         Serial.println("Button Fan khởi tạo thành công");
     else
         Serial.println("Button Fan khởi tạo thất bại");
-    // if (button_door.begin())
-    //     Serial.println("Button Door khởi tạo thành công");
-    // else
-    //     Serial.println("Button Door khởi tạo thất bại");
+    if (button_door.begin())
+        Serial.println("Button Door khởi tạo thành công");
+    else
+        Serial.println("Button Door khởi tạo thất bại");
 
     // gas begin
     if (gasSystem.begin())
@@ -341,10 +341,10 @@ void setup()
         Serial.println("INMP khởi tạo thất bại");
 
     // weight begin
-    // if (weightTracker.begin())
-    //     Serial.println("cân khởi tạo thành công");
-    // else
-    //     Serial.println("cân khởi tạo thất bại");
+    if (!weightTracker.begin())
+        Serial.println("Weight khởi tạo thất bại");
+    else
+        Serial.println("Weight khởi tạo thành công");
 
     // ap mode begin
     if (net.begin())
@@ -376,7 +376,7 @@ void loop()
     handle.handleRelay();
 
     // xử lý luồng 3: kiểm tra xem đã thêm thức ăn hay chưa - PAUSE khi recording
-    // handle.handleDoorEvents();
+    handle.handleDoorEvents();
 
     // xử lý luồng 4: cảnh báo có đồ ăn bị hư - PAUSE khi recording
     handle.handleSensors();

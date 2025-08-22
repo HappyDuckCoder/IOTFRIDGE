@@ -55,12 +55,61 @@ public:
         lastState = currentState;
     }
 
+    int getLastTimeOpen() {
+        static unsigned long lastCloseMs = 0;
+
+        // Nếu vừa có chuyển trạng thái OPEN -> CLOSED thì ghi nhận mốc
+        if (isTransition(DOOR_OPEN, DOOR_CLOSED)) {
+            lastCloseMs = millis();
+        }
+
+        // Nếu chưa từng đóng thì trả về -1
+        if (lastCloseMs == 0) return -1;
+
+        unsigned long now = millis();
+        unsigned long elapsedMs = (now >= lastCloseMs)
+                                    ? (now - lastCloseMs)
+                                    : (ULONG_MAX - lastCloseMs + now + 1);
+
+        return (int)(elapsedMs / 1000UL); // đổi sang giây
+    }
+
+    int getSecondsSinceLastClose() {
+        static DoorState prevState = DOOR_CLOSED;
+        static unsigned long lastCloseMs = 0;
+
+        unsigned long now = millis();
+
+        // Ghi mốc khi chuyển OPEN -> CLOSED
+        if (prevState != DOOR_CLOSED && currentState == DOOR_CLOSED) {
+            lastCloseMs = now;
+        }
+        // Cập nhật prevState mỗi lần gọi để lần sau phát hiện transition đúng
+        prevState = currentState;
+
+        // Chưa từng đóng lần nào
+        if (lastCloseMs == 0) return -1;
+
+        // Trả về số giây kể từ lần đóng gần nhất (kể cả khi hiện tại đang mở)
+        return (int)((now - lastCloseMs) / 1000UL);
+    }
+
+    void printSecondsSinceLastClose() {
+        int t = getSecondsSinceLastClose();
+        if (t >= 0) { // -1 nghĩa là chưa có lần đóng nào
+            Serial.print("tổng: ");
+            Serial.print(t);
+            Serial.println(" giây kể từ lần đóng cửa cuối");
+        }
+    }
+
+
+
     bool isAlertNeeded() {
         // Chỉ check alert khi cửa đang mở và chưa gửi alert
         if (currentState == DOOR_OPEN && !alertSent) {
             const unsigned long currentTime = millis();
             
-            // Xử lý overflow của millis() (xảy ra sau ~50 ngày)
             const unsigned long elapsed = (currentTime >= openStartTime) 
                 ? (currentTime - openStartTime)
                 : (ULONG_MAX - openStartTime + currentTime + 1);

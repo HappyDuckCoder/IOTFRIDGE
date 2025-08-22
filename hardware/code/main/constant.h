@@ -40,6 +40,10 @@
 // HX711
 #define HX711_SCK_PIN 4
 #define HX711_DOUT_PIN 5
+#define WEIGHT_CHANGE_THRESHOLD 10.0f  // 50 g
+#define DOOR_ALERT_TIMEOUT 10000UL     // 30 s cửa mở thì cảnh báo
+#define DOOR_JUST_CLOSED_TIME 3000UL  // < 20 s kể từ lúc đóng => "just closed"
+#define PUSH_MIN_INTERVAL_MS 60000UL   // tối thiểu 1 phút giữa 2 lần đẩy
 
 struct FridgeData
 {
