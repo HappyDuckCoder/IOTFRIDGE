@@ -222,7 +222,7 @@ public:
         return success;
     }
 
-     bool uploadSensorData(float temp, float humi, bool is_rotted_food, int total_food, int last_open, bool is_saving_mode)
+    bool uploadSensorData(float temp, float humi, bool is_rotted_food, int total_food, int last_open, bool is_saving_mode)
     {
         String jsonData = "{";
         jsonData += "\"temp\":" + String(temp, 1) + ",";

@@ -120,7 +120,7 @@ public:
             }
         }
         else
-        {
+        {   
             // SKIP DHT reading nếu đang recording để tránh xung đột
             if (is_recording_mode)
             {
