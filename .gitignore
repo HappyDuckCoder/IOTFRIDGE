@@ -10,4 +10,6 @@ __pycache__/
 /webs
 
 # Bỏ qua configurations
-configurations.json
+configuration.json
+*.serviceaccount.json
+*.firebase.json
