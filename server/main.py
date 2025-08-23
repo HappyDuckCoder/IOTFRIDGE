@@ -114,7 +114,7 @@ def send_setting_to_esp(ip="192.168.1.1", port=8000):
 
 def send_data_to_firebase(data):
     no_food = get_len_food_default()
-    data["food_count"] = no_food
+    data["total_food"] = no_food
     add_fridge_conditions(data)
 
 def handle_add_food():
