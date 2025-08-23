@@ -4,7 +4,7 @@ from thirdparty.services.FoodSuggested import FoodSuggestedService
 from thirdparty.api.SpeechToText import AudioModel
 from thirdparty.database.method import get_all_foods
 from thirdparty.api.GetRecipe import GetRecipeService
-from thirdparty.database.method import add_recipe, get_setting_by_id
+from thirdparty.database.method import add_recipe, get_setting_by_id, add_fridge_conditions
 from thirdparty.services.notification import Notification
 
 TOP_FOOD = 3
@@ -115,10 +115,20 @@ def test_monitor_food():
             print(f"Lỗi khi theo dõi thay đổi thực phẩm: {e}")
             time.sleep(5)  # Tiếp tục sau 5 giây nếu có lỗi
 
+def test_up_condition(data):
+    no_food = get_len_food_default()
+    data["total_food"] = no_food
+    add_fridge_conditions(data)
+
 def main():
-    print("Testing Function Module")
-    x = get_all_foods()
-    print(x)
+    test_up_condition({
+        "temp": 4,
+        "humi": 70,
+        "is_rotted_food": False,
+        "total_food": 0,
+        "last_open": -1,
+        "is_saving_mode": False,
+    })
 
 if __name__ == "__main__":
     main()
